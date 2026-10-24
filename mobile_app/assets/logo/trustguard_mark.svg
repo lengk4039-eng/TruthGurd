@@ -1,0 +1,11 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trustguardTileGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8B5CF6"/>
+      <stop offset="1" stop-color="#6D28D9"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="44" fill="url(#trustguardTileGrad)"/>
+  <path d="M100 40 C100 40 63 53 63 53 C56 55.5 51 61 51 68.5 L51 111 C51 141 70 160 100 173 C130 160 149 141 149 111 L149 68.5 C149 61 144 55.5 137 53 C137 53 100 40 100 40 Z" fill="#FFFFFF"/>
+  <path d="M71 108 L92 130 L133 80" fill="none" stroke="#5B21B6" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

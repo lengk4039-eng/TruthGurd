@@ -1,0 +1,1755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TrustGuard Admin Desk</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --surface: #ffffff;
+      --surface-soft: #fafbfe;
+      --primary: #6d28d9;
+      --primary-strong: #5b21b6;
+      --primary-soft: #f3eefe;
+      --text: #101828;
+      --muted: #667085;
+      --muted-2: #98a2b3;
+      --border: #e4e7ec;
+      --border-strong: #d0d5dd;
+      --success: #067647;
+      --success-soft: #ecfdf3;
+      --warning: #b54708;
+      --warning-soft: #fffaeb;
+      --error: #b42318;
+      --error-soft: #fef3f2;
+      --info: #175cd3;
+      --info-soft: #eff8ff;
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
+      --shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+    }
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { margin: 0; letter-spacing: -0.015em; font-weight: 650; }
+    p { margin: 0; }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 12.5px; }
+    button { font-family: inherit; }
+    .hidden { display: none !important; }
+    .muted { color: var(--muted); }
+    .small { font-size: 12.5px; }
+
+    /* ---------- Buttons & form controls ---------- */
+    .btn, button.btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      height: 38px; padding: 0 14px;
+      border-radius: var(--radius-sm); border: 1px solid transparent;
+      background: var(--primary); color: #fff;
+      font-size: 13.5px; font-weight: 600; cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+      white-space: nowrap;
+    }
+    .btn:hover, button.btn:hover { background: var(--primary-strong); }
+    .btn:focus-visible, button:focus-visible {
+      outline: none; box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.18);
+    }
+    .btn.secondary { background: #fff; color: var(--text); border-color: var(--border-strong); }
+    .btn.secondary:hover { background: var(--surface-soft); }
+    .btn.ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+    .btn.ghost:hover { background: var(--surface-soft); color: var(--text); }
+    .btn.danger { background: #fff; color: var(--error); border-color: #fda29b; }
+    .btn.danger:hover { background: var(--error-soft); }
+    .btn.sm { height: 32px; padding: 0 11px; font-size: 12.5px; border-radius: 7px; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; padding: 0;
+      background: transparent; color: var(--muted);
+      border: 1px solid transparent; border-radius: 9px; cursor: pointer;
+    }
+    .icon-btn:hover { background: var(--surface-soft); border-color: var(--border); color: var(--text); }
+    .link-btn {
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: var(--primary); font-size: 13px; font-weight: 600;
+    }
+    .link-btn:hover { text-decoration: underline; }
+    label { display: block; font-size: 12.5px; font-weight: 600; color: #344054; margin: 0 0 6px; }
+    input, textarea, select {
+      width: 100%; height: 40px; padding: 0 12px;
+      border: 1px solid var(--border-strong); border-radius: 9px;
+      background: #fff; color: var(--text); font-size: 14px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    textarea { height: auto; padding: 10px 12px; resize: vertical; min-height: 84px; }
+    select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23667085' stroke-width='1.7'%3E%3Cpath d='m4 6 4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 32px; }
+    input:focus, textarea:focus, select:focus {
+      outline: none; border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.12);
+    }
+    .field { margin-bottom: 16px; }
+    .field-hint { margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+    .error, .success {
+      padding: 10px 12px; border-radius: 9px; font-size: 13px;
+      margin-bottom: 14px; line-height: 1.45; border: 1px solid transparent;
+    }
+    .error { background: var(--error-soft); color: var(--error); border-color: #fecdca; }
+    .success { background: var(--success-soft); color: var(--success); border-color: #abefc6; }
+    .note {
+      display: flex; gap: 8px; align-items: flex-start;
+      background: var(--info-soft); color: var(--info);
+      border: 1px solid #b2ddff; border-radius: 9px;
+      padding: 10px 12px; font-size: 12.5px; line-height: 1.5;
+    }
+
+    /* ---------- Auth ---------- */
+    .auth-stage {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      padding: 24px 16px;
+      background:
+        radial-gradient(900px 480px at 12% -10%, rgba(109, 40, 217, .10), transparent 60%),
+        radial-gradient(700px 420px at 105% 100%, rgba(23, 92, 211, .07), transparent 55%),
+        var(--bg);
+    }
+    .auth-shell { width: 100%; max-width: 420px; }
+    .auth-brand-line {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin-bottom: 20px;
+    }
+    .brand-mark {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, #7c3aed, #5b21b6);
+      color: #fff; display: grid; place-items: center;
+      font-weight: 700; font-size: 13px; letter-spacing: .02em;
+      box-shadow: 0 6px 16px rgba(109, 40, 217, .28);
+    }
+    .brand-name { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+    .brand-sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+    .auth-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; box-shadow: var(--shadow); padding: 28px;
+    }
+    .auth-card h2 { font-size: 21px; margin-bottom: 6px; }
+    .auth-card > p, .auth-intro { color: var(--muted); font-size: 13.5px; line-height: 1.55; margin-bottom: 22px; }
+    .auth-meta {
+      margin-top: 18px; padding: 12px 14px; border-radius: 10px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+      font-size: 12.5px; color: var(--muted); line-height: 1.6;
+    }
+    .auth-meta strong { color: var(--text); font-weight: 600; }
+    .auth-links { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; }
+    .auth-links .linkish {
+      background: none; border: none; padding: 0; cursor: pointer;
+      color: var(--primary); font-size: 13px; font-weight: 600;
+    }
+    .auth-links .linkish.muted-link { color: var(--muted); font-weight: 500; }
+    .auth-support {
+      margin-top: 12px; padding: 12px 14px; border-radius: 10px;
+      border: 1px solid var(--border); font-size: 12.5px; color: var(--muted); line-height: 1.65;
+    }
+    .auth-support strong { display: block; color: var(--text); font-size: 12.5px; margin-bottom: 2px; }
+
+    /* ---------- App shell ---------- */
+    .admin-shell { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 248px; flex: 0 0 248px;
+      margin: 14px 0 14px 14px; padding: 18px 14px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; box-shadow: var(--shadow-sm);
+      display: flex; flex-direction: column;
+      position: sticky; top: 14px; height: calc(100vh - 28px);
+    }
+    .side-brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 18px; }
+    .nav-group-label {
+      padding: 0 10px; margin: 14px 0 6px;
+      font-size: 10.5px; font-weight: 650; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--muted-2);
+    }
+    .nav-btn {
+      width: 100%; display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; margin-bottom: 2px;
+      background: transparent; border: none; border-radius: 9px;
+      color: #475467; font-size: 13.5px; font-weight: 550;
+      text-align: left; cursor: pointer; transition: background .12s ease, color .12s ease;
+    }
+    .nav-btn svg { width: 18px; height: 18px; flex: 0 0 18px; color: var(--muted); }
+    .nav-btn:hover { background: var(--surface-soft); color: var(--text); }
+    .nav-btn.active { background: var(--primary-soft); color: var(--primary); font-weight: 650; }
+    .nav-btn.active svg { color: var(--primary); }
+    .side-spacer { flex: 1; }
+    .side-support {
+      margin: 12px 4px 10px; padding: 12px; border-radius: 12px;
+      background: var(--surface-soft); border: 1px solid var(--border);
+    }
+    .side-support .label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted-2); font-weight: 650; }
+    .side-support .line { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; word-break: break-word; }
+    .side-support a { color: inherit; text-decoration: none; }
+    .side-support a:hover { color: var(--primary); }
+    .side-support .email-line { line-height: 1.45; }
+    .side-user { display: flex; align-items: center; gap: 10px; padding: 10px 8px 4px; border-top: 1px solid var(--border); }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 10px; flex: 0 0 34px;
+      display: grid; place-items: center;
+      background: var(--primary-soft); color: var(--primary);
+      font-size: 12px; font-weight: 700;
+    }
+    .side-user .name { font-size: 13px; font-weight: 600; line-height: 1.25; }
+    .side-user .role { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+    .side-user .btn { margin-left: auto; }
+
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 32px;
+      background: rgba(245, 246, 250, 0.88); backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+    .tb-title h1 { font-size: 19px; line-height: 1.25; }
+    .tb-title p { margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+    .tb-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .topbar-user { display: flex; align-items: center; gap: 9px; padding-left: 12px; border-left: 1px solid var(--border); }
+    .topbar-user .name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+    .topbar-user .role { font-size: 11px; color: var(--muted); }
+    .lang-wrap { display: flex; align-items: center; gap: 7px; }
+    .lang-wrap label { margin: 0; font-weight: 500; color: var(--muted); font-size: 12px; }
+    .lang-wrap select { height: 34px; width: auto; padding: 0 30px 0 10px; font-size: 12.5px; border-radius: 8px; }
+    .content { padding: 24px 32px 48px; max-width: 1400px; width: 100%; margin: 0 auto; }
+    .content > .error, .content > .success { position: sticky; top: 76px; z-index: 15; }
+
+    /* ---------- Cards & layout ---------- */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+    }
+    .card-pad { padding: 20px; }
+    .card-head {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+    }
+    .card-head h3 { font-size: 15px; }
+    .card-head p { margin-top: 3px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .card-head .spacer { flex: 1; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(172px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
+      padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px;
+    }
+    .stat-icon {
+      width: 38px; height: 38px; flex: 0 0 38px; border-radius: 10px;
+      display: grid; place-items: center;
+    }
+    .stat-icon svg { width: 18px; height: 18px; }
+    .tone-indigo { background: var(--primary-soft); color: var(--primary); }
+    .tone-green { background: var(--success-soft); color: var(--success); }
+    .tone-amber { background: var(--warning-soft); color: var(--warning); }
+    .tone-red { background: var(--error-soft); color: var(--error); }
+    .tone-blue { background: var(--info-soft); color: var(--info); }
+    .stat .value { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+    .stat .label { margin-top: 3px; font-size: 12px; color: var(--muted); }
+    .dashboard-grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 16px; margin-bottom: 20px; }
+    @media (max-width: 960px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    .quick-list { padding: 8px; }
+    .quick-row {
+      width: 100%; display: flex; align-items: center; gap: 12px;
+      padding: 12px; border-radius: 10px; border: 1px solid transparent;
+      background: transparent; text-align: left; cursor: pointer; color: var(--text);
+    }
+    .quick-row:hover { background: var(--surface-soft); border-color: var(--border); }
+    .quick-row .q-icon {
+      width: 34px; height: 34px; border-radius: 9px; flex: 0 0 34px;
+      display: grid; place-items: center; background: var(--primary-soft); color: var(--primary);
+    }
+    .quick-row .q-icon svg { width: 17px; height: 17px; }
+    .quick-row strong { display: block; font-size: 13.5px; font-weight: 600; }
+    .quick-row span { display: block; margin-top: 2px; font-size: 12px; color: var(--muted); }
+    .quick-row .chev { margin-left: auto; color: var(--muted-2); font-size: 16px; }
+    .recent-list { padding: 6px 0; }
+    .recent-row {
+      display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+      border-bottom: 1px solid var(--border); cursor: default;
+    }
+    .recent-row:last-child { border-bottom: none; }
+    .recent-row .who { flex: 1; min-width: 0; }
+    .recent-row .who strong { display: block; font-size: 13px; font-weight: 600; }
+    .recent-row .who span { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .recent-row .amt { font-size: 13px; font-weight: 600; white-space: nowrap; }
+    .empty { text-align: center; padding: 36px 16px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .empty svg { width: 28px; height: 28px; color: var(--muted-2); margin-bottom: 8px; }
+    .system-card { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; padding: 16px 20px; }
+    .system-card .sys-item .k { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); font-weight: 650; }
+    .system-card .sys-item .v { margin-top: 3px; font-size: 13px; color: #344054; }
+    .system-card code { background: var(--surface-soft); border: 1px solid var(--border); padding: 2px 6px; border-radius: 5px; }
+
+    /* ---------- Panels, filters, tables ---------- */
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .panel-head {
+      display: flex; flex-wrap: wrap; align-items: flex-start; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .panel-head h2 { font-size: 17px; }
+    .panel-head p { margin-top: 4px; font-size: 12.5px; color: var(--muted); line-height: 1.5; }
+    .panel-head .spacer { flex: 1; }
+    .toolbar-right { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .filters { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+    .chip {
+      border: none; background: transparent; color: var(--muted);
+      border-radius: 7px; padding: 6px 12px; font-size: 12.5px; font-weight: 550; cursor: pointer;
+    }
+    .chip:hover { color: var(--text); background: var(--surface-soft); }
+    .chip.active { background: var(--primary-soft); color: var(--primary); font-weight: 650; }
+    .table-card { overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      text-align: left; padding: 12px 16px; vertical-align: middle;
+      font-size: 13px; border-bottom: 1px solid var(--border);
+    }
+    th {
+      color: var(--muted); font-weight: 650; font-size: 10.5px;
+      text-transform: uppercase; letter-spacing: .05em;
+      background: var(--surface-soft); white-space: nowrap;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #fcfbff; }
+    td .primary { font-weight: 600; color: var(--text); }
+    td .sub { margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.4; }
+    td.num { font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+    .cell-person { display: flex; align-items: center; gap: 10px; }
+    .cell-person .avatar { width: 30px; height: 30px; flex-basis: 30px; border-radius: 8px; font-size: 10.5px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      border-radius: 999px; padding: 3px 9px;
+      font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .badge::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .badge.PENDING, .badge.SUBMITTED, .badge.UNDER_REVIEW, .badge.DUE_SOON, .badge.PROCESSING {
+      color: var(--warning); background: var(--warning-soft);
+    }
+    .badge.QUOTED, .badge.ACTIVE, .badge.PAID, .badge.ACCEPTED, .badge.APPROVED, .badge.ADMIN, .badge.CUSTOMER {
+      color: var(--success); background: var(--success-soft);
+    }
+    .badge.REJECTED, .badge.EXPIRED, .badge.OVERDUE, .badge.FAILED, .badge.CANCELLED {
+      color: var(--error); background: var(--error-soft);
+    }
+    .badge.INFO, .badge.SALES { color: var(--info); background: var(--info-soft); }
+    .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .support-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .support-tile { padding: 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-soft); }
+    .support-tile .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted-2); font-weight: 650; }
+    .support-tile .v { margin-top: 6px; font-size: 14px; font-weight: 600; word-break: break-word; }
+    .support-tile .hint { margin-top: 8px; font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* ---------- Dialogs ---------- */
+    dialog {
+      border: none; border-radius: 16px; padding: 0;
+      width: min(520px, calc(100vw - 24px));
+      box-shadow: 0 24px 60px rgba(16, 24, 40, 0.22);
+    }
+    dialog.wide { width: min(760px, calc(100vw - 24px)); }
+    dialog::backdrop { background: rgba(16, 24, 40, 0.45); backdrop-filter: blur(2px); }
+    .dialog-header {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 18px 20px; border-bottom: 1px solid var(--border);
+    }
+    .dialog-header .eyebrow { font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted-2); font-weight: 650; }
+    .dialog-header h3 { margin-top: 3px; font-size: 17px; }
+    .dialog-header .sub { margin-top: 3px; font-size: 12.5px; color: var(--muted); }
+    .dialog-header .icon-btn { margin-left: auto; }
+    .dialog-body { padding: 18px 20px; max-height: 66vh; overflow-y: auto; }
+    .dialog-footer {
+      padding: 14px 20px; display: flex; justify-content: flex-end; gap: 8px;
+      border-top: 1px solid var(--border); background: var(--surface-soft);
+      border-radius: 0 0 16px 16px;
+    }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin-bottom: 16px; }
+    .detail-grid .k { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); font-weight: 650; }
+    .detail-grid .v { margin-top: 3px; font-size: 13px; font-weight: 500; line-height: 1.45; }
+    .detail-grid .v .sub { margin-top: 2px; font-weight: 400; font-size: 11.5px; color: var(--muted); }
+    .detail-block { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 4px; margin-bottom: 16px; }
+    .detail-block .k { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-2); font-weight: 650; margin-bottom: 6px; }
+    .detail-block .v { font-size: 13px; line-height: 1.6; color: #344054; white-space: pre-wrap; }
+    .preview-panel {
+      background: var(--primary-soft); border: 1px solid #e4d7fb;
+      border-radius: 11px; padding: 12px 14px; margin-bottom: 16px;
+    }
+    .preview-panel .label { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); font-weight: 700; }
+    .preview-panel .text { margin-top: 5px; font-size: 12.5px; line-height: 1.55; color: #4a1d8a; }
+    .note-required { color: var(--error); font-size: 11.5px; font-weight: 600; margin-left: 4px; }
+    @media (max-width: 1240px) {
+      th, td { padding: 10px 11px; font-size: 12.5px; }
+      th { font-size: 10px; letter-spacing: .04em; }
+      .badge { padding: 3px 8px; font-size: 10.5px; }
+    }
+    @media (max-width: 1100px) {
+      .sidebar { width: 214px; flex-basis: 214px; }
+      .content, .topbar { padding-left: 22px; padding-right: 22px; }
+      .side-support .line { font-size: 11.5px; }
+    }
+    @media (max-width: 860px) {
+      .admin-shell { flex-direction: column; }
+      .sidebar {
+        width: auto; flex-basis: auto; position: static; height: auto;
+        margin: 10px; padding: 10px; flex-direction: row; flex-wrap: wrap; align-items: center;
+      }
+      .side-brand { padding: 0 10px 0 0; }
+      .side-brand .brand-sub { display: none; }
+      .nav-group-label, .side-support, .side-user { display: none; }
+      .nav-btn { width: auto; margin: 2px; }
+      .side-spacer { display: none; }
+      .topbar { flex-wrap: wrap; padding: 14px 16px; }
+      .content { padding: 16px; }
+      .topbar-user .role { display: none; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ======================= AUTH ======================= -->
+  <div class="auth-stage" id="authStage">
+    <div id="loginView" class="auth-shell">
+      <div class="auth-brand-line">
+        <div class="brand-mark">TG</div>
+        <div>
+          <div class="brand-name">TrustGuard</div>
+          <div class="brand-sub">Admin Desk</div>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h2 data-i18n="admin_sign_in">Admin sign in</h2>
+        <p class="auth-intro" data-i18n="admin_sub">Manage quotations, policies, payments, claims, and more.</p>
+        <div id="loginError" class="error hidden"></div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" value="admin@trustguard.example" autocomplete="username" />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" value="Password123" autocomplete="current-password" />
+        </div>
+        <button id="loginBtn" type="button" class="btn" style="width:100%;height:42px" data-i18n="sign_in">Sign in</button>
+        <div class="auth-links">
+          <span class="muted small">Seeded admin access</span>
+          <button type="button" class="linkish" id="showForgotBtn" data-i18n="forgot_password">Forgot password?</button>
+        </div>
+        <div class="auth-meta">
+          <div><strong>admin@trustguard.example</strong> / <strong>Password123</strong></div>
+        </div>
+        <div class="auth-support">
+          <strong>Customer support</strong>
+          +855 87908470 · Insurancehelpcenter12@gmail.com
+        </div>
+      </div>
+    </div>
+
+    <div id="forgotView" class="auth-shell hidden">
+      <div class="auth-brand-line">
+        <div class="brand-mark">TG</div>
+        <div>
+          <div class="brand-name">TrustGuard</div>
+          <div class="brand-sub">Admin Desk</div>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h2 data-i18n="forgot_password">Forgot password</h2>
+        <p class="auth-intro">Enter the admin email. We'll send a reset code when mail is enabled; otherwise check the API logs.</p>
+        <div id="forgotError" class="error hidden"></div>
+        <div id="forgotOk" class="success hidden"></div>
+        <div class="field">
+          <label for="forgotEmail">Email</label>
+          <input id="forgotEmail" type="email" value="admin@trustguard.example" />
+        </div>
+        <button id="forgotBtn" type="button" class="btn" style="width:100%;height:42px" data-i18n="send_reset">Send reset code</button>
+        <div class="auth-links">
+          <button type="button" class="linkish" id="forgotToResetBtn" data-i18n="already_code">I already have a code</button>
+          <button type="button" class="linkish muted-link" id="forgotBackBtn" data-i18n="back_login">Back to login</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="resetView" class="auth-shell hidden">
+      <div class="auth-brand-line">
+        <div class="brand-mark">TG</div>
+        <div>
+          <div class="brand-name">TrustGuard</div>
+          <div class="brand-sub">Admin Desk</div>
+        </div>
+      </div>
+      <div class="auth-card">
+        <h2 data-i18n="new_password">New password</h2>
+        <p class="auth-intro">Enter the reset code and choose a new password (min. 6 characters).</p>
+        <div id="resetError" class="error hidden"></div>
+        <div id="resetOk" class="success hidden"></div>
+        <div class="field">
+          <label for="resetToken">Reset code</label>
+          <input id="resetToken" type="text" autocomplete="one-time-code" placeholder="Paste code from email or logs" />
+        </div>
+        <div class="field">
+          <label for="resetPassword">New password</label>
+          <input id="resetPassword" type="password" minlength="6" autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label for="resetPassword2">Confirm password</label>
+          <input id="resetPassword2" type="password" minlength="6" autocomplete="new-password" />
+        </div>
+        <button id="resetBtn" type="button" class="btn" style="width:100%;height:42px" data-i18n="update_password">Update password</button>
+        <div class="auth-links">
+          <span></span>
+          <button type="button" class="linkish muted-link" id="resetBackBtn" data-i18n="back_login">Back to login</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= DESK ======================= -->
+  <div id="deskView" class="hidden">
+    <div class="admin-shell">
+      <aside class="sidebar">
+        <div class="side-brand">
+          <div class="brand-mark">TG</div>
+          <div>
+            <div class="brand-name" data-i18n="app_title">TrustGuard Admin</div>
+            <div class="brand-sub" data-i18n="app_sub">Sales · Operations · Support</div>
+          </div>
+        </div>
+        <div class="nav-group-label">Workspace</div>
+        <nav id="sideNav">
+          <button class="nav-btn active" data-tab="dashboard" type="button" data-i18n="dashboard">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+            Dashboard
+          </button>
+          <button class="nav-btn" data-tab="claims" type="button" data-i18n="claims">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 13 2 2 4-4"/></svg>
+            Claims
+          </button>
+          <button class="nav-btn" data-tab="quotations" type="button" data-i18n="quotations">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+            Quotations
+          </button>
+          <button class="nav-btn" data-tab="policies" type="button" data-i18n="policies">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>
+            Policies
+          </button>
+          <button class="nav-btn" data-tab="payments" type="button" data-i18n="payments">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+            Payments
+          </button>
+          <div class="nav-group-label">Directory</div>
+          <button class="nav-btn" data-tab="users" type="button" data-i18n="users">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Users
+          </button>
+          <button class="nav-btn" data-tab="packages" type="button" data-i18n="packages">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="m3 8v8l9 5 9-5V8M12 13v8"/></svg>
+            Packages
+          </button>
+          <button class="nav-btn" data-tab="support" type="button" data-i18n="help_support">
+            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg>
+            Help &amp; support
+          </button>
+        </nav>
+        <div class="side-spacer"></div>
+        <div class="side-support">
+          <div class="label">Support line</div>
+          <div class="line"><a href="tel:+85587908470">+855 87908470</a></div>
+          <div class="line email-line">Insurancehelpcenter12<br />@gmail.com</div>
+        </div>
+        <div class="side-user">
+          <div class="avatar" id="sideAvatar">TA</div>
+          <div>
+            <div class="name" id="sideUserName">TrustGuard Admin</div>
+            <div class="role" id="sideUserRole">Administrator</div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="main">
+        <div class="topbar">
+          <div class="tb-title">
+            <h1 id="pageTitle">Dashboard</h1>
+            <p id="pageSub">Business overview and what needs attention</p>
+          </div>
+          <div class="tb-actions">
+            <div class="lang-wrap">
+              <label for="langSelect" data-i18n="language">Language</label>
+              <select id="langSelect">
+                <option value="en">English</option>
+                <option value="km">ភាសាខ្មែរ</option>
+              </select>
+            </div>
+            <div id="headerUser" class="topbar-user hidden">
+              <div class="avatar" id="topAvatar">TA</div>
+              <div>
+                <div class="name" id="adminName">TrustGuard Admin</div>
+                <div class="role">Administrator</div>
+              </div>
+              <button class="btn secondary sm" id="logoutBtn" type="button" data-i18n="logout">Log out</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="content">
+          <div id="globalError" class="error hidden"></div>
+          <div id="globalOk" class="success hidden"></div>
+
+          <!-- Dashboard -->
+          <section class="panel active" id="panel-dashboard">
+            <div class="stats" id="dashStats"></div>
+            <div class="dashboard-grid">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h3>Operations queue</h3>
+                    <p>Jump straight into the work that moves the business forward.</p>
+                  </div>
+                </div>
+                <div class="quick-list">
+                  <button type="button" class="quick-row" data-goto="quotations">
+                    <span class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>
+                    <div><strong>Review quotations</strong><span>Price requests waiting for a response</span></div>
+                    <span class="chev">›</span>
+                  </button>
+                  <button type="button" class="quick-row" data-goto="claims">
+                    <span class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="m9 13 2 2 4-4"/></svg></span>
+                    <div><strong>Claims desk</strong><span>Review evidence and notify customers</span></div>
+                    <span class="chev">›</span>
+                  </button>
+                  <button type="button" class="quick-row" data-goto="payments">
+                    <span class="q-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+                    <div><strong>Pending payments</strong><span>Chase installments that are due or overdue</span></div>
+                    <span class="chev">›</span>
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h3>Recent claims</h3>
+                    <p>Latest submissions across all policies.</p>
+                  </div>
+                  <div class="spacer"></div>
+                  <button class="link-btn" type="button" data-goto="claims">View all</button>
+                </div>
+                <div id="recentClaims" class="recent-list">
+                  <div class="empty">Loading claims…</div>
+                </div>
+              </div>
+            </div>
+            <div class="card system-card">
+              <div class="sys-item">
+                <div class="k">Environment</div>
+                <div class="v">Local demo · H2 database</div>
+              </div>
+              <div class="sys-item">
+                <div class="k">API base</div>
+                <div class="v"><code id="apiHint"></code></div>
+              </div>
+              <div class="sys-item">
+                <div class="k">Customer app</div>
+                <div class="v">Connected via live API (<code>useMockData = false</code>)</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Quotations -->
+          <section class="panel" id="panel-quotations">
+            <div class="panel-head">
+              <div>
+                <h2>Quotations</h2>
+                <p>Respond with a premium and validity window — customers are notified in-app.</p>
+              </div>
+              <div class="spacer"></div>
+              <div class="toolbar-right">
+                <div class="filters" id="quoteFilters">
+                  <button class="chip active" data-filter="ALL" type="button">All</button>
+                  <button class="chip" data-filter="PENDING" type="button">Pending</button>
+                  <button class="chip" data-filter="QUOTED" type="button">Quoted</button>
+                  <button class="chip" data-filter="ACCEPTED" type="button">Accepted</button>
+                  <button class="chip" data-filter="REJECTED" type="button">Rejected</button>
+                </div>
+                <button class="btn secondary sm" type="button" data-refresh="quotations">Refresh</button>
+              </div>
+            </div>
+            <div class="card table-card">
+              <div id="emptyQuotes" class="empty hidden">No quotations found.</div>
+              <div class="table-wrap">
+                <table id="quoteTable" class="hidden">
+                  <thead>
+                    <tr><th>Customer</th><th>Package</th><th>Status</th><th>Requested</th><th>Price</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody id="quoteBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Policies -->
+          <section class="panel" id="panel-policies">
+            <div class="panel-head">
+              <div>
+                <h2>Policies</h2>
+                <p>Active, pending, and expired cover across the book.</p>
+              </div>
+              <div class="spacer"></div>
+              <button class="btn secondary sm" type="button" data-refresh="policies">Refresh</button>
+            </div>
+            <div class="card table-card">
+              <div id="emptyPolicies" class="empty hidden">No policies yet.</div>
+              <div class="table-wrap">
+                <table id="policyTable" class="hidden">
+                  <thead>
+                    <tr><th>Policy</th><th>Package</th><th>Status</th><th>Premium</th><th>Paid</th><th>Period</th></tr>
+                  </thead>
+                  <tbody id="policyBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Payments -->
+          <section class="panel" id="panel-payments">
+            <div class="panel-head">
+              <div>
+                <h2>Payments</h2>
+                <p>Installments, collection status, and overdue balances.</p>
+              </div>
+              <div class="spacer"></div>
+              <div class="toolbar-right">
+                <div class="filters" id="payFilters">
+                  <button class="chip active" data-pay-filter="ALL" type="button">All</button>
+                  <button class="chip" data-pay-filter="PENDING" type="button">Pending</button>
+                  <button class="chip" data-pay-filter="OVERDUE" type="button">Overdue</button>
+                  <button class="chip" data-pay-filter="PAID" type="button">Paid</button>
+                </div>
+                <button class="btn secondary sm" type="button" data-refresh="payments">Refresh</button>
+              </div>
+            </div>
+            <div class="card table-card">
+              <div id="emptyPayments" class="empty hidden">No payments yet.</div>
+              <div class="table-wrap">
+                <table id="paymentTable" class="hidden">
+                  <thead>
+                    <tr><th>Invoice</th><th>Policy</th><th>Amount</th><th>Due</th><th>Status</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody id="paymentBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Claims -->
+          <section class="panel" id="panel-claims">
+            <div class="panel-head">
+              <div>
+                <h2>All claims</h2>
+                <p>Review the file, move the status forward, and tell the customer exactly what happens next.</p>
+              </div>
+              <div class="spacer"></div>
+              <div class="toolbar-right">
+                <div class="filters" id="claimFilters">
+                  <button class="chip active" data-claim-filter="ALL" type="button">All</button>
+                  <button class="chip" data-claim-filter="SUBMITTED" type="button">Submitted</button>
+                  <button class="chip" data-claim-filter="UNDER_REVIEW" type="button">Under review</button>
+                  <button class="chip" data-claim-filter="APPROVED" type="button">Approved</button>
+                  <button class="chip" data-claim-filter="REJECTED" type="button">Rejected</button>
+                </div>
+                <button class="btn secondary sm" type="button" data-refresh="claims">Refresh</button>
+              </div>
+            </div>
+            <div class="card table-card">
+              <div id="emptyClaims" class="empty hidden">No claims yet.</div>
+              <div class="table-wrap">
+                <table id="claimTable" class="hidden">
+                  <thead>
+                    <tr><th>Claim / customer</th><th>Policy / type</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody id="claimBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Users -->
+          <section class="panel" id="panel-users">
+            <div class="panel-head">
+              <div>
+                <h2>Users</h2>
+                <p>Customers and administrators registered with TrustGuard.</p>
+              </div>
+              <div class="spacer"></div>
+              <button class="btn secondary sm" type="button" data-refresh="users">Refresh</button>
+            </div>
+            <div class="card table-card">
+              <div id="emptyUsers" class="empty hidden">No users found.</div>
+              <div class="table-wrap">
+                <table id="userTable" class="hidden">
+                  <thead>
+                    <tr><th>Customer</th><th>Contact</th><th>Role</th><th>KYC</th><th>Member since</th></tr>
+                  </thead>
+                  <tbody id="userBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Packages -->
+          <section class="panel" id="panel-packages">
+            <div class="panel-head">
+              <div>
+                <h2>Packages catalog</h2>
+                <p>Products, pricing, and the claim terms customers agree to.</p>
+              </div>
+              <div class="spacer"></div>
+              <button class="btn secondary sm" type="button" data-refresh="packages">Refresh</button>
+            </div>
+            <div class="card table-card">
+              <div id="emptyPackages" class="empty hidden">No packages found.</div>
+              <div class="table-wrap">
+                <table id="packageTable" class="hidden">
+                  <thead>
+                    <tr><th>Package</th><th>Category</th><th>Monthly</th><th>Coverage</th><th>Claim terms</th><th>Featured</th></tr>
+                  </thead>
+                  <tbody id="packageBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Support -->
+          <section class="panel" id="panel-support">
+            <div class="panel-head">
+              <div>
+                <h2>Help &amp; support</h2>
+                <p>These contacts are shown to customers in the mobile Profile tab.</p>
+              </div>
+            </div>
+            <div class="support-grid">
+              <div class="support-tile">
+                <div class="k">Phone</div>
+                <div class="v">+855 87908470</div>
+                <div class="hint">Claims and policy support, Monday to Saturday.</div>
+              </div>
+              <div class="support-tile">
+                <div class="k">Email</div>
+                <div class="v">Insurancehelpcenter12@gmail.com</div>
+                <div class="hint">Include your claim or policy number so the team can help faster.</div>
+              </div>
+              <div class="support-tile">
+                <div class="k">Escalation</div>
+                <div class="v">Claims review desk</div>
+                <div class="hint">Rejected claims can be appealed within 30 days of the decision.</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================= DIALOGS ======================= -->
+  <dialog id="respondDialog">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">Quotation</div>
+        <h3>Send quotation</h3>
+        <div class="sub" id="respondMeta"></div>
+      </div>
+      <button type="button" class="icon-btn" id="closeRespondX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="field">
+        <label for="quotedPremium">Quoted premium (total)</label>
+        <input id="quotedPremium" type="number" min="1" step="0.01" />
+      </div>
+      <div class="field">
+        <label for="validUntil">Valid until</label>
+        <input id="validUntil" type="date" />
+      </div>
+      <div class="field">
+        <label for="salesNotes">Sales notes (visible to customer)</label>
+        <textarea id="salesNotes" rows="3"></textarea>
+      </div>
+      <div id="respondError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelRespond">Cancel</button>
+      <button class="btn" type="button" id="submitRespond">Send quote</button>
+    </div>
+  </dialog>
+
+  <dialog id="rejectDialog">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">Quotation</div>
+        <h3>Reject quotation</h3>
+        <div class="sub" id="rejectMeta"></div>
+      </div>
+      <button type="button" class="icon-btn" id="closeRejectX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="field">
+        <label for="rejectNotes">Reason (optional)</label>
+        <textarea id="rejectNotes" rows="3"></textarea>
+      </div>
+      <div id="rejectError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelReject">Cancel</button>
+      <button class="btn danger" type="button" id="submitReject">Reject</button>
+    </div>
+  </dialog>
+
+  <dialog id="claimDialog" class="wide">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">Claims review</div>
+        <h3>Update claim</h3>
+        <div class="sub" id="claimMeta"></div>
+      </div>
+      <button type="button" class="icon-btn" id="closeClaimX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div id="claimSummary" class="detail-grid"></div>
+      <div class="detail-block">
+        <div class="k">What the customer reported</div>
+        <div class="v" id="claimDescription"></div>
+      </div>
+      <div class="preview-panel">
+        <div class="label">Customer sees after saving</div>
+        <div class="text" id="claimNextPreview"></div>
+      </div>
+      <div class="field">
+        <label for="claimStatus">Status</label>
+        <select id="claimStatus">
+          <option value="SUBMITTED">Submitted</option>
+          <option value="UNDER_REVIEW">Under review</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="claimNotes">Decision note <span id="claimNotesHint" class="note-required hidden">Required for rejection</span></label>
+        <textarea id="claimNotes" rows="3" placeholder="Explain the decision and what the customer should do next"></textarea>
+        <div class="field-hint">The note and next step are sent to the customer as an in-app notification and shown on the claim timeline.</div>
+      </div>
+      <div id="claimError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelClaim">Cancel</button>
+      <button class="btn" type="button" id="submitClaim">Save update</button>
+    </div>
+  </dialog>
+
+  <script>
+    // ---- i18n EN / KM ----
+    const I18N = {
+      en: {
+        app_title: 'TrustGuard Admin',
+        app_sub: 'Sales · Operations · Support',
+        admin_sign_in: 'Admin sign in',
+        admin_sub: 'Manage quotations, policies, payments, claims, and more.',
+        email: 'Email',
+        password: 'Password',
+        sign_in: 'Sign in',
+        forgot_password: 'Forgot password?',
+        seeded: 'Seeded admin',
+        support: 'Customer support',
+        phone: 'Phone',
+        logout: 'Log out',
+        dashboard: 'Dashboard',
+        quotations: 'Quotations',
+        policies: 'Policies',
+        payments: 'Payments',
+        claims: 'Claims',
+        users: 'Users',
+        packages: 'Packages',
+        help_support: 'Help & support',
+        refresh: 'Refresh',
+        respond: 'Respond',
+        reject: 'Reject',
+        mark_paid: 'Mark paid',
+        review: 'Review',
+        all: 'All',
+        pending: 'Pending',
+        paid: 'Paid',
+        overdue: 'Overdue',
+        language: 'Language',
+        new_password: 'New password',
+        reset_code: 'Reset code',
+        update_password: 'Update password',
+        send_reset: 'Send reset code',
+        back_login: 'Back to login',
+        already_code: 'I already have a code',
+        welcome: 'Welcome',
+      },
+      km: {
+        app_title: 'TrustGuard ផ្ទាំងគ្រប់គ្រង',
+        app_sub: 'លក់ · ប្រតិបត្តិការ · គាំទ្រ',
+        admin_sign_in: 'ចូលអ្នកគ្រប់គ្រង',
+        admin_sub: 'គ្រប់គ្រងសម្រង់តម្លៃ គោលការណ៍ ការទូទាត់ និងការទាមទារ។',
+        email: 'អ៊ីមែល',
+        password: 'ពាក្យសម្ងាត់',
+        sign_in: 'ចូល',
+        forgot_password: 'ភ្លេចពាក្យសម្ងាត់?',
+        seeded: 'គណនីសាកល្បង',
+        support: 'ជំនួយអតិថិជន',
+        phone: 'ទូរស័ព្ទ',
+        logout: 'ចេញ',
+        dashboard: 'ផ្ទាំងគ្រប់គ្រង',
+        quotations: 'សម្រង់តម្លៃ',
+        policies: 'គោលការណ៍',
+        payments: 'ការទូទាត់',
+        claims: 'ការទាមទារ',
+        users: 'អ្នកប្រើ',
+        packages: 'កញ្ចប់',
+        help_support: 'ជំនួយ និងគាំទ្រ',
+        refresh: 'ផ្ទុកឡើងវិញ',
+        respond: 'ឆ្លើយតប',
+        reject: 'បដិសេធ',
+        mark_paid: 'សម្គាល់ថាបានបង់',
+        review: 'ពិនិត្យ',
+        all: 'ទាំងអស់',
+        pending: 'រង់ចាំ',
+        paid: 'បានបង់',
+        overdue: 'ហួសកំណត់',
+        language: 'ភាសា',
+        new_password: 'ពាក្យសម្ងាត់ថ្មី',
+        reset_code: 'លេខកូដ',
+        update_password: 'ធ្វើបច្ចុប្បន្នភាពពាក្យសម្ងាត់',
+        send_reset: 'ផ្ញើលេខកូដ',
+        back_login: 'ត្រឡប់ទៅចូល',
+        already_code: 'ខ្ញុំមានលេខកូដរួចហើយ',
+        welcome: 'សូមស្វាគមន៍',
+      },
+    };
+    let currentLang = localStorage.getItem('tg_admin_lang') || 'en';
+    function t(key) {
+      return (I18N[currentLang] && I18N[currentLang][key]) || I18N.en[key] || key;
+    }
+    function applyI18n() {
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key) el.textContent = t(key);
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (key) el.setAttribute('placeholder', t(key));
+      });
+      const sel = document.getElementById('langSelect');
+      if (sel) sel.value = currentLang;
+      document.documentElement.lang = currentLang === 'km' ? 'km' : 'en';
+    }
+    function setLang(code) {
+      currentLang = code === 'km' ? 'km' : 'en';
+      localStorage.setItem('tg_admin_lang', currentLang);
+      applyI18n();
+    }
+
+    const API_BASE = (window.location.port === '8081' || window.location.href.includes(':8081'))
+      ? (window.location.origin + '/api/v1')
+      : 'http://localhost:8081/api/v1';
+
+    const TOKEN_KEY = 'tg_admin_token_v2';
+    const USER_KEY = 'tg_admin_user_v2';
+
+    let quotes = [];
+    let payments = [];
+    let claims = [];
+    let quoteFilter = 'ALL';
+    let payFilter = 'ALL';
+    let claimFilter = 'ALL';
+    let activeQuoteId = null;
+    let activeClaimId = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    const PAGE_META = {
+      dashboard: { title: 'Dashboard', sub: 'Business overview and what needs attention' },
+      quotations: { title: 'Quotations', sub: 'Pricing requests and responses' },
+      policies: { title: 'Policies', sub: 'The active book of cover' },
+      payments: { title: 'Payments', sub: 'Installments and collection status' },
+      claims: { title: 'Claims', sub: 'Review queue and customer updates' },
+      users: { title: 'Users', sub: 'Customers and administrators' },
+      packages: { title: 'Packages', sub: 'Catalog, pricing, and claim terms' },
+      support: { title: 'Help & support', sub: 'Customer-facing support details' },
+    };
+
+    function authHeaders() {
+      const token = localStorage.getItem(TOKEN_KEY);
+      return {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+      };
+    }
+
+    async function api(path, options = {}) {
+      const res = await fetch(API_BASE + path, {
+        ...options,
+        headers: { ...authHeaders(), ...(options.headers || {}) },
+      });
+      if (res.status === 401) {
+        logout(false);
+        throw new Error('Session expired. Please sign in again.');
+      }
+      const text = await res.text();
+      let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+      if (!res.ok) {
+        const msg = (data && (data.message || data.error || data.detail)) || res.statusText || 'Request failed';
+        throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg));
+      }
+      return data;
+    }
+
+    function money(n) {
+      if (n == null || n === '') return '—';
+      return new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(Number(n));
+    }
+    function fmtDate(v) {
+      if (!v) return '—';
+      try { return new Date(v).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); } catch { return String(v); }
+    }
+    function escapeHtml(s) {
+      return String(s ?? '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;');
+    }
+    function initials(name) {
+      const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+      if (!parts.length) return '?';
+      return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+    }
+    function statusLabel(status) {
+      const map = {
+        UNDER_REVIEW: 'Under review', DUE_SOON: 'Due soon', APP_PURCHASE: 'App purchase',
+        LINKED_EXISTING: 'Linked', ADMIN: 'Admin', CUSTOMER: 'Customer',
+      };
+      const s = String(status || 'UNKNOWN');
+      return map[s] || (s.charAt(0) + s.slice(1).toLowerCase().replaceAll('_', ' '));
+    }
+    function badge(status) {
+      const s = String(status || 'UNKNOWN');
+      return `<span class="badge ${escapeHtml(s)}">${escapeHtml(statusLabel(s))}</span>`;
+    }
+    function toastOk(msg) {
+      $('globalOk').textContent = msg;
+      $('globalOk').classList.remove('hidden');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => $('globalOk').classList.add('hidden'), 3000);
+    }
+    function personCell(name, email) {
+      return `<div class="cell-person">
+        <div class="avatar">${escapeHtml(initials(name))}</div>
+        <div><div class="primary">${escapeHtml(name || 'Customer')}</div>
+        <div class="sub">${escapeHtml(email || '')}</div></div>
+      </div>`;
+    }
+
+    function setAuthMode(on) {
+      document.body.classList.toggle('auth-mode', !!on);
+      $('authStage').classList.toggle('hidden', !on);
+    }
+    function showLogin() {
+      setAuthMode(true);
+      $('loginView').classList.remove('hidden');
+      $('deskView').classList.add('hidden');
+      $('headerUser').classList.add('hidden');
+      $('forgotView').classList.add('hidden');
+      $('resetView').classList.add('hidden');
+    }
+    function showForgot() {
+      setAuthMode(true);
+      $('loginView').classList.add('hidden');
+      $('deskView').classList.add('hidden');
+      $('headerUser').classList.add('hidden');
+      $('forgotView').classList.remove('hidden');
+      $('resetView').classList.add('hidden');
+      $('forgotEmail').value = $('email').value.trim() || 'admin@trustguard.example';
+      $('forgotError').classList.add('hidden');
+      $('forgotOk').classList.add('hidden');
+    }
+    function showReset() {
+      setAuthMode(true);
+      $('loginView').classList.add('hidden');
+      $('deskView').classList.add('hidden');
+      $('headerUser').classList.add('hidden');
+      $('forgotView').classList.add('hidden');
+      $('resetView').classList.remove('hidden');
+      $('resetError').classList.add('hidden');
+      $('resetOk').classList.add('hidden');
+    }
+    function showDesk(user) {
+      setAuthMode(false);
+      $('deskView').classList.remove('hidden');
+      $('headerUser').classList.remove('hidden');
+      const name = (user && (user.fullName || user.email)) || 'Admin';
+      const role = (user && user.role) || 'ADMIN';
+      $('adminName').textContent = name;
+      $('apiHint').textContent = API_BASE;
+      $('sideUserName').textContent = name;
+      $('sideUserRole').textContent = role === 'ADMIN' ? 'Administrator' : role;
+      $('sideAvatar').textContent = initials(name);
+      $('topAvatar').textContent = initials(name);
+      updatePageHeader('dashboard');
+    }
+    function logout(clear = true) {
+      if (clear) {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+      }
+      showLogin();
+    }
+
+    async function login() {
+      $('loginError').classList.add('hidden');
+      $('loginBtn').disabled = true;
+      try {
+        const data = await api('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: $('email').value.trim(),
+            password: $('password').value,
+          }),
+        });
+        const role = data.user && String(data.user.role || '').toUpperCase();
+        if (role !== 'ADMIN') throw new Error('This account is not an admin.');
+        localStorage.setItem(TOKEN_KEY, data.accessToken);
+        localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+        showDesk(data.user);
+        await loadTab('dashboard');
+      } catch (e) {
+        $('loginError').textContent = e.message || String(e);
+        $('loginError').classList.remove('hidden');
+      } finally {
+        $('loginBtn').disabled = false;
+      }
+    }
+
+    function updatePageHeader(name) {
+      const meta = PAGE_META[name] || PAGE_META.dashboard;
+      $('pageTitle').textContent = meta.title;
+      $('pageSub').textContent = meta.sub;
+      document.title = 'TrustGuard Admin · ' + meta.title;
+    }
+
+    function setTab(name) {
+      document.querySelectorAll('.nav-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
+      updatePageHeader(name);
+      loadTab(name);
+    }
+
+    async function loadTab(name) {
+      $('globalError').classList.add('hidden');
+      try {
+        if (name === 'dashboard') await loadDashboard();
+        if (name === 'quotations') await loadQuotes();
+        if (name === 'policies') await loadPolicies();
+        if (name === 'payments') await loadPayments();
+        if (name === 'claims') await loadClaims();
+        if (name === 'users') await loadUsers();
+        if (name === 'packages') await loadPackages();
+      } catch (e) {
+        $('globalError').textContent = e.message || String(e);
+        $('globalError').classList.remove('hidden');
+      }
+    }
+
+    const STAT_ICONS = {
+      users: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg>',
+      shield: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/></svg>',
+      clock: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+      alert: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>',
+      trend: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
+      dollar: '<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M15 9.5c0-1.4-1.3-2.5-3-2.5s-3 1-3 2.3c0 3.4 6 1.7 6 5 0 1.4-1.3 2.4-3 2.4s-3-1-3-2.4"/></svg>',
+    };
+
+    async function loadDashboard() {
+      const stats = await api('/admin/dashboard/stats');
+      const cards = [
+        ['Total users', stats.totalUsers, 'users', 'tone-indigo'],
+        ['Active policies', stats.activePolicies, 'shield', 'tone-green'],
+        ['Pending payments', stats.pendingPayments, 'clock', 'tone-amber'],
+        ['Overdue payments', stats.overduePayments, 'alert', 'tone-red'],
+        ['Monthly revenue', money(stats.monthlyRevenue), 'trend', 'tone-blue'],
+        ['Total revenue', money(stats.totalRevenue), 'dollar', 'tone-indigo'],
+      ];
+      $('dashStats').innerHTML = cards.map(([label, value, icon, tone]) => `
+        <div class="stat">
+          <div class="stat-icon ${tone}">${STAT_ICONS[icon]}</div>
+          <div><div class="value">${value ?? '—'}</div><div class="label">${label}</div></div>
+        </div>`).join('');
+
+      try {
+        const recent = await api('/admin/claims') || [];
+        renderRecentClaims(recent.slice(0, 4));
+      } catch {
+        $('recentClaims').innerHTML = '<div class="empty">Claims could not be loaded.</div>';
+      }
+    }
+
+    function renderRecentClaims(list) {
+      if (!list.length) {
+        $('recentClaims').innerHTML = '<div class="empty">No claims submitted yet.</div>';
+        return;
+      }
+      $('recentClaims').innerHTML = list.map(c => `
+        <div class="recent-row">
+          <div class="avatar" style="width:30px;height:30px;flex-basis:30px;border-radius:8px;font-size:10.5px">${escapeHtml(initials(c.customerName))}</div>
+          <div class="who">
+            <strong>${escapeHtml(c.claimNumber)} · ${escapeHtml(c.customerName || 'Customer')}</strong>
+            <span>${escapeHtml(c.policyName || '')} · ${escapeHtml(c.type || '')} · submitted ${fmtDate(c.submittedAt)}</span>
+          </div>
+          <div class="amt">${money(c.amount)}</div>
+          ${badge(c.status)}
+        </div>`).join('');
+    }
+
+    async function loadQuotes() {
+      quotes = await api('/admin/quotations') || [];
+      renderQuotes();
+    }
+    function renderQuotes() {
+      const list = quoteFilter === 'ALL' ? quotes : quotes.filter(q => q.status === quoteFilter);
+      if (!list.length) {
+        $('quoteTable').classList.add('hidden');
+        $('emptyQuotes').classList.remove('hidden');
+        return;
+      }
+      $('emptyQuotes').classList.add('hidden');
+      $('quoteTable').classList.remove('hidden');
+      $('quoteBody').innerHTML = list.map(q => {
+        const pkg = q.insurancePackage || {};
+        const canRespond = q.status === 'PENDING' || q.status === 'QUOTED';
+        return `<tr>
+          <td>${personCell(q.customerName || 'Customer', q.customerEmail || '')}</td>
+          <td>
+            <div class="primary">${escapeHtml(pkg.name || q.packageId || '—')}</div>
+            <div class="sub">${q.preferredPlanMonths || '—'} months${q.notes ? ' · ' + escapeHtml(q.notes) : ''}</div>
+          </td>
+          <td>${badge(q.status)}</td>
+          <td class="muted">${fmtDate(q.createdAt)}</td>
+          <td>
+            <div class="num">${money(q.quotedPremium)}</div>
+            <div class="sub">${q.validUntil ? 'Valid until ' + fmtDate(q.validUntil) : ''}</div>
+          </td>
+          <td><div class="row-actions">
+            ${canRespond ? `<button class="btn sm" type="button" data-respond="${q.id}">Respond</button>` : ''}
+            ${canRespond ? `<button class="btn sm danger" type="button" data-reject="${q.id}">Reject</button>` : ''}
+            ${!canRespond ? '<span class="muted small">—</span>' : ''}
+          </div></td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadPolicies() {
+      const list = await api('/admin/policies') || [];
+      if (!list.length) {
+        $('policyTable').classList.add('hidden');
+        $('emptyPolicies').classList.remove('hidden');
+        return;
+      }
+      $('emptyPolicies').classList.add('hidden');
+      $('policyTable').classList.remove('hidden');
+      $('policyBody').innerHTML = list.map(p => {
+        const pkg = p.insurancePackage || {};
+        return `<tr>
+          <td><div class="primary">${escapeHtml(p.policyNumber || p.id)}</div>
+            <div class="sub">${escapeHtml(statusLabel(p.source || ''))}</div></td>
+          <td>${escapeHtml(pkg.name || '—')}</td>
+          <td>${badge(p.status)}</td>
+          <td class="num">${money(p.totalPremium)}</td>
+          <td class="num">${money(p.amountPaid)}</td>
+          <td class="muted">${fmtDate(p.startDate)} → ${fmtDate(p.endDate)}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadPayments() {
+      payments = await api('/admin/payments') || [];
+      renderPayments();
+    }
+    function renderPayments() {
+      const list = payFilter === 'ALL' ? payments : payments.filter(p => p.status === payFilter);
+      if (!list.length) {
+        $('paymentTable').classList.add('hidden');
+        $('emptyPayments').classList.remove('hidden');
+        return;
+      }
+      $('emptyPayments').classList.add('hidden');
+      $('paymentTable').classList.remove('hidden');
+      $('paymentBody').innerHTML = list.map(p => {
+        const canMark = p.status !== 'PAID';
+        return `<tr>
+          <td class="primary">${escapeHtml(p.invoiceNumber || p.id)}</td>
+          <td>${escapeHtml(p.policyName || p.policyId || '—')}</td>
+          <td class="num">${money(p.amount)}</td>
+          <td class="muted">${fmtDate(p.dueDate)}</td>
+          <td>${badge(p.status)}</td>
+          <td>${canMark ? `<button class="btn sm" type="button" data-mark-paid="${p.id}">Mark paid</button>` : '<span class="muted small">Settled</span>'}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function loadClaims() {
+      claims = await api('/admin/claims') || [];
+      renderClaims();
+    }
+    function renderClaims() {
+      const list = claimFilter === 'ALL' ? claims : claims.filter(c => c.status === claimFilter);
+      if (!list.length) {
+        $('claimTable').classList.add('hidden');
+        $('emptyClaims').classList.remove('hidden');
+        return;
+      }
+      $('emptyClaims').classList.add('hidden');
+      $('claimTable').classList.remove('hidden');
+      $('claimBody').innerHTML = list.map(c => `<tr>
+        <td>
+          <div class="primary">${escapeHtml(c.claimNumber)}</div>
+          <div class="sub">${escapeHtml(c.customerName || 'Customer')}</div>
+          <div class="sub">Submitted ${fmtDate(c.submittedAt)}</div>
+        </td>
+        <td>
+          <div>${escapeHtml(c.policyName || '—')}</div>
+          <div class="sub">${escapeHtml(c.type || '')}${c.photoUrl ? ' · photo attached' : ''}</div>
+        </td>
+        <td class="num">${money(c.amount)}</td>
+        <td>${badge(c.status)}${c.reviewedAt ? `<div class="sub">Reviewed ${fmtDate(c.reviewedAt)}</div>` : ''}</td>
+        <td><button class="btn sm" type="button" data-edit-claim="${c.id}">Review</button></td>
+      </tr>`).join('');
+    }
+
+    async function loadUsers() {
+      const list = await api('/admin/users') || [];
+      if (!list.length) {
+        $('userTable').classList.add('hidden');
+        $('emptyUsers').classList.remove('hidden');
+        return;
+      }
+      $('emptyUsers').classList.add('hidden');
+      $('userTable').classList.remove('hidden');
+      $('userBody').innerHTML = list.map(u => `<tr>
+        <td>${personCell(u.fullName, u.email)}</td>
+        <td class="muted">${escapeHtml(u.phone || '—')}</td>
+        <td>${badge(u.role)}</td>
+        <td>${u.kycVerified ? '<span class="badge APPROVED">Verified</span>' : '<span class="badge PENDING">Pending</span>'}</td>
+        <td class="muted">${fmtDate(u.memberSince || u.createdAt)}</td>
+      </tr>`).join('');
+    }
+
+    async function loadPackages() {
+      const list = await api('/admin/packages') || [];
+      if (!list.length) {
+        $('packageTable').classList.add('hidden');
+        $('emptyPackages').classList.remove('hidden');
+        return;
+      }
+      $('emptyPackages').classList.add('hidden');
+      $('packageTable').classList.remove('hidden');
+      $('packageBody').innerHTML = list.map(p => `<tr>
+        <td><div class="primary">${escapeHtml(p.name)}</div>
+          <div class="sub">${escapeHtml(p.tagline || '')}</div></td>
+        <td>${escapeHtml(statusLabel(p.category || '—'))}</td>
+        <td class="num">${money(p.monthlyPrice)}</td>
+        <td class="num">${money(p.coverageAmount)}</td>
+        <td><div>${p.waitingPeriodDays != null ? p.waitingPeriodDays + '-day wait' : '—'}</div>
+          <div class="sub">${p.claimWindowDays != null ? 'File within ' + p.claimWindowDays + ' days' : ''}</div></td>
+        <td>${p.featured ? '<span class="badge APPROVED">Featured</span>' : '<span class="muted small">—</span>'}</td>
+      </tr>`).join('');
+    }
+
+    function openRespond(id) {
+      const q = quotes.find(x => x.id === id);
+      if (!q) return;
+      activeQuoteId = id;
+      const pkg = q.insurancePackage || {};
+      $('respondMeta').textContent = `${q.customerName || ''} · ${pkg.name || ''} · ${q.preferredPlanMonths || ''} months`;
+      const monthly = pkg.monthlyPrice;
+      const suggested = monthly != null
+        ? (Number(monthly) * Number(q.preferredPlanMonths || 1) * 0.9).toFixed(2)
+        : '';
+      $('quotedPremium').value = q.quotedPremium != null ? q.quotedPremium : suggested;
+      const d = new Date(); d.setDate(d.getDate() + 14);
+      $('validUntil').value = q.validUntil || d.toISOString().slice(0, 10);
+      $('salesNotes').value = q.salesNotes || '';
+      $('respondError').classList.add('hidden');
+      $('respondDialog').showModal();
+    }
+    function openReject(id) {
+      const q = quotes.find(x => x.id === id);
+      if (!q) return;
+      activeQuoteId = id;
+      const pkg = q.insurancePackage || {};
+      $('rejectMeta').textContent = `${q.customerName || ''} · ${pkg.name || ''}`;
+      $('rejectNotes').value = '';
+      $('rejectError').classList.add('hidden');
+      $('rejectDialog').showModal();
+    }
+    async function submitRespond() {
+      $('respondError').classList.add('hidden');
+      try {
+        const body = {
+          quotedPremium: Number($('quotedPremium').value),
+          validUntil: $('validUntil').value || null,
+          salesNotes: $('salesNotes').value || null,
+        };
+        if (!body.quotedPremium || body.quotedPremium <= 0) throw new Error('Enter a valid premium.');
+        await api(`/admin/quotations/${activeQuoteId}/respond`, {
+          method: 'POST',
+          body: JSON.stringify(body),
+        });
+        $('respondDialog').close();
+        toastOk('Quotation sent to the customer.');
+        await loadQuotes();
+      } catch (e) {
+        $('respondError').textContent = e.message || String(e);
+        $('respondError').classList.remove('hidden');
+      }
+    }
+    async function submitReject() {
+      $('rejectError').classList.add('hidden');
+      try {
+        await api(`/admin/quotations/${activeQuoteId}/reject`, {
+          method: 'POST',
+          body: JSON.stringify({ salesNotes: $('rejectNotes').value || null }),
+        });
+        $('rejectDialog').close();
+        toastOk('Quotation rejected.');
+        await loadQuotes();
+      } catch (e) {
+        $('rejectError').textContent = e.message || String(e);
+        $('rejectError').classList.remove('hidden');
+      }
+    }
+
+    const NEXT_STEPS = {
+      SUBMITTED: 'We have received your claim and it is queued for review. Next: our claims team will begin the review shortly.',
+      UNDER_REVIEW: 'Our claims team is reviewing the file. Most reviews finish within 2-3 business days; if a document is missing, we will ask for it here.',
+      APPROVED: 'Your claim has been approved. Next: our payments team will confirm your payout details and transfer the approved amount within 5 business days.',
+      REJECTED: 'The claim has been rejected. Read the decision note below. If you disagree, you can appeal within 30 days by contacting TrustGuard support and quoting this claim number.',
+    };
+
+    function openClaim(id) {
+      const c = claims.find(x => x.id === id);
+      if (!c) return;
+      activeClaimId = id;
+      $('claimMeta').textContent = `${c.claimNumber} · ${c.customerName || 'Customer'}`;
+      $('claimSummary').innerHTML = `
+        <div><div class="k">Customer</div><div class="v">${escapeHtml(c.customerName || '—')}<div class="sub">${escapeHtml(c.customerEmail || '')}</div></div></div>
+        <div><div class="k">Policy</div><div class="v">${escapeHtml(c.policyName || '—')}<div class="sub">${escapeHtml(c.policyNumber || c.policyId || '')}</div></div></div>
+        <div><div class="k">Claim type</div><div class="v">${escapeHtml(statusLabel(c.type || '—'))}</div></div>
+        <div><div class="k">Amount claimed</div><div class="v">${money(c.amount)}</div></div>
+        <div><div class="k">Incident date</div><div class="v">${fmtDate(c.incidentDate)}</div></div>
+        <div><div class="k">Submitted</div><div class="v">${fmtDate(c.submittedAt)}${c.reviewedAt ? `<div class="sub">Last reviewed ${fmtDate(c.reviewedAt)}</div>` : ''}</div></div>`;
+      $('claimDescription').textContent = c.description || 'No description provided.';
+      $('claimStatus').value = c.status || 'SUBMITTED';
+      $('claimNotes').value = c.reviewNotes || '';
+      $('claimError').classList.add('hidden');
+      updateClaimPreview();
+      $('claimDialog').showModal();
+    }
+
+    function updateClaimPreview() {
+      const status = $('claimStatus').value;
+      $('claimNextPreview').textContent = NEXT_STEPS[status] || '';
+      $('claimNotesHint').classList.toggle('hidden', status !== 'REJECTED');
+    }
+
+    async function submitClaim() {
+      $('claimError').classList.add('hidden');
+      const status = $('claimStatus').value;
+      const notes = $('claimNotes').value.trim();
+      if (status === 'REJECTED' && !notes) {
+        $('claimError').textContent = 'Add a decision note explaining why the claim was rejected — it is shown to the customer.';
+        $('claimError').classList.remove('hidden');
+        return;
+      }
+      try {
+        await api(`/admin/claims/${activeClaimId}/status`, {
+          method: 'POST',
+          body: JSON.stringify({ status, reviewNotes: notes || null }),
+        });
+        $('claimDialog').close();
+        toastOk('Claim updated — the customer was notified with the next step.');
+        await loadClaims();
+      } catch (e) {
+        $('claimError').textContent = e.message || String(e);
+        $('claimError').classList.remove('hidden');
+      }
+    }
+
+    async function sendForgot() {
+      $('forgotError').classList.add('hidden');
+      $('forgotOk').classList.add('hidden');
+      $('forgotBtn').disabled = true;
+      try {
+        const email = $('forgotEmail').value.trim();
+        if (!email || !email.includes('@')) throw new Error('Enter a valid email.');
+        await api('/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({ email }),
+        });
+        $('forgotOk').textContent = 'If that account exists, a reset code was sent. Check email, or server logs when mail is disabled.';
+        $('forgotOk').classList.remove('hidden');
+        setTimeout(() => showReset(), 1200);
+      } catch (e) {
+        $('forgotError').textContent = e.message || String(e);
+        $('forgotError').classList.remove('hidden');
+      } finally {
+        $('forgotBtn').disabled = false;
+      }
+    }
+
+    async function doResetPassword() {
+      $('resetError').classList.add('hidden');
+      $('resetOk').classList.add('hidden');
+      const token = $('resetToken').value.trim();
+      const p1 = $('resetPassword').value;
+      const p2 = $('resetPassword2').value;
+      if (!token) {
+        $('resetError').textContent = 'Enter the reset code.';
+        $('resetError').classList.remove('hidden');
+        return;
+      }
+      if (!p1 || p1.length < 6) {
+        $('resetError').textContent = 'Password must be at least 6 characters.';
+        $('resetError').classList.remove('hidden');
+        return;
+      }
+      if (p1 !== p2) {
+        $('resetError').textContent = 'Passwords do not match.';
+        $('resetError').classList.remove('hidden');
+        return;
+      }
+      $('resetBtn').disabled = true;
+      try {
+        await api('/auth/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({ token, newPassword: p1 }),
+        });
+        $('resetOk').textContent = 'Password updated. You can sign in now.';
+        $('resetOk').classList.remove('hidden');
+        setTimeout(() => {
+          showLogin();
+          $('password').value = '';
+        }, 1200);
+      } catch (e) {
+        $('resetError').textContent = e.message || String(e);
+        $('resetError').classList.remove('hidden');
+      } finally {
+        $('resetBtn').disabled = false;
+      }
+    }
+
+    // Events
+    $('loginBtn').addEventListener('click', login);
+    $('password').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+    $('logoutBtn').addEventListener('click', () => logout(true));
+    $('showForgotBtn').addEventListener('click', showForgot);
+    $('forgotBtn').addEventListener('click', sendForgot);
+    $('forgotBackBtn').addEventListener('click', showLogin);
+    $('forgotToResetBtn').addEventListener('click', () => showReset());
+    $('resetBtn').addEventListener('click', doResetPassword);
+    $('resetBackBtn').addEventListener('click', showLogin);
+
+    $('sideNav').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-tab]');
+      if (btn) setTab(btn.dataset.tab);
+    });
+    document.querySelectorAll('[data-goto]').forEach(btn => {
+      btn.addEventListener('click', () => setTab(btn.dataset.goto));
+    });
+    document.querySelectorAll('[data-refresh]').forEach(btn => {
+      btn.addEventListener('click', () => loadTab(btn.dataset.refresh));
+    });
+
+    $('quoteFilters').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-filter]');
+      if (!chip) return;
+      quoteFilter = chip.dataset.filter;
+      document.querySelectorAll('#quoteFilters .chip').forEach(c => c.classList.toggle('active', c === chip));
+      renderQuotes();
+    });
+    $('payFilters').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-pay-filter]');
+      if (!chip) return;
+      payFilter = chip.dataset.payFilter;
+      document.querySelectorAll('#payFilters .chip').forEach(c => c.classList.toggle('active', c === chip));
+      renderPayments();
+    });
+    $('claimFilters').addEventListener('click', (e) => {
+      const chip = e.target.closest('[data-claim-filter]');
+      if (!chip) return;
+      claimFilter = chip.dataset.claimFilter;
+      document.querySelectorAll('#claimFilters .chip').forEach(c => c.classList.toggle('active', c === chip));
+      renderClaims();
+    });
+
+    $('quoteBody').addEventListener('click', (e) => {
+      const respond = e.target.closest('[data-respond]');
+      const reject = e.target.closest('[data-reject]');
+      if (respond) openRespond(respond.dataset.respond);
+      if (reject) openReject(reject.dataset.reject);
+    });
+    $('paymentBody').addEventListener('click', async (e) => {
+      const btn = e.target.closest('[data-mark-paid]');
+      if (!btn) return;
+      try {
+        await api(`/admin/payments/${btn.dataset.markPaid}/mark-paid`, {
+          method: 'POST',
+          body: JSON.stringify({ method: 'CARD' }),
+        });
+        toastOk('Payment marked as paid.');
+        await loadPayments();
+      } catch (err) {
+        alert(err.message || String(err));
+      }
+    });
+    $('claimBody').addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-edit-claim]');
+      if (btn) openClaim(btn.dataset.editClaim);
+    });
+
+    $('cancelRespond').addEventListener('click', () => $('respondDialog').close());
+    $('closeRespondX').addEventListener('click', () => $('respondDialog').close());
+    $('submitRespond').addEventListener('click', submitRespond);
+    $('cancelReject').addEventListener('click', () => $('rejectDialog').close());
+    $('closeRejectX').addEventListener('click', () => $('rejectDialog').close());
+    $('submitReject').addEventListener('click', submitReject);
+    $('cancelClaim').addEventListener('click', () => $('claimDialog').close());
+    $('closeClaimX').addEventListener('click', () => $('claimDialog').close());
+    $('submitClaim').addEventListener('click', submitClaim);
+    $('claimStatus').addEventListener('change', updateClaimPreview);
+
+    document.getElementById('langSelect')?.addEventListener('change', (e) => setLang(e.target.value));
+    applyI18n();
+
+    (async function init() {
+      const token = localStorage.getItem(TOKEN_KEY);
+      const userRaw = localStorage.getItem(USER_KEY);
+      if (!token || !userRaw) { showLogin(); return; }
+      try {
+        const user = JSON.parse(userRaw);
+        showDesk(user);
+        await loadTab('dashboard');
+      } catch {
+        logout(true);
+      }
+    })();
+  </script>
+</body>
+</html>
