@@ -12,4 +12,6 @@ class ThemeModeController extends Notifier<ThemeMode> {
   void useSystemDefault() => state = ThemeMode.system;
 }
 
-final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);
+final themeModeProvider = NotifierProvider<ThemeModeController, ThemeMode>(
+  ThemeModeController.new,
+);

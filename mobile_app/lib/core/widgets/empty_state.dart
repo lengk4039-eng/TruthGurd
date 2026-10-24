@@ -23,27 +23,42 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.lg),
+      padding: const EdgeInsets.symmetric(
+        vertical: AppSpacing.xxl,
+        horizontal: AppSpacing.lg,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 76,
             height: 76,
-            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
             child: Icon(icon, size: 34, color: AppColors.primary),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleLarge,
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Text(
             message,
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
           ),
           if (actionLabel != null) ...[
             const SizedBox(height: AppSpacing.lg),
-            PrimaryButton(label: actionLabel!, onPressed: onAction, expand: false),
+            PrimaryButton(
+              label: actionLabel!,
+              onPressed: onAction,
+              expand: false,
+            ),
           ],
         ],
       ),

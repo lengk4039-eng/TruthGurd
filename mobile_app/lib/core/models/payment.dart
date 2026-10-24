@@ -4,7 +4,8 @@ enum PaymentStatus {
   overdue,
   failed;
 
-  static PaymentStatus fromJson(String value) => values.byName(value.toLowerCase());
+  static PaymentStatus fromJson(String value) =>
+      values.byName(value.toLowerCase());
   String toJson() => name.toUpperCase();
 }
 
@@ -29,17 +30,17 @@ enum PaymentMethod {
   eWallet;
 
   static PaymentMethod fromJson(String value) => switch (value) {
-        'CARD' => PaymentMethod.card,
-        'BANK_TRANSFER' => PaymentMethod.bankTransfer,
-        'E_WALLET' => PaymentMethod.eWallet,
-        _ => throw ArgumentError('Unknown PaymentMethod: $value'),
-      };
+    'CARD' => PaymentMethod.card,
+    'BANK_TRANSFER' => PaymentMethod.bankTransfer,
+    'E_WALLET' => PaymentMethod.eWallet,
+    _ => throw ArgumentError('Unknown PaymentMethod: $value'),
+  };
 
   String toJson() => switch (this) {
-        PaymentMethod.card => 'CARD',
-        PaymentMethod.bankTransfer => 'BANK_TRANSFER',
-        PaymentMethod.eWallet => 'E_WALLET',
-      };
+    PaymentMethod.card => 'CARD',
+    PaymentMethod.bankTransfer => 'BANK_TRANSFER',
+    PaymentMethod.eWallet => 'E_WALLET',
+  };
 }
 
 extension PaymentMethodX on PaymentMethod {
@@ -86,9 +87,13 @@ class Payment {
       invoiceNumber: json['invoiceNumber'] as String,
       amount: (json['amount'] as num).toDouble(),
       dueDate: DateTime.parse(json['dueDate'] as String),
-      paidDate: json['paidDate'] != null ? DateTime.parse(json['paidDate'] as String) : null,
+      paidDate: json['paidDate'] != null
+          ? DateTime.parse(json['paidDate'] as String)
+          : null,
       status: PaymentStatus.fromJson(json['status'] as String),
-      method: json['method'] != null ? PaymentMethod.fromJson(json['method'] as String) : null,
+      method: json['method'] != null
+          ? PaymentMethod.fromJson(json['method'] as String)
+          : null,
     );
   }
 

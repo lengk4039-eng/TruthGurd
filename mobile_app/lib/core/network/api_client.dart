@@ -14,38 +14,47 @@ class ApiClient {
   static final Dio instance = _build();
 
   static Dio _build() {
-    final dio = Dio(BaseOptions(
-      baseUrl: ApiConfig.baseUrl,
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: ApiConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+      ),
+    );
 
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        final token = await TokenStorage.readAccessToken();
-        if (token != null) options.headers['Authorization'] = 'Bearer $token';
-        handler.next(options);
-      },
-      onError: (error, handler) async {
-        if (error.response?.statusCode == 401) {
-          await TokenStorage.clear();
-        }
-        handler.next(DioException(
-          requestOptions: error.requestOptions,
-          response: error.response,
-          type: error.type,
-          error: AppException(_messageFor(error)),
-        ));
-      },
-    ));
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final token = await TokenStorage.readAccessToken();
+          if (token != null) options.headers['Authorization'] = 'Bearer $token';
+          handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            await TokenStorage.clear();
+          }
+          handler.next(
+            DioException(
+              requestOptions: error.requestOptions,
+              response: error.response,
+              type: error.type,
+              error: AppException(_messageFor(error)),
+            ),
+          );
+        },
+      ),
+    );
 
     return dio;
   }
 
   static String _messageFor(DioException error) {
     final data = error.response?.data;
-    if (data is Map && data['message'] is String) return data['message'] as String;
-    if (error.type == DioExceptionType.connectionError || error.type == DioExceptionType.connectionTimeout) {
+    if (data is Map && data['message'] is String) {
+      return data['message'] as String;
+    }
+    if (error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.connectionTimeout) {
       return "Can't reach TrustGuard right now. Check your connection and try again.";
     }
     return 'Something went wrong. Please try again.';

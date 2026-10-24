@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_category.dart';
 import '../../../core/models/insurance_package.dart';
 import '../../../core/providers/data_providers.dart';
@@ -33,7 +34,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Checkout'),
+        title: Text(context.l10n.tr('checkout.title')),
       ),
       body: AsyncValueView(
         value: packageAsync,
@@ -43,10 +44,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   }
 
   Widget _buildBody(BuildContext context, InsurancePackage package) {
+    final l10n = context.l10n;
     final plans = MockData.planOptionsFor(package);
     final plan = plans[_planIndex];
-    final addOns = MockData.addOns.where((a) => _selectedAddOns.contains(a.id)).toList();
-    final selection = CheckoutSelection(package: package, plan: plan, addOns: addOns);
+    final addOns = MockData.addOns
+        .where((a) => _selectedAddOns.contains(a.id))
+        .toList();
+    final selection = CheckoutSelection(
+      package: package,
+      plan: plan,
+      addOns: addOns,
+    );
 
     return Column(
       children: [
@@ -62,16 +70,32 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       Container(
                         width: 44,
                         height: 44,
-                        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                        child: Icon(package.category.icon, color: AppColors.primary),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
+                        child: Icon(
+                          package.category.icon,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(package.name, style: Theme.of(context).textTheme.titleSmall),
-                            Text('${AppFormatters.currencyWhole(package.coverageAmount)} coverage', style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              package.name,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            Text(
+                              l10n.tr('checkout.coverage', {
+                                'amount': AppFormatters.currencyWhole(
+                                  package.coverageAmount,
+                                ),
+                              }),
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                           ],
                         ),
                       ),
@@ -80,7 +104,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              Text('Choose your plan', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.tr('checkout.choosePlan'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               for (var i = 0; i < plans.length; i++)
                 Padding(
@@ -92,7 +119,10 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Optional add-ons', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.tr('checkout.addOns'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               for (final addOn in MockData.addOns)
                 Padding(
@@ -100,7 +130,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   child: _AddOnTile(
                     addOn: addOn,
                     selected: _selectedAddOns.contains(addOn.id),
-                    onChanged: (v) => setState(() => v ? _selectedAddOns.add(addOn.id) : _selectedAddOns.remove(addOn.id)),
+                    onChanged: (v) => setState(
+                      () => v
+                          ? _selectedAddOns.add(addOn.id)
+                          : _selectedAddOns.remove(addOn.id),
+                    ),
                   ),
                 ),
               const SizedBox(height: AppSpacing.lg),
@@ -110,13 +144,30 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     children: [
-                      _summaryRow(context, '${plan.label} plan', AppFormatters.currency(plan.totalPrice)),
+                      _summaryRow(
+                        context,
+                        l10n.planLabel(plan.months),
+                        AppFormatters.currency(plan.totalPrice),
+                      ),
                       if (addOns.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xs),
-                        for (final a in addOns) _summaryRow(context, a.name, AppFormatters.currency(a.price * plan.months)),
+                        for (final a in addOns)
+                          _summaryRow(
+                            context,
+                            _addOnName(l10n, a),
+                            AppFormatters.currency(a.price * plan.months),
+                          ),
                       ],
-                      const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.sm), child: Divider()),
-                      _summaryRow(context, 'Total due', AppFormatters.currency(selection.total), emphasize: true),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                        child: Divider(),
+                      ),
+                      _summaryRow(
+                        context,
+                        l10n.tr('checkout.totalDue'),
+                        AppFormatters.currency(selection.total),
+                        emphasize: true,
+                      ),
                     ],
                   ),
                 ),
@@ -129,8 +180,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: PrimaryButton(
-              label: 'Continue to payment · ${AppFormatters.currency(selection.total)}',
-              onPressed: () => context.push('/checkout/payment-method', extra: selection),
+              label: l10n.tr('checkout.continue', {
+                'amount': AppFormatters.currency(selection.total),
+              }),
+              onPressed: () =>
+                  context.push('/checkout/payment-method', extra: selection),
             ),
           ),
         ),
@@ -138,29 +192,58 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     );
   }
 
-  Widget _summaryRow(BuildContext context, String label, String value, {bool emphasize = false}) {
+  Widget _summaryRow(
+    BuildContext context,
+    String label,
+    String value, {
+    bool emphasize = false,
+  }) {
     final style = emphasize
         ? Theme.of(context).textTheme.titleMedium
-        : Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color);
+        : Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(label, style: style), Text(value, style: style)],
+        children: [
+          Text(label, style: style),
+          Text(value, style: style),
+        ],
       ),
     );
   }
 }
+
+String _addOnName(AppLocalizations l10n, PackageAddOn addOn) =>
+    switch (addOn.id) {
+      'addon_priority' => l10n.tr('checkout.addonPriority'),
+      'addon_family' => l10n.tr('checkout.addonFamily'),
+      _ => addOn.name,
+    };
+
+String _addOnDescription(AppLocalizations l10n, PackageAddOn addOn) =>
+    switch (addOn.id) {
+      'addon_priority' => l10n.tr('checkout.addonPriorityBody'),
+      'addon_family' => l10n.tr('checkout.addonFamilyBody'),
+      _ => addOn.description,
+    };
 
 class _PlanOptionTile extends StatelessWidget {
   final PackagePlanOption plan;
   final bool selected;
   final VoidCallback onTap;
 
-  const _PlanOptionTile({required this.plan, required this.selected, required this.onTap});
+  const _PlanOptionTile({
+    required this.plan,
+    required this.selected,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final badge = plan.months == 12 ? l10n.tr('checkout.save15') : plan.badge;
     return InkWell(
       borderRadius: BorderRadius.circular(AppRadius.md),
       onTap: onTap,
@@ -168,29 +251,60 @@ class _PlanOptionTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: selected ? AppColors.primary : Theme.of(context).dividerColor, width: selected ? 1.6 : 1),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Theme.of(context).dividerColor,
+            width: selected ? 1.6 : 1,
+          ),
           color: selected ? AppColors.primary.withValues(alpha: 0.06) : null,
         ),
         child: Row(
           children: [
-            Icon(selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded, color: selected ? AppColors.primary : Theme.of(context).disabledColor),
+            Icon(
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
+              color: selected
+                  ? AppColors.primary
+                  : Theme.of(context).disabledColor,
+            ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Row(
                 children: [
-                  Text(plan.label, style: Theme.of(context).textTheme.titleSmall),
-                  if (plan.badge != null) ...[
+                  Text(
+                    l10n.planLabel(plan.months),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  if (badge != null) ...[
                     const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.pill)),
-                      child: Text(plan.badge!, style: const TextStyle(color: AppColors.success, fontSize: 10, fontWeight: FontWeight.w700)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.success.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
+                      child: Text(
+                        badge,
+                        style: const TextStyle(
+                          color: AppColors.success,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
                   ],
                 ],
               ),
             ),
-            Text(AppFormatters.currency(plan.totalPrice), style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              AppFormatters.currency(plan.totalPrice),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
           ],
         ),
       ),
@@ -203,10 +317,15 @@ class _AddOnTile extends StatelessWidget {
   final bool selected;
   final ValueChanged<bool> onChanged;
 
-  const _AddOnTile({required this.addOn, required this.selected, required this.onChanged});
+  const _AddOnTile({
+    required this.addOn,
+    required this.selected,
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return InkWell(
       borderRadius: BorderRadius.circular(AppRadius.md),
       onTap: () => onChanged(!selected),
@@ -214,7 +333,12 @@ class _AddOnTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: selected ? AppColors.primary : Theme.of(context).dividerColor, width: selected ? 1.6 : 1),
+          border: Border.all(
+            color: selected
+                ? AppColors.primary
+                : Theme.of(context).dividerColor,
+            width: selected ? 1.6 : 1,
+          ),
           color: selected ? AppColors.primary.withValues(alpha: 0.06) : null,
         ),
         child: Row(
@@ -223,14 +347,29 @@ class _AddOnTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(addOn.name, style: Theme.of(context).textTheme.titleSmall),
-                  Text(addOn.description, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    _addOnName(l10n, addOn),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  Text(
+                    _addOnDescription(l10n, addOn),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
-            Text('+${AppFormatters.currency(addOn.price)}/mo', style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              l10n.tr('checkout.perMonthPrice', {
+                'amount': AppFormatters.currency(addOn.price),
+              }),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             const SizedBox(width: AppSpacing.sm),
-            Switch(value: selected, onChanged: onChanged, activeThumbColor: AppColors.primary),
+            Switch(
+              value: selected,
+              onChanged: onChanged,
+              activeThumbColor: AppColors.primary,
+            ),
           ],
         ),
       ),

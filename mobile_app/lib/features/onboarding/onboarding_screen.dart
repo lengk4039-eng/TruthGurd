@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../core/localization/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/widgets/primary_button.dart';
@@ -9,26 +10,30 @@ import '../splash/splash_screen.dart' show onboardingSeenKey;
 
 class _Slide {
   final IconData icon;
-  final String title;
-  final String description;
-  const _Slide({required this.icon, required this.title, required this.description});
+  final String titleKey;
+  final String bodyKey;
+  const _Slide({
+    required this.icon,
+    required this.titleKey,
+    required this.bodyKey,
+  });
 }
 
 const _slides = [
   _Slide(
     icon: Icons.search_rounded,
-    title: 'Find the right cover in minutes',
-    description: 'Compare Health, Life, Auto, Home, and Travel plans side by side and pick what actually fits your life.',
+    titleKey: 'onboarding.slide1Title',
+    bodyKey: 'onboarding.slide1Body',
   ),
   _Slide(
     icon: Icons.phone_iphone_rounded,
-    title: 'Buy and manage from your phone',
-    description: 'Purchase a new package in a few taps — no paperwork, no branch visits, no waiting on hold.',
+    titleKey: 'onboarding.slide2Title',
+    bodyKey: 'onboarding.slide2Body',
   ),
   _Slide(
     icon: Icons.receipt_long_rounded,
-    title: 'Already have a policy? Track it here',
-    description: 'Link a policy bought through an agent to see every payment, due date, and receipt in one place.',
+    titleKey: 'onboarding.slide3Title',
+    bodyKey: 'onboarding.slide3Body',
   ),
 ];
 
@@ -52,6 +57,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final isLast = _index == _slides.length - 1;
     return Scaffold(
       body: SafeArea(
@@ -60,8 +66,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.only(right: AppSpacing.md, top: AppSpacing.sm),
-                child: TextButton(onPressed: _finish, child: const Text('Skip')),
+                padding: const EdgeInsets.only(
+                  right: AppSpacing.md,
+                  top: AppSpacing.sm,
+                ),
+                child: TextButton(
+                  onPressed: _finish,
+                  child: Text(l10n.tr('onboarding.skip')),
+                ),
               ),
             ),
             Expanded(
@@ -72,7 +84,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 itemBuilder: (context, i) {
                   final slide = _slides[i];
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -82,22 +96,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             gradient: LinearGradient(
-                              colors: [AppColors.primary.withValues(alpha: 0.12), AppColors.primary.withValues(alpha: 0.04)],
+                              colors: [
+                                AppColors.primary.withValues(alpha: 0.12),
+                                AppColors.primary.withValues(alpha: 0.04),
+                              ],
                             ),
                           ),
-                          child: Icon(slide.icon, size: 64, color: AppColors.primary),
+                          child: Icon(
+                            slide.icon,
+                            size: 64,
+                            color: AppColors.primary,
+                          ),
                         ),
                         const SizedBox(height: AppSpacing.xl),
                         Text(
-                          slide.title,
+                          l10n.tr(slide.titleKey),
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          slide.description,
+                          l10n.tr(slide.bodyKey),
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.color,
+                              ),
                         ),
                       ],
                     ),
@@ -115,7 +142,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: active ? 22 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: active ? AppColors.primary : AppColors.primary.withValues(alpha: 0.2),
+                    color: active
+                        ? AppColors.primary
+                        : AppColors.primary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                 );
@@ -124,12 +153,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
               child: PrimaryButton(
-                label: isLast ? 'Get started' : 'Next',
+                label: l10n.tr(
+                  isLast ? 'onboarding.getStarted' : 'onboarding.next',
+                ),
                 onPressed: () {
                   if (isLast) {
                     _finish();
                   } else {
-                    _controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
+                    _controller.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
                   }
                 },
               ),

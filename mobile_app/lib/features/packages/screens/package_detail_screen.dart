@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/models/insurance_category.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_package.dart';
 import '../../../core/providers/data_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -10,6 +10,7 @@ import '../../../core/theme/app_dimens.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_back_button.dart';
 import '../../../core/widgets/async_value_view.dart';
+import '../../../core/widgets/category_image.dart';
 import '../../../core/widgets/primary_button.dart';
 
 class PackageDetailScreen extends ConsumerWidget {
@@ -35,6 +36,7 @@ class _PackageDetailBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: [
         Expanded(
@@ -54,31 +56,50 @@ class _PackageDetailBody extends StatelessWidget {
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     decoration: const BoxDecoration(
-                      gradient: LinearGradient(colors: AppColors.tileGradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+                      gradient: LinearGradient(
+                        colors: AppColors.tileGradient,
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                     ),
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 80, AppSpacing.lg, AppSpacing.lg),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      80,
+                      AppSpacing.lg,
+                      AppSpacing.lg,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                          child: Icon(package.category.icon, color: Colors.white, size: 24),
+                        CategoryImage(
+                          category: package.category,
+                          size: 56,
+                          radius: AppRadius.sm,
+                          borderColor: Colors.white.withValues(alpha: 0.65),
+                          borderWidth: 2,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
                           package.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           package.tagline,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.88), fontSize: 13, height: 1.3),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.88),
+                            fontSize: 13,
+                            height: 1.3,
+                          ),
                         ),
                       ],
                     ),
@@ -91,22 +112,43 @@ class _PackageDetailBody extends StatelessWidget {
                   delegate: SliverChildListDelegate([
                     Row(
                       children: [
-                        _StatChip(label: 'Coverage', value: AppFormatters.currencyWhole(package.coverageAmount)),
+                        _StatChip(
+                          label: l10n.tr('packages.coverage'),
+                          value: AppFormatters.currencyWhole(
+                            package.coverageAmount,
+                          ),
+                        ),
                         const SizedBox(width: AppSpacing.sm),
-                        _StatChip(label: 'From', value: '${AppFormatters.currencyWhole(package.monthlyPrice)}/mo'),
+                        _StatChip(
+                          label: l10n.tr('packages.from'),
+                          value:
+                              '${AppFormatters.currencyWhole(package.monthlyPrice)}${l10n.tr('packages.perMonth')}',
+                        ),
                         const SizedBox(width: AppSpacing.sm),
-                        _StatChip(label: 'Rating', value: '★ ${package.rating}'),
+                        _StatChip(
+                          label: l10n.tr('packages.rating'),
+                          value: '★ ${package.rating}',
+                        ),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    Text('About this plan', style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      l10n.tr('packages.about'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       package.description,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color, height: 1.6),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        height: 1.6,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.xl),
-                    Text("What's covered", style: Theme.of(context).textTheme.titleMedium),
+                    Text(
+                      l10n.tr('packages.whatCovered'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                     const SizedBox(height: AppSpacing.sm),
                     for (final benefit in package.benefits)
                       Padding(
@@ -117,17 +159,35 @@ class _PackageDetailBody extends StatelessWidget {
                             Container(
                               margin: const EdgeInsets.only(top: 2),
                               padding: const EdgeInsets.all(3),
-                              decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
-                              child: const Icon(Icons.check_rounded, size: 12, color: Colors.white),
+                              decoration: const BoxDecoration(
+                                color: AppColors.success,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.check_rounded,
+                                size: 12,
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
-                            Expanded(child: Text(benefit, style: Theme.of(context).textTheme.bodyMedium)),
+                            Expanded(
+                              child: Text(
+                                benefit,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
                           ],
                         ),
                       ),
                     if (package.reviewCount > 0) ...[
                       const SizedBox(height: AppSpacing.md),
-                      Text('Rated ${package.rating} from ${package.reviewCount} customers', style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        l10n.tr('packages.ratedFrom', {
+                          'rating': '${package.rating}',
+                          'count': '${package.reviewCount}',
+                        }),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                     const SizedBox(height: AppSpacing.xl),
                     _ClaimsLegalSection(package: package),
@@ -144,7 +204,13 @@ class _PackageDetailBody extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.lg),
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 16, offset: const Offset(0, -4))],
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, -4),
+                ),
+              ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -155,16 +221,23 @@ class _PackageDetailBody extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Starting at', style: Theme.of(context).textTheme.bodySmall),
-                          Text('${AppFormatters.currency(package.monthlyPrice)}/mo', style: Theme.of(context).textTheme.headlineSmall),
+                          Text(
+                            l10n.tr('packages.startingAt'),
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '${AppFormatters.currency(package.monthlyPrice)}${l10n.tr('packages.perMonth')}',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                         ],
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: PrimaryButton(
-                        label: 'Buy now',
-                        onPressed: () => context.push('/packages/${package.id}/checkout'),
+                        label: l10n.tr('packages.buyNow'),
+                        onPressed: () =>
+                            context.push('/packages/${package.id}/checkout'),
                       ),
                     ),
                   ],
@@ -173,12 +246,15 @@ class _PackageDetailBody extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
-                    onPressed: () => context.push('/packages/${package.id}/quote'),
+                    onPressed: () =>
+                        context.push('/packages/${package.id}/quote'),
                     icon: const Icon(Icons.request_quote_outlined),
-                    label: const Text('Get a quotation'),
+                    label: Text(l10n.tr('packages.getQuote')),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size(double.infinity, 48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
                     ),
                   ),
                 ),
@@ -197,18 +273,29 @@ class _ClaimsLegalSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).textTheme.bodySmall?.color;
     final documents = package.claimDocuments.isEmpty
-        ? const ['Proof of the incident', 'Invoices or receipts', 'Photo ID and policy certificate']
+        ? [
+            l10n.tr('packages.defaultDocProof'),
+            l10n.tr('packages.defaultDocInvoices'),
+            l10n.tr('packages.defaultDocId'),
+          ]
         : package.claimDocuments;
     final exclusions = package.exclusions.isEmpty
-        ? const ['Events outside the cover described in your policy schedule', 'Fraud or misleading information']
+        ? [
+            l10n.tr('packages.defaultExclusionOutside'),
+            l10n.tr('packages.defaultExclusionFraud'),
+          ]
         : package.exclusions;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Claims & legal', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          l10n.tr('packages.claimsLegal'),
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: AppSpacing.sm),
         Card(
           child: Padding(
@@ -218,46 +305,85 @@ class _ClaimsLegalSection extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    _StatChip(label: 'Waiting period', value: '${package.waitingPeriodDays} days'),
+                    _StatChip(
+                      label: l10n.tr('packages.waitingPeriod'),
+                      value: l10n.tr('packages.days', {
+                        'count': '${package.waitingPeriodDays}',
+                      }),
+                    ),
                     const SizedBox(width: AppSpacing.sm),
-                    _StatChip(label: 'File within', value: '${package.claimWindowDays} days'),
+                    _StatChip(
+                      label: l10n.tr('packages.fileWithin'),
+                      value: l10n.tr('packages.days', {
+                        'count': '${package.claimWindowDays}',
+                      }),
+                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text('How a claim is assessed', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  l10n.tr('packages.howAssessed'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const SizedBox(height: 4),
                 Text(
                   package.claimPolicy.isEmpty
-                      ? 'Claims are assessed against the benefits, limits and conditions in your policy schedule.'
+                      ? l10n.tr('packages.defaultAssess')
                       : package.claimPolicy,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: muted, height: 1.55),
+                  style: Theme.of(context).textTheme.bodyMedium
+                      ?.copyWith(color: muted, height: 1.55),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text('Documents to prepare', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  l10n.tr('packages.documents'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const SizedBox(height: AppSpacing.xs),
-                _LegalList(items: documents, icon: Icons.description_outlined, color: AppColors.primary),
+                _LegalList(
+                  items: documents,
+                  icon: Icons.description_outlined,
+                  color: AppColors.primary,
+                ),
                 const SizedBox(height: AppSpacing.md),
-                Text('Not covered', style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  l10n.tr('packages.notCovered'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
                 const SizedBox(height: AppSpacing.xs),
-                _LegalList(items: exclusions, icon: Icons.close_rounded, color: AppColors.error),
+                _LegalList(
+                  items: exclusions,
+                  icon: Icons.close_rounded,
+                  color: AppColors.error,
+                ),
                 if (package.legalTerms.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.sm),
                   const Divider(),
                   Theme(
-                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                    data: Theme.of(context)
+                        .copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
                       tilePadding: EdgeInsets.zero,
-                      childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      leading: const Icon(Icons.gavel_rounded, color: AppColors.primary, size: 20),
-                      title: Text('Full legal terms', style: Theme.of(context).textTheme.titleSmall),
+                      childrenPadding: const EdgeInsets.only(
+                        bottom: AppSpacing.sm,
+                      ),
+                      leading: const Icon(
+                        Icons.gavel_rounded,
+                        color: AppColors.primary,
+                        size: 20,
+                      ),
+                      title: Text(
+                        l10n.tr('packages.fullTerms'),
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
                       subtitle: Text(
-                        'Cover conditions, duties and data use',
+                        l10n.tr('packages.fullTermsSubtitle'),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                       children: [
                         Text(
                           package.legalTerms,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.55),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(height: 1.55),
                         ),
                       ],
                     ),
@@ -269,7 +395,7 @@ class _ClaimsLegalSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Waiting periods and exclusions apply. When you file, we re-check your premium status before accepting the claim.',
+          l10n.tr('packages.legalNote'),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
@@ -282,7 +408,11 @@ class _LegalList extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _LegalList({required this.items, required this.icon, required this.color});
+  const _LegalList({
+    required this.items,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +434,8 @@ class _LegalList extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: muted, height: 1.45, fontSize: 12.5),
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: muted, height: 1.45, fontSize: 12.5),
                   ),
                 ),
               ],
@@ -331,9 +462,22 @@ class _StatChip extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(value, style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13.5)),
+            Text(
+              value,
+              style: const TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+                fontSize: 13.5,
+              ),
+            ),
             const SizedBox(height: 2),
-            Text(label, style: TextStyle(color: Theme.of(context).textTheme.bodySmall?.color, fontSize: 10.5)),
+            Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(context).textTheme.bodySmall?.color,
+                fontSize: 10.5,
+              ),
+            ),
           ],
         ),
       ),

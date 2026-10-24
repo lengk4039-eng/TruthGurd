@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/claim.dart';
 import '../../../core/providers/data_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -18,11 +19,12 @@ class MyClaimsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final claimsAsync = ref.watch(myClaimsProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('My claims'),
+        title: Text(l10n.tr('claims.title')),
       ),
       body: AsyncValueView(
         value: claimsAsync,
@@ -31,16 +33,21 @@ class MyClaimsScreen extends ConsumerWidget {
           if (claims.isEmpty) {
             return EmptyState(
               icon: Icons.assignment_outlined,
-              title: 'No claims yet',
-              message: 'If something happens, open an active policy and file a claim from there.',
-              actionLabel: 'My policies',
+              title: l10n.tr('claims.emptyTitle'),
+              message: l10n.tr('claims.emptyBody'),
+              actionLabel: l10n.tr('claims.action'),
               onAction: () => context.go('/my-policies'),
             );
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(myClaimsProvider),
             child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xxl),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                AppSpacing.xxl,
+              ),
               itemCount: claims.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
@@ -48,7 +55,7 @@ class MyClaimsScreen extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xs),
                     child: Text(
-                      'Tap a claim to see its progress, decision and next steps.',
+                      l10n.tr('claims.hint'),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   );
@@ -75,11 +82,13 @@ class _ClaimCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).textTheme.bodySmall?.color;
     final accent = switch (claim.status) {
+      ClaimStatus.submitted => AppColors.warning,
+      ClaimStatus.underReview => AppColors.primary,
       ClaimStatus.approved => AppColors.success,
       ClaimStatus.rejected => AppColors.error,
-      _ => AppColors.primary,
     };
     final statusIcon = switch (claim.status) {
       ClaimStatus.submitted => Icons.schedule_rounded,
@@ -113,17 +122,23 @@ class _ClaimCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(claim.policyName, style: Theme.of(context).textTheme.titleSmall),
+                        Text(
+                          claim.policyName,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
                         const SizedBox(height: 2),
                         Text(
-                          '${claim.claimNumber} · ${claim.type.label}',
+                          '${claim.claimNumber} · ${l10n.claimType(claim.type)}',
                           style: TextStyle(color: muted, fontSize: 11.5),
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
-                  StatusBadge(label: claim.status.label),
+                  StatusBadge(
+                    label: l10n.claimStatus(claim.status),
+                    color: accent,
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -131,13 +146,20 @@ class _ClaimCard extends StatelessWidget {
                 children: [
                   Text(
                     AppFormatters.currency(claim.amount),
-                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
                   const Spacer(),
                   Text(
                     claim.reviewedAt != null
-                        ? 'Updated ${AppFormatters.date(claim.reviewedAt!)}'
-                        : 'Submitted ${AppFormatters.date(claim.submittedAt)}',
+                        ? l10n.tr('claims.updatedOn', {
+                            'date': l10n.formatDate(claim.reviewedAt!),
+                          })
+                        : l10n.tr('claims.submittedOn', {
+                            'date': l10n.formatDate(claim.submittedAt),
+                          }),
                     style: TextStyle(color: muted, fontSize: 11.5),
                   ),
                   const SizedBox(width: 2),
@@ -147,7 +169,10 @@ class _ClaimCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: accent.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -155,14 +180,22 @@ class _ClaimCard extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.subdirectory_arrow_right_rounded, size: 15, color: accent),
+                    Icon(
+                      Icons.subdirectory_arrow_right_rounded,
+                      size: 15,
+                      color: accent,
+                    ),
                     const SizedBox(width: 5),
                     Expanded(
                       child: Text(
-                        claim.nextStep,
+                        l10n.claimNextStepBody(claim.status),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11.5, height: 1.4, color: muted),
+                        style: TextStyle(
+                          fontSize: 11.5,
+                          height: 1.4,
+                          color: muted,
+                        ),
                       ),
                     ),
                   ],

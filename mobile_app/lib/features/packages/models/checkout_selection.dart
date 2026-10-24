@@ -7,6 +7,7 @@ class CheckoutSelection {
   final InsurancePackage package;
   final PackagePlanOption plan;
   final List<PackageAddOn> addOns;
+
   /// When set, this checkout is fulfilling a sales quotation at the quoted price.
   final String? quotationId;
 
@@ -36,20 +37,28 @@ class CheckoutSelection {
 
   bool get isFromQuotation => quotationId != null;
 
-  double get addOnTotal => addOns.fold<double>(0, (sum, a) => sum + a.price * plan.months);
+  double get addOnTotal =>
+      addOns.fold<double>(0, (sum, a) => sum + a.price * plan.months);
 
   /// Quoted checkouts use the sales price only (no extra add-ons on this path).
-  double get total => isFromQuotation ? plan.totalPrice : plan.totalPrice + addOnTotal;
+  double get total =>
+      isFromQuotation ? plan.totalPrice : plan.totalPrice + addOnTotal;
 }
 
 class PurchaseResult {
   final Policy policy;
   final PaymentMethod method;
   final bool fromQuotation;
+  final String? instrumentLabel;
+  final String? reference;
+  final DateTime? paidAt;
 
   const PurchaseResult({
     required this.policy,
     required this.method,
     this.fromQuotation = false,
+    this.instrumentLabel,
+    this.reference,
+    this.paidAt,
   });
 }

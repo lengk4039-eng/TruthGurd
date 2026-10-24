@@ -10,13 +10,22 @@ class AppLogo extends StatelessWidget {
   final bool showWordmark;
   final Color? wordmarkColor;
 
-  const AppLogo({super.key, this.size = 40, this.showWordmark = false, this.wordmarkColor});
+  const AppLogo({
+    super.key,
+    this.size = 40,
+    this.showWordmark = false,
+    this.wordmarkColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     final mark = ClipRRect(
       borderRadius: BorderRadius.circular(size * 0.22),
-      child: SvgPicture.asset('assets/logo/trustguard_mark.svg', width: size, height: size),
+      child: SvgPicture.asset(
+        'assets/logo/trustguard_mark.svg',
+        width: size,
+        height: size,
+      ),
     );
     if (!showWordmark) return mark;
 
@@ -32,7 +41,12 @@ class AppLogo extends StatelessWidget {
           children: [
             Text(
               'TrustGuard',
-              style: GoogleFonts.poppins(fontSize: size * 0.38, fontWeight: FontWeight.w600, color: textColor, height: 1),
+              style: GoogleFonts.poppins(
+                fontSize: size * 0.38,
+                fontWeight: FontWeight.w600,
+                color: textColor,
+                height: 1,
+              ),
             ),
             Text(
               'INSURANCE',

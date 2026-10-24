@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/claim.dart';
 import '../../../core/models/claim_eligibility.dart';
-import '../../../core/models/insurance_category.dart';
 import '../../../core/models/insurance_package.dart';
 import '../../../core/models/policy.dart';
 import '../../../core/providers/data_providers.dart';
@@ -15,6 +15,7 @@ import '../../../core/utils/formatters.dart';
 import '../../../core/widgets/app_back_button.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/async_value_view.dart';
+import '../../../core/widgets/category_image.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../../../core/widgets/status_badge.dart';
 
@@ -43,8 +44,12 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
 
   Future<void> _pickDate(Policy policy, ClaimEligibility eligibility) async {
     final now = DateTime.now();
-    final windowStart = now.subtract(Duration(days: eligibility.claimWindowDays));
-    final firstDate = policy.startDate.isAfter(windowStart) ? policy.startDate : windowStart;
+    final windowStart = now.subtract(
+      Duration(days: eligibility.claimWindowDays),
+    );
+    final firstDate = policy.startDate.isAfter(windowStart)
+        ? policy.startDate
+        : windowStart;
     final initialDate = _incidentDate.isBefore(firstDate)
         ? firstDate
         : (_incidentDate.isAfter(now) ? now : _incidentDate);
@@ -53,21 +58,22 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
       initialDate: initialDate,
       firstDate: firstDate,
       lastDate: now,
-      helpText: 'Incident date',
+      helpText: context.l10n.tr('claimForm.incidentDate'),
     );
     if (picked != null) setState(() => _incidentDate = picked);
   }
 
   Future<void> _submit(Policy policy, ClaimType type) async {
     if (_submitting) return;
+    final l10n = context.l10n;
     final description = _descriptionController.text.trim();
     final amount = double.tryParse(_amountController.text.trim());
     if (description.isEmpty) {
-      setState(() => _error = 'Please describe what happened.');
+      setState(() => _error = l10n.tr('claimForm.errorDescription'));
       return;
     }
     if (amount == null || amount <= 0) {
-      setState(() => _error = 'Enter a valid claim amount.');
+      setState(() => _error = l10n.tr('claimForm.errorAmount'));
       return;
     }
 
@@ -76,7 +82,9 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
       _error = null;
     });
     try {
-      final claim = await ref.read(claimsRepositoryProvider).submitClaim(
+      final claim = await ref
+          .read(claimsRepositoryProvider)
+          .submitClaim(
             policyId: policy.id,
             type: type,
             description: description,
@@ -98,32 +106,47 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
   @override
   Widget build(BuildContext context) {
     final policyAsync = ref.watch(policyDetailProvider(widget.policyId));
-    final eligibilityAsync = ref.watch(claimEligibilityProvider(widget.policyId));
+    final eligibilityAsync = ref.watch(
+      claimEligibilityProvider(widget.policyId),
+    );
 
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('File a claim'),
+        title: Text(context.l10n.tr('claimForm.title')),
       ),
       body: AsyncValueView(
         value: policyAsync,
         onRetry: () => ref.invalidate(policyDetailProvider(widget.policyId)),
         builder: (policy) => AsyncValueView(
           value: eligibilityAsync,
-          onRetry: () => ref.invalidate(claimEligibilityProvider(widget.policyId)),
+          onRetry: () =>
+              ref.invalidate(claimEligibilityProvider(widget.policyId)),
           builder: (eligibility) => _buildBody(context, policy, eligibility),
         ),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, Policy policy, ClaimEligibility eligibility) {
+  Widget _buildBody(
+    BuildContext context,
+    Policy policy,
+    ClaimEligibility eligibility,
+  ) {
+    final l10n = context.l10n;
     final waiting = eligibility.eligible && eligibility.withinWaitingPeriod;
-    final allowedTypes = waiting ? const [ClaimType.accident] : ClaimType.values;
+    final allowedTypes = waiting
+        ? const [ClaimType.accident]
+        : ClaimType.values;
     final selectedType = waiting ? ClaimType.accident : _type;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xxl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xxl,
+      ),
       children: [
         _PolicySummaryCard(policy: policy),
         const SizedBox(height: AppSpacing.lg),
@@ -145,7 +168,10 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
           const SizedBox(height: AppSpacing.lg),
           _BeforeYouFileCard(package: policy.package, eligibility: eligibility),
           const SizedBox(height: AppSpacing.xl),
-          Text('Claim details', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            l10n.tr('claimForm.details'),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Card(
             child: Padding(
@@ -153,11 +179,14 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Claim type', style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    l10n.tr('claimForm.claimType'),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   if (waiting) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Only accident claims are available during the waiting period.',
+                      l10n.tr('claimForm.accidentOnly'),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
@@ -168,7 +197,7 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
                     children: allowedTypes.map((type) {
                       final selected = selectedType == type;
                       return ChoiceChip(
-                        label: Text(type.label),
+                        label: Text(l10n.claimType(type)),
                         selected: selected,
                         showCheckmark: false,
                         onSelected: (_) => setState(() => _type = type),
@@ -185,9 +214,14 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
                     borderRadius: BorderRadius.circular(AppRadius.md),
                     onTap: () => _pickDate(policy, eligibility),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Theme.of(context).dividerColor),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
                       child: Row(
@@ -198,17 +232,22 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Incident date', style: Theme.of(context).textTheme.bodySmall),
+                                Text(
+                                  l10n.tr('claimForm.incidentDate'),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  AppFormatters.date(_incidentDate),
+                                  l10n.formatDate(_incidentDate),
                                   style: Theme.of(context).textTheme.titleSmall,
                                 ),
                               ],
                             ),
                           ),
                           Text(
-                            'Within ${eligibility.claimWindowDays} days',
+                            l10n.tr('claimForm.withinDays', {
+                              'count': '${eligibility.claimWindowDays}',
+                            }),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           const SizedBox(width: 4),
@@ -219,16 +258,18 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppTextField(
-                    label: 'Claimed amount',
-                    hint: 'e.g. 250',
+                    label: l10n.tr('claimForm.amount'),
+                    hint: l10n.tr('claimForm.amountHint'),
                     controller: _amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     prefixIcon: Icons.attach_money_rounded,
                   ),
                   const SizedBox(height: AppSpacing.md),
                   AppTextField(
-                    label: 'What happened?',
-                    hint: 'Describe the incident, when it happened and any treatment received',
+                    label: l10n.tr('claimForm.description'),
+                    hint: l10n.tr('claimForm.descriptionHint'),
                     controller: _descriptionController,
                     maxLines: 4,
                   ),
@@ -241,12 +282,20 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.error_outline_rounded, size: 18, color: Theme.of(context).colorScheme.error),
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 18,
+                  color: Theme.of(context).colorScheme.error,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     _error!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13, height: 1.4),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 13,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
@@ -254,14 +303,14 @@ class _FileClaimScreenState extends ConsumerState<FileClaimScreen> {
           ],
           const SizedBox(height: AppSpacing.lg),
           PrimaryButton(
-            label: 'Submit claim',
+            label: l10n.tr('claimForm.submit'),
             icon: Icons.send_rounded,
             isLoading: _submitting,
             onPressed: _submitting ? null : () => _submit(policy, selectedType),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'By submitting, you confirm the information is true and complete. False or misleading information can delay or void a claim.',
+            l10n.tr('claimForm.consent'),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ),
@@ -282,27 +331,29 @@ class _PolicySummaryCard extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Row(
           children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(policy.package.category.icon, color: AppColors.primary, size: 21),
+            CategoryImage(
+              category: policy.package.category,
+              size: 44,
+              radius: AppRadius.sm,
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(policy.package.name, style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    policy.package.name,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 2),
-                  Text(policy.policyNumber, style: Theme.of(context).textTheme.bodySmall),
+                  Text(
+                    policy.policyNumber,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
                 ],
               ),
             ),
-            StatusBadge(label: policy.status.label),
+            StatusBadge(label: context.l10n.policyStatus(policy.status)),
           ],
         ),
       ),
@@ -316,14 +367,27 @@ class _CoverStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final waiting = eligibility.withinWaitingPeriod;
     final color = waiting ? AppColors.warning : AppColors.success;
-    final icon = waiting ? Icons.hourglass_top_rounded : Icons.verified_user_rounded;
-    final title = waiting ? 'Waiting period active' : 'Claim protection active';
+    final icon = waiting
+        ? Icons.hourglass_top_rounded
+        : Icons.verified_user_rounded;
+    final title = waiting
+        ? l10n.tr('policy.waitingPeriod')
+        : l10n.tr('policy.claimProtection');
     final message = waiting
-        ? '${eligibility.message}'
-          '${eligibility.waitingPeriodEndsAt != null ? ' Waiting period ends ${AppFormatters.date(eligibility.waitingPeriodEndsAt!)}.' : ''}'
-        : 'Your policy is active and premiums are up to date. File this claim within ${eligibility.claimWindowDays} days of the incident.';
+        ? (eligibility.waitingPeriodEndsAt != null
+              ? l10n.tr('claimForm.waitingBody', {
+                  'date': l10n.formatDate(eligibility.waitingPeriodEndsAt!),
+                  'count': '${eligibility.waitingPeriodDays}',
+                })
+              : l10n.tr('claimForm.waitingBodyNoDate', {
+                  'count': '${eligibility.waitingPeriodDays}',
+                }))
+        : l10n.tr('claimForm.protectionBody', {
+            'count': '${eligibility.claimWindowDays}',
+          });
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -341,9 +405,17 @@ class _CoverStatusCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: color)),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleSmall
+                      ?.copyWith(color: color),
+                ),
                 const SizedBox(height: 4),
-                Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.5)),
+                Text(
+                  message,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(height: 1.5),
+                ),
               ],
             ),
           ),
@@ -366,7 +438,23 @@ class _ProtectionBlockCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final canPay = eligibility.canPayOverdue;
+    final title = switch (eligibility.code) {
+      'PAYMENT_OVERDUE' => l10n.tr('claimForm.titleOverdue'),
+      'PREMIUM_UNPAID' => l10n.tr('claimForm.titleUnpaid'),
+      'POLICY_INACTIVE' => l10n.tr('claimForm.titleExpired'),
+      _ =>
+        eligibility.title.isEmpty
+            ? l10n.tr('policy.claimUnavailable')
+            : eligibility.title,
+    };
+    final message = switch (eligibility.code) {
+      'PAYMENT_OVERDUE' => l10n.tr('claimForm.messageOverdue'),
+      'PREMIUM_UNPAID' => l10n.tr('claimForm.messageUnpaid'),
+      'POLICY_INACTIVE' => l10n.tr('claimForm.messageExpired'),
+      _ => eligibility.message,
+    };
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -384,15 +472,24 @@ class _ProtectionBlockCard extends StatelessWidget {
               color: AppColors.error.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
-            child: const Icon(Icons.gpp_maybe_rounded, color: AppColors.error, size: 24),
+            child: const Icon(
+              Icons.gpp_maybe_rounded,
+              color: AppColors.error,
+              size: 24,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            eligibility.title.isEmpty ? 'Claim filing unavailable' : eligibility.title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.error),
+            title,
+            style: Theme.of(context).textTheme.titleMedium
+                ?.copyWith(color: AppColors.error),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(eligibility.message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.55)),
+          Text(
+            message,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(height: 1.55),
+          ),
           if (eligibility.overdueAmount != null) ...[
             const SizedBox(height: AppSpacing.md),
             Container(
@@ -403,13 +500,30 @@ class _ProtectionBlockCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.receipt_long_rounded, size: 18, color: AppColors.error),
+                  const Icon(
+                    Icons.receipt_long_rounded,
+                    size: 18,
+                    color: AppColors.error,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Outstanding ${AppFormatters.currency(eligibility.overdueAmount!)}'
-                      '${eligibility.overdueDueDate != null ? ' · due ${AppFormatters.date(eligibility.overdueDueDate!)}' : ''}',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                      eligibility.overdueDueDate != null
+                          ? l10n.tr('claimForm.outstandingDue', {
+                              'amount': AppFormatters.currency(
+                                eligibility.overdueAmount!,
+                              ),
+                              'date': l10n.formatDate(
+                                eligibility.overdueDueDate!,
+                              ),
+                            })
+                          : l10n.tr('policy.outstanding', {
+                              'amount': AppFormatters.currency(
+                                eligibility.overdueAmount!,
+                              ),
+                            }),
+                      style: Theme.of(context).textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -419,9 +533,10 @@ class _ProtectionBlockCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.lg),
           if (canPay) ...[
             PrimaryButton(
-              label: 'Pay overdue installment',
+              label: l10n.tr('policy.payOverdue'),
               icon: Icons.payments_rounded,
-              onPressed: () => context.push('/payments/${eligibility.overduePaymentId}'),
+              onPressed: () =>
+                  context.push('/payments/${eligibility.overduePaymentId}'),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
@@ -430,22 +545,21 @@ class _ProtectionBlockCard extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: onViewPolicy,
               icon: const Icon(Icons.shield_outlined),
-              label: const Text('View policy & payment schedule'),
-              style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
+              label: Text(l10n.tr('claimForm.viewPolicy')),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            switch (eligibility.code) {
-              'PAYMENT_OVERDUE' => 'Cover resumes automatically once the outstanding installment is paid. This check runs again when you reopen the claim form.',
-              'PREMIUM_UNPAID' => 'Cover begins after the first premium is paid. Open the policy to settle the first invoice.',
-              _ => 'Expired cover cannot receive new claims. Renew the plan or contact support if you believe this is a mistake.',
-            },
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          Text(switch (eligibility.code) {
+            'PAYMENT_OVERDUE' => l10n.tr('claimForm.overdueNote'),
+            'PREMIUM_UNPAID' => l10n.tr('claimForm.unpaidNote'),
+            _ => l10n.tr('claimForm.expiredNote'),
+          }, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 2),
           Text(
-            'Policy ${policy.policyNumber}',
+            l10n.tr('claimForm.policyNumber', {'number': policy.policyNumber}),
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ],
@@ -462,8 +576,13 @@ class _BeforeYouFileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final documents = package.claimDocuments.isEmpty
-        ? const ['Proof of the incident', 'Invoices or receipts', 'Photo ID and policy certificate']
+        ? [
+            l10n.tr('packages.defaultDocProof'),
+            l10n.tr('packages.defaultDocInvoices'),
+            l10n.tr('packages.defaultDocId'),
+          ]
         : package.claimDocuments;
 
     return Card(
@@ -472,29 +591,39 @@ class _BeforeYouFileCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Before you file', style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              l10n.tr('claimForm.beforeYouFile'),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Expanded(
                   child: _TermTile(
                     icon: Icons.hourglass_bottom_rounded,
-                    label: 'Waiting period',
-                    value: '${package.waitingPeriodDays} days',
+                    label: l10n.tr('packages.waitingPeriod'),
+                    value: l10n.tr('packages.days', {
+                      'count': '${package.waitingPeriodDays}',
+                    }),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: _TermTile(
                     icon: Icons.event_available_rounded,
-                    label: 'File within',
-                    value: '${eligibility.claimWindowDays} days',
+                    label: l10n.tr('packages.fileWithin'),
+                    value: l10n.tr('packages.days', {
+                      'count': '${eligibility.claimWindowDays}',
+                    }),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('Documents to prepare', style: Theme.of(context).textTheme.titleSmall),
+            Text(
+              l10n.tr('packages.documents'),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
             const SizedBox(height: AppSpacing.xs),
             for (final document in documents)
               Padding(
@@ -504,26 +633,45 @@ class _BeforeYouFileCard extends StatelessWidget {
                   children: [
                     const Padding(
                       padding: EdgeInsets.only(top: 2),
-                      child: Icon(Icons.description_outlined, size: 15, color: AppColors.primary),
+                      child: Icon(
+                        Icons.description_outlined,
+                        size: 15,
+                        color: AppColors.primary,
+                      ),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(child: Text(document, style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.4))),
+                    Expanded(
+                      child: Text(
+                        document,
+                        style: Theme.of(context).textTheme.bodySmall
+                            ?.copyWith(height: 1.4),
+                      ),
+                    ),
                   ],
                 ),
               ),
             if (package.claimPolicy.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xs),
               Theme(
-                data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                data: Theme.of(context)
+                    .copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                   tilePadding: EdgeInsets.zero,
                   childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  leading: const Icon(Icons.policy_outlined, color: AppColors.primary, size: 20),
-                  title: Text('Claim policy summary', style: Theme.of(context).textTheme.titleSmall),
+                  leading: const Icon(
+                    Icons.policy_outlined,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
+                  title: Text(
+                    l10n.tr('claimForm.policySummary'),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   children: [
                     Text(
                       package.claimPolicy,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.55),
+                      style: Theme.of(context).textTheme.bodySmall
+                          ?.copyWith(height: 1.55),
                     ),
                   ],
                 ),
@@ -531,7 +679,7 @@ class _BeforeYouFileCard extends StatelessWidget {
             ],
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'You can add photos or reports later if our claims team asks for them.',
+              l10n.tr('claimForm.docsLater'),
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -546,7 +694,11 @@ class _TermTile extends StatelessWidget {
   final String label;
   final String value;
 
-  const _TermTile({required this.icon, required this.label, required this.value});
+  const _TermTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {

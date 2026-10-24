@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../localization/app_localizations.dart';
 import '../models/payment.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
@@ -27,6 +28,7 @@ class PaymentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).textTheme.bodySmall?.color;
     final color = AppColors.forStatus(payment.status.label);
     return Card(
@@ -40,7 +42,10 @@ class PaymentTile extends StatelessWidget {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(_icon, color: color, size: 20),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -48,12 +53,18 @@ class PaymentTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(payment.policyName, style: Theme.of(context).textTheme.titleSmall, overflow: TextOverflow.ellipsis),
+                    Text(
+                      payment.policyName,
+                      style: Theme.of(context).textTheme.titleSmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: 2),
                     Text(
                       payment.status == PaymentStatus.paid
-                          ? 'Paid ${AppFormatters.date(payment.paidDate!)}'
-                          : '${AppFormatters.daysUntil(payment.dueDate)} · ${AppFormatters.date(payment.dueDate)}',
+                          ? l10n.tr('policy.paidOn', {
+                              'date': l10n.formatDate(payment.paidDate!),
+                            })
+                          : '${l10n.daysUntil(payment.dueDate)} · ${l10n.formatDate(payment.dueDate)}',
                       style: TextStyle(color: muted, fontSize: 12),
                     ),
                   ],
@@ -62,9 +73,15 @@ class PaymentTile extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(AppFormatters.currency(payment.amount), style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    AppFormatters.currency(payment.amount),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 4),
-                  StatusBadge(label: payment.status.label),
+                  StatusBadge(
+                    label: l10n.paymentStatus(payment.status),
+                    color: color,
+                  ),
                 ],
               ),
             ],

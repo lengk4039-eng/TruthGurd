@@ -7,7 +7,8 @@ enum InsuranceCategoryType {
   home,
   travel;
 
-  static InsuranceCategoryType fromJson(String value) => values.byName(value.toLowerCase());
+  static InsuranceCategoryType fromJson(String value) =>
+      values.byName(value.toLowerCase());
   String toJson() => name.toUpperCase();
 }
 
@@ -39,6 +40,21 @@ extension InsuranceCategoryTypeX on InsuranceCategoryType {
         return Icons.home_rounded;
       case InsuranceCategoryType.travel:
         return Icons.flight_takeoff_rounded;
+    }
+  }
+
+  String get imageAsset {
+    switch (this) {
+      case InsuranceCategoryType.health:
+        return 'assets/images/health.jpg';
+      case InsuranceCategoryType.life:
+        return 'assets/images/life.jpg';
+      case InsuranceCategoryType.vehicle:
+        return 'assets/images/auto.jpg';
+      case InsuranceCategoryType.home:
+        return 'assets/images/home.jpg';
+      case InsuranceCategoryType.travel:
+        return 'assets/images/travel.jpg';
     }
   }
 }

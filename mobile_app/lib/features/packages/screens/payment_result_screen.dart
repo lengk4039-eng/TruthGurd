@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/models/payment.dart';
-import '../../../core/theme/app_colors.dart';
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/widgets/payment/payment_success_view.dart';
 import '../../../core/widgets/primary_button.dart';
 import '../models/checkout_selection.dart';
 
@@ -14,69 +14,83 @@ class PaymentResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final policy = result.policy;
+    final paidAt = result.paidAt ?? DateTime.now();
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            children: [
-              const Spacer(),
-              Container(
-                width: 96,
-                height: 96,
-                decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), shape: BoxShape.circle),
-                child: const Icon(Icons.check_rounded, color: AppColors.success, size: 52),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Text('Payment successful!', style: Theme.of(context).textTheme.headlineMedium),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                result.fromQuotation
-                    ? "Your quotation is confirmed. You're covered under ${policy.package.name}."
-                    : "You're covered under ${policy.package.name}.",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    children: [
-                      _row(context, 'Policy number', policy.policyNumber),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.xs), child: Divider()),
-                      _row(context, 'Coverage', AppFormatters.currencyWhole(policy.package.coverageAmount)),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.xs), child: Divider()),
-                      _row(context, 'Amount charged', AppFormatters.currency(policy.totalPremium)),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.xs), child: Divider()),
-                      _row(context, 'Paid via', result.method.label),
-                    ],
-                  ),
-                ),
-              ),
-              const Spacer(),
-              PrimaryButton(
-                label: 'View policy',
-                onPressed: () => context.go('/my-policies/${policy.id}'),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton(onPressed: () => context.go('/my-policies'), child: const Text('My policies')),
-              TextButton(onPressed: () => context.go('/home'), child: const Text('Back to Home')),
-            ],
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.xl + 8,
+            AppSpacing.lg,
+            AppSpacing.xl,
           ),
+          children: [
+            PaymentSuccessHeader(
+              title: l10n.tr('payment.successTitle'),
+              message: l10n.tr(
+                result.fromQuotation
+                    ? 'payment.successQuotation'
+                    : 'payment.successPurchase',
+                {'package': policy.package.name},
+              ),
+              badge: l10n.tr('payment.paymentComplete').toUpperCase(),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            PaymentReceiptCard(
+              title: l10n.tr('payment.receipt'),
+              reference: result.reference,
+              footer: l10n.tr('payment.receiptSaved'),
+              rows: [
+                PaymentReceiptRow(
+                  l10n.tr('payment.policyNumber'),
+                  policy.policyNumber,
+                ),
+                PaymentReceiptRow(
+                  l10n.tr('payment.policy'),
+                  policy.package.name,
+                ),
+                PaymentReceiptRow(
+                  l10n.tr('payment.coverage'),
+                  AppFormatters.currencyWhole(policy.package.coverageAmount),
+                ),
+                PaymentReceiptRow(
+                  l10n.tr('payment.amountPaid'),
+                  AppFormatters.currency(policy.totalPremium),
+                  emphasize: true,
+                ),
+                PaymentReceiptRow(
+                  l10n.tr('payment.paidWith'),
+                  result.instrumentLabel ??
+                      l10n.paymentMethodLabel(result.method),
+                ),
+                PaymentReceiptRow(
+                  l10n.tr('payment.paymentDate'),
+                  l10n.formatDate(paidAt),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            PrimaryButton(
+              label: l10n.tr('payment.viewPolicy'),
+              icon: Icons.shield_outlined,
+              onPressed: () => context.go('/my-policies/${policy.id}'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: () => context.go('/payments'),
+              icon: const Icon(Icons.receipt_long_outlined, size: 18),
+              label: Text(l10n.tr('payment.paymentHistory')),
+            ),
+            const SizedBox(height: 4),
+            TextButton(
+              onPressed: () => context.go('/home'),
+              child: Text(l10n.tr('payment.backHome')),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _row(BuildContext context, String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color)),
-        Text(value, style: Theme.of(context).textTheme.titleSmall),
-      ],
     );
   }
 }

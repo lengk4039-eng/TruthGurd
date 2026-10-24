@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_category.dart';
 import '../../../core/providers/data_providers.dart';
 import '../../../core/theme/app_dimens.dart';
@@ -23,21 +24,27 @@ class _PackagesListScreenState extends ConsumerState<PackagesListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final packagesAsync = ref.watch(packagesListProvider(_selected));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Packages')),
+      appBar: AppBar(title: Text(l10n.tr('packages.title'))),
       body: SafeArea(
         top: false,
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
               child: TextField(
                 onChanged: (v) => setState(() => _query = v),
-                decoration: const InputDecoration(
-                  hintText: 'Search health, auto, travel plans…',
-                  prefixIcon: Icon(Icons.search_rounded, size: 20),
+                decoration: InputDecoration(
+                  hintText: l10n.tr('packages.searchHint'),
+                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
                 ),
               ),
             ),
@@ -50,13 +57,18 @@ class _PackagesListScreenState extends ConsumerState<PackagesListScreen> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: AppSpacing.sm),
-                    child: CategoryFilterChip(label: 'All', icon: Icons.apps_rounded, selected: _selected == null, onTap: () => setState(() => _selected = null)),
+                    child: CategoryFilterChip(
+                      label: l10n.tr('packages.all'),
+                      icon: Icons.apps_rounded,
+                      selected: _selected == null,
+                      onTap: () => setState(() => _selected = null),
+                    ),
                   ),
                   for (final category in InsuranceCategoryType.values)
                     Padding(
                       padding: const EdgeInsets.only(right: AppSpacing.sm),
                       child: CategoryFilterChip(
-                        label: category.label,
+                        label: l10n.category(category),
                         icon: category.icon,
                         selected: _selected == category,
                         onTap: () => setState(() => _selected = category),
@@ -72,15 +84,38 @@ class _PackagesListScreenState extends ConsumerState<PackagesListScreen> {
                 builder: (packages) {
                   final filtered = _query.trim().isEmpty
                       ? packages
-                      : packages.where((p) => p.name.toLowerCase().contains(_query.toLowerCase()) || p.tagline.toLowerCase().contains(_query.toLowerCase())).toList();
+                      : packages
+                            .where(
+                              (p) =>
+                                  p.name.toLowerCase().contains(
+                                    _query.toLowerCase(),
+                                  ) ||
+                                  p.tagline.toLowerCase().contains(
+                                    _query.toLowerCase(),
+                                  ),
+                            )
+                            .toList();
                   if (filtered.isEmpty) {
-                    return const EmptyState(icon: Icons.search_off_rounded, title: 'No packages found', message: 'Try a different search term or category.');
+                    return EmptyState(
+                      icon: Icons.search_off_rounded,
+                      title: l10n.tr('packages.emptyTitle'),
+                      message: l10n.tr('packages.emptyBody'),
+                    );
                   }
                   return ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xxl),
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      0,
+                      AppSpacing.lg,
+                      AppSpacing.xxl,
+                    ),
                     itemCount: filtered.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, i) => PackageCard(package: filtered[i], onTap: () => context.push('/packages/${filtered[i].id}')),
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, i) => PackageCard(
+                      package: filtered[i],
+                      onTap: () => context.push('/packages/${filtered[i].id}'),
+                    ),
                   );
                 },
               ),

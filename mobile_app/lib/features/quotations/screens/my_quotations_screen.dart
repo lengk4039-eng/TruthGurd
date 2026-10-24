@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_category.dart';
 import '../../../core/models/quotation.dart';
 import '../../../core/providers/data_providers.dart';
@@ -18,12 +19,13 @@ class MyQuotationsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final quotesAsync = ref.watch(myQuotationsProvider);
 
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('My quotations'),
+        title: Text(l10n.tr('quotations.title')),
       ),
       body: AsyncValueView(
         value: quotesAsync,
@@ -32,9 +34,9 @@ class MyQuotationsScreen extends ConsumerWidget {
           if (quotes.isEmpty) {
             return EmptyState(
               icon: Icons.request_quote_outlined,
-              title: 'No quotations yet',
-              message: 'Request a quote from any package when you want sales to price it for you first.',
-              actionLabel: 'Browse packages',
+              title: l10n.tr('quotations.emptyTitle'),
+              message: l10n.tr('quotations.emptyBody'),
+              actionLabel: l10n.tr('quotations.browse'),
               onAction: () => context.go('/packages'),
             );
           }
@@ -43,7 +45,8 @@ class MyQuotationsScreen extends ConsumerWidget {
             child: ListView.separated(
               padding: const EdgeInsets.all(AppSpacing.lg),
               itemCount: quotes.length,
-              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
                 final quote = quotes[index];
                 return _QuotationCard(
@@ -67,6 +70,7 @@ class _QuotationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).textTheme.bodySmall?.color;
     return Card(
       child: InkWell(
@@ -83,30 +87,44 @@ class _QuotationCard extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
-                child: Icon(quotation.package.category.icon, color: AppColors.primary),
+                child: Icon(
+                  quotation.package.category.icon,
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(quotation.package.name, style: Theme.of(context).textTheme.titleSmall),
+                    Text(
+                      quotation.package.name,
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
                     const SizedBox(height: 2),
                     Text(
-                      '${quotation.preferredPlanMonths} mo · ${AppFormatters.date(quotation.createdAt)}',
+                      '${l10n.tr('quotations.monthsShort', {'count': '${quotation.preferredPlanMonths}'})} · ${l10n.formatDate(quotation.createdAt)}',
                       style: TextStyle(color: muted, fontSize: 12),
                     ),
                     if (quotation.quotedPremium != null) ...[
                       const SizedBox(height: 2),
                       Text(
-                        'Quoted ${AppFormatters.currency(quotation.quotedPremium!)}',
-                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.primary),
+                        l10n.tr('quotations.quoted', {
+                          'amount': AppFormatters.currency(
+                            quotation.quotedPremium!,
+                          ),
+                        }),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                          color: AppColors.primary,
+                        ),
                       ),
                     ],
                   ],
                 ),
               ),
-              StatusBadge(label: quotation.status.label),
+              StatusBadge(label: l10n.quotationStatus(quotation.status)),
             ],
           ),
         ),

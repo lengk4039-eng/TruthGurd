@@ -32,27 +32,47 @@ class PrimaryButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
         gradient: disabled
             ? null
-            : const LinearGradient(colors: AppColors.tileGradient, begin: Alignment.topLeft, end: Alignment.bottomRight),
+            : const LinearGradient(
+                colors: AppColors.tileGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
         color: disabled ? AppColors.primary.withValues(alpha: 0.35) : null,
         boxShadow: disabled
             ? null
-            : [BoxShadow(color: AppColors.primaryDark.withValues(alpha: 0.35), blurRadius: 18, offset: const Offset(0, 8))],
+            : [
+                BoxShadow(
+                  color: AppColors.primaryDark.withValues(alpha: 0.35),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
       ),
       alignment: Alignment.center,
       child: isLoading
           ? const SizedBox(
               width: 22,
               height: 22,
-              child: CircularProgressIndicator(strokeWidth: 2.4, valueColor: AlwaysStoppedAnimation(Colors.white)),
+              child: CircularProgressIndicator(
+                strokeWidth: 2.4,
+                valueColor: AlwaysStoppedAnimation(Colors.white),
+              ),
             )
           : Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (icon != null) ...[Icon(icon, color: Colors.white, size: 20), const SizedBox(width: 8)],
+                if (icon != null) ...[
+                  Icon(icon, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
+                ],
                 Text(
                   label,
-                  style: const TextStyle(color: Colors.white, fontSize: 15.5, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ),

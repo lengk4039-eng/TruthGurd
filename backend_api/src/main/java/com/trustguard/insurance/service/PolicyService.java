@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -66,7 +67,9 @@ public class PolicyService {
         } else {
             totalPremium = pkg.getMonthlyPrice()
                     .multiply(BigDecimal.valueOf(request.durationMonths()))
-                    .add(request.addOnTotalOrZero());
+                    .multiply(planDiscount(request.durationMonths()))
+                    .add(request.addOnTotalOrZero())
+                    .setScale(2, RoundingMode.HALF_UP);
         }
 
         Policy policy = Policy.builder()
@@ -92,6 +95,15 @@ public class PolicyService {
         }
 
         return PolicyResponse.from(policy);
+    }
+
+    /** Must match the plan tiers offered in the app: 6 months 5% off, 12 months 15% off. */
+    private static BigDecimal planDiscount(int durationMonths) {
+        return switch (durationMonths) {
+            case 6 -> new BigDecimal("0.95");
+            case 12 -> new BigDecimal("0.85");
+            default -> BigDecimal.ONE;
+        };
     }
 
     public List<PolicyResponse> adminList() {

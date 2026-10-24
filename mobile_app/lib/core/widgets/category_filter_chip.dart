@@ -20,7 +20,11 @@ class CategoryFilterChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       label: Text(label),
-      avatar: Icon(icon, size: 16, color: selected ? Colors.white : AppColors.primary),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: selected ? Colors.white : AppColors.primary,
+      ),
       selected: selected,
       onSelected: (_) => onTap(),
       showCheckmark: false,

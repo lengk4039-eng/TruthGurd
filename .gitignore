@@ -9,6 +9,7 @@ mobile_app/ios/Flutter/flutter_export_environment.sh
 
 # Local runtime data
 backend_api/data/
+backend_api/uploads/
 
 # Logs
 *.log

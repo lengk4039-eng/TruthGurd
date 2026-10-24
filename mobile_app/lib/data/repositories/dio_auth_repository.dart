@@ -1,3 +1,7 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+
 import '../../core/models/app_user.dart';
 import '../../core/models/policy.dart';
 import '../../core/network/api_client.dart';
@@ -58,6 +62,40 @@ class DioAuthRepository implements AuthRepository {
       await TokenStorage.clear();
       return null;
     }
+  }
+
+  @override
+  Future<AppUser> updateProfile({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String nationalIdNumber,
+  }) {
+    return unwrapDioErrors(() async {
+      final response = await ApiClient.instance.put('/users/me', data: {
+        'fullName': fullName,
+        'email': email,
+        'phone': phone,
+        'nationalIdNumber': nationalIdNumber,
+      });
+      return AppUser.fromJson(response.data as Map<String, dynamic>);
+    });
+  }
+
+  @override
+  Future<AppUser> uploadAvatar({required Uint8List bytes, required String filename}) {
+    return unwrapDioErrors(() async {
+      final isPng = filename.toLowerCase().endsWith('.png');
+      final form = FormData.fromMap({
+        'file': MultipartFile.fromBytes(
+          bytes,
+          filename: filename,
+          contentType: DioMediaType('image', isPng ? 'png' : 'jpeg'),
+        ),
+      });
+      final response = await ApiClient.instance.post('/users/me/avatar', data: form);
+      return AppUser.fromJson(response.data as Map<String, dynamic>);
+    });
   }
 
   @override

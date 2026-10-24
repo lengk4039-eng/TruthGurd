@@ -35,6 +35,12 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(length = 500)
+    private String avatarUrl;
+
+    @Column(length = 40)
+    private String nationalIdNumber;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @Builder.Default

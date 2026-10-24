@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../localization/app_localizations.dart';
 import '../theme/app_dimens.dart';
 
 /// Rounded back control used on every pushed screen so navigation is always
@@ -25,8 +26,9 @@ class AppBackButton extends StatelessWidget {
     return Padding(
       padding: padding,
       child: IconButton(
-        tooltip: 'Back',
-        onPressed: onPressed ??
+        tooltip: context.l10n.tr('common.back'),
+        onPressed:
+            onPressed ??
             () {
               final navigator = Navigator.of(context);
               if (navigator.canPop()) {
@@ -37,11 +39,14 @@ class AppBackButton extends StatelessWidget {
             },
         icon: const Icon(Icons.arrow_back_rounded, size: 20),
         style: IconButton.styleFrom(
-          backgroundColor: backgroundColor ?? scheme.primary.withValues(alpha: 0.10),
+          backgroundColor:
+              backgroundColor ?? scheme.primary.withValues(alpha: 0.10),
           foregroundColor: foregroundColor ?? scheme.primary,
           minimumSize: const Size(38, 38),
           padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
         ),
       ),
     );

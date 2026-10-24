@@ -58,7 +58,8 @@ class InsurancePackage {
       waitingPeriodDays: (json['waitingPeriodDays'] as num?)?.toInt() ?? 30,
       claimWindowDays: (json['claimWindowDays'] as num?)?.toInt() ?? 90,
       claimPolicy: json['claimPolicy'] as String? ?? '',
-      claimDocuments: (json['claimDocuments'] as List?)?.cast<String>() ?? const [],
+      claimDocuments:
+          (json['claimDocuments'] as List?)?.cast<String>() ?? const [],
       exclusions: (json['exclusions'] as List?)?.cast<String>() ?? const [],
       legalTerms: json['legalTerms'] as String? ?? '',
     );

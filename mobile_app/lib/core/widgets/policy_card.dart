@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../models/insurance_category.dart';
+import '../localization/app_localizations.dart';
 import '../models/policy.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
 import '../utils/formatters.dart';
+import 'category_image.dart';
 import 'status_badge.dart';
 
 class PolicyCard extends StatelessWidget {
@@ -15,7 +16,13 @@ class PolicyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final muted = Theme.of(context).textTheme.bodySmall?.color;
+    final statusColor = switch (policy.status) {
+      PolicyStatus.active => AppColors.success,
+      PolicyStatus.pending => AppColors.warning,
+      PolicyStatus.expired || PolicyStatus.cancelled => AppColors.error,
+    };
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -27,23 +34,32 @@ class PolicyCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                    child: Icon(policy.package.category.icon, color: AppColors.primary, size: 20),
+                  CategoryImage(
+                    category: policy.package.category,
+                    size: 52,
+                    radius: AppRadius.md,
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(policy.package.name, style: Theme.of(context).textTheme.titleSmall, overflow: TextOverflow.ellipsis),
-                        Text(policy.policyNumber, style: TextStyle(color: muted, fontSize: 12)),
+                        Text(
+                          policy.package.name,
+                          style: Theme.of(context).textTheme.titleSmall,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          policy.policyNumber,
+                          style: TextStyle(color: muted, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
-                  StatusBadge(label: policy.status.label),
+                  StatusBadge(
+                    label: l10n.policyStatus(policy.status),
+                    color: statusColor,
+                  ),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
@@ -61,14 +77,19 @@ class PolicyCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${AppFormatters.currencyWhole(policy.amountPaid)} of ${AppFormatters.currencyWhole(policy.totalPremium)} paid',
+                    l10n.tr('policies.paidOfTotal', {
+                      'paid': AppFormatters.currencyWhole(policy.amountPaid),
+                      'total': AppFormatters.currencyWhole(policy.totalPremium),
+                    }),
                     style: TextStyle(color: muted, fontSize: 12),
                   ),
                   if (policy.nextPaymentDate != null)
                     Text(
-                      AppFormatters.daysUntil(policy.nextPaymentDate!),
+                      l10n.daysUntil(policy.nextPaymentDate!),
                       style: TextStyle(
-                        color: policy.nextPaymentDate!.isBefore(DateTime.now()) ? AppColors.error : muted,
+                        color: policy.nextPaymentDate!.isBefore(DateTime.now())
+                            ? AppColors.error
+                            : muted,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                       ),

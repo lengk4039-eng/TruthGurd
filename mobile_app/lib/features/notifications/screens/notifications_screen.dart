@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/app_notification.dart';
 import '../../../core/providers/data_providers.dart';
 import '../../../core/providers/repository_providers.dart';
@@ -26,29 +27,44 @@ class NotificationsScreen extends ConsumerWidget {
     }
   }
 
-  String _relativeTime(DateTime date) {
+  String _relativeTime(AppLocalizations l10n, DateTime date) {
     final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 30) return '${diff.inDays}d ago';
-    return '${(diff.inDays / 30).floor()}mo ago';
+    if (diff.inMinutes < 60) {
+      return l10n.tr('notifications.minutesAgo', {
+        'count': '${diff.inMinutes}',
+      });
+    }
+    if (diff.inHours < 24) {
+      return l10n.tr('notifications.hoursAgo', {'count': '${diff.inHours}'});
+    }
+    if (diff.inDays < 30) {
+      return l10n.tr('notifications.daysAgo', {'count': '${diff.inDays}'});
+    }
+    return l10n.tr('notifications.monthsAgo', {
+      'count': '${(diff.inDays / 30).floor()}',
+    });
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notificationsAsync = ref.watch(myNotificationsProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Notifications'),
+        title: Text(l10n.tr('notifications.title')),
       ),
       body: AsyncValueView(
         value: notificationsAsync,
         onRetry: () => ref.invalidate(myNotificationsProvider),
         builder: (notifications) {
           if (notifications.isEmpty) {
-            return const EmptyState(icon: Icons.notifications_none_rounded, title: 'No notifications', message: "You're all caught up.");
+            return EmptyState(
+              icon: Icons.notifications_none_rounded,
+              title: l10n.tr('notifications.emptyTitle'),
+              message: l10n.tr('notifications.emptyBody'),
+            );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(AppSpacing.lg),
@@ -60,14 +76,18 @@ class NotificationsScreen extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(AppRadius.lg),
                 onTap: () async {
                   if (!n.isRead) {
-                    await ref.read(notificationsRepositoryProvider).markAsRead(n.id);
+                    await ref
+                        .read(notificationsRepositoryProvider)
+                        .markAsRead(n.id);
                     ref.invalidate(myNotificationsProvider);
                   }
                 },
                 child: Container(
                   padding: const EdgeInsets.all(AppSpacing.md),
                   decoration: BoxDecoration(
-                    color: n.isRead ? Theme.of(context).cardColor : AppColors.primary.withValues(alpha: 0.05),
+                    color: n.isRead
+                        ? Theme.of(context).cardColor
+                        : AppColors.primary.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(AppRadius.lg),
                     border: Border.all(color: Theme.of(context).dividerColor),
                   ),
@@ -77,8 +97,15 @@ class NotificationsScreen extends ConsumerWidget {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: Icon(_iconFor(n.type), color: AppColors.primary, size: 18),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          _iconFor(n.type),
+                          color: AppColors.primary,
+                          size: 18,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
@@ -87,14 +114,35 @@ class NotificationsScreen extends ConsumerWidget {
                           children: [
                             Row(
                               children: [
-                                Expanded(child: Text(n.title, style: Theme.of(context).textTheme.titleSmall)),
-                                if (!n.isRead) Container(width: 8, height: 8, decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle)),
+                                Expanded(
+                                  child: Text(
+                                    n.title,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall,
+                                  ),
+                                ),
+                                if (!n.isRead)
+                                  Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.error,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
                               ],
                             ),
                             const SizedBox(height: 3),
-                            Text(n.body, style: Theme.of(context).textTheme.bodySmall),
+                            Text(
+                              n.body,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
                             const SizedBox(height: 6),
-                            Text(_relativeTime(n.createdAt), style: Theme.of(context).textTheme.labelMedium),
+                            Text(
+                              _relativeTime(l10n, n.createdAt),
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
                           ],
                         ),
                       ),

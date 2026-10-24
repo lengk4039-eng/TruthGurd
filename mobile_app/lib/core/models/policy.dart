@@ -6,7 +6,8 @@ enum PolicyStatus {
   expired,
   cancelled;
 
-  static PolicyStatus fromJson(String value) => values.byName(value.toLowerCase());
+  static PolicyStatus fromJson(String value) =>
+      values.byName(value.toLowerCase());
 }
 
 extension PolicyStatusX on PolicyStatus {
@@ -29,10 +30,10 @@ enum PolicySource {
   linkedExisting;
 
   static PolicySource fromJson(String value) => switch (value) {
-        'APP_PURCHASE' => PolicySource.appPurchase,
-        'LINKED_EXISTING' => PolicySource.linkedExisting,
-        _ => throw ArgumentError('Unknown PolicySource: $value'),
-      };
+    'APP_PURCHASE' => PolicySource.appPurchase,
+    'LINKED_EXISTING' => PolicySource.linkedExisting,
+    _ => throw ArgumentError('Unknown PolicySource: $value'),
+  };
 }
 
 class Policy {
@@ -66,7 +67,9 @@ class Policy {
     return Policy(
       id: json['id'] as String,
       policyNumber: json['policyNumber'] as String,
-      package: InsurancePackage.fromJson(json['insurancePackage'] as Map<String, dynamic>),
+      package: InsurancePackage.fromJson(
+        json['insurancePackage'] as Map<String, dynamic>,
+      ),
       status: PolicyStatus.fromJson(json['status'] as String),
       source: PolicySource.fromJson(json['source'] as String),
       startDate: DateTime.parse(json['startDate'] as String),
@@ -82,7 +85,8 @@ class Policy {
     );
   }
 
-  double get paidProgress => totalPremium == 0 ? 0 : (amountPaid / totalPremium).clamp(0, 1);
+  double get paidProgress =>
+      totalPremium == 0 ? 0 : (amountPaid / totalPremium).clamp(0, 1);
 
   Policy copyWith({
     PolicyStatus? status,
@@ -101,8 +105,12 @@ class Policy {
       endDate: endDate,
       totalPremium: totalPremium,
       amountPaid: amountPaid ?? this.amountPaid,
-      nextPaymentDate: clearNextPayment ? null : (nextPaymentDate ?? this.nextPaymentDate),
-      nextPaymentAmount: clearNextPayment ? null : (nextPaymentAmount ?? this.nextPaymentAmount),
+      nextPaymentDate: clearNextPayment
+          ? null
+          : (nextPaymentDate ?? this.nextPaymentDate),
+      nextPaymentAmount: clearNextPayment
+          ? null
+          : (nextPaymentAmount ?? this.nextPaymentAmount),
     );
   }
 }

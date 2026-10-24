@@ -4,7 +4,8 @@ enum NotificationType {
   promo,
   system;
 
-  static NotificationType fromJson(String value) => values.byName(value.toLowerCase());
+  static NotificationType fromJson(String value) =>
+      values.byName(value.toLowerCase());
 }
 
 class AppNotification {

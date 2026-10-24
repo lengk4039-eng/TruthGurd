@@ -10,6 +10,8 @@ public record UserResponse(
         String fullName,
         String email,
         String phone,
+        String avatarUrl,
+        String nationalIdNumber,
         Role role,
         boolean kycVerified,
         Instant memberSince
@@ -20,6 +22,8 @@ public record UserResponse(
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhone(),
+                user.getAvatarUrl(),
+                user.getNationalIdNumber(),
                 user.getRole(),
                 user.isKycVerified(),
                 user.getCreatedAt()

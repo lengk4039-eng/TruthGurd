@@ -7,6 +7,11 @@ spring:
     username: ${DB_USERNAME:trustguard}
     password: ${DB_PASSWORD:trustguard}
 
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+
   jpa:
     hibernate:
       ddl-auto: validate

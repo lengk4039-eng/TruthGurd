@@ -5,25 +5,40 @@ class AppColors {
   AppColors._();
 
   // Brand
-  static const Color primary = Color(0xFF7C3AED);
-  static const Color primaryDark = Color(0xFF5B21B6);
-  static const Color primaryLight = Color(0xFFA78BFA);
-  static const Color accent = Color(0xFFF59E0B);
+  static const Color primary = Color(0xFF6E56F8);
+  static const Color primaryDark = Color(0xFF4B32C8);
+  static const Color primaryLight = Color(0xFFA796FF);
+  static const Color accent = Color(0xFFF6A93B);
 
-  static const List<Color> tileGradient = [Color(0xFF8B5CF6), Color(0xFF6D28D9)];
+  static const List<Color> tileGradient = [
+    Color(0xFF8A63F6),
+    Color(0xFF5B34D9),
+  ];
+  static const List<Color> heroGradient = [
+    Color(0xFF7C5CFA),
+    Color(0xFF5733D8),
+  ];
+  static const List<Color> policyGradient = [
+    Color(0xFF5F8BFF),
+    Color(0xFF6849E8),
+  ];
+  static const List<Color> softGradient = [
+    Color(0xFFF0EBFF),
+    Color(0xFFFBFAFF),
+  ];
 
   // Semantic
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF17B583);
+  static const Color warning = Color(0xFFF0A128);
+  static const Color error = Color(0xFFED5A5A);
+  static const Color info = Color(0xFF4285F4);
 
   // Light surface
-  static const Color backgroundLight = Color(0xFFF8F7FC);
+  static const Color backgroundLight = Color(0xFFF7F5FC);
   static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color borderLight = Color(0xFFE4E1EB);
-  static const Color textPrimaryLight = Color(0xFF1D1A24);
-  static const Color textMutedLight = Color(0xFF6B6675);
+  static const Color borderLight = Color(0xFFECE8F5);
+  static const Color textPrimaryLight = Color(0xFF1B1730);
+  static const Color textMutedLight = Color(0xFF706A85);
 
   // Dark surface
   static const Color backgroundDark = Color(0xFF121016);

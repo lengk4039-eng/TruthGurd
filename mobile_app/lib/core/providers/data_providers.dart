@@ -26,11 +26,20 @@ final featuredPackagesProvider = FutureProvider<List<InsurancePackage>>((ref) {
   return ref.watch(packagesRepositoryProvider).getFeatured();
 });
 
-final packagesListProvider = FutureProvider.family<List<InsurancePackage>, InsuranceCategoryType?>((ref, category) {
-  return ref.watch(packagesRepositoryProvider).getPackages(category: category);
-});
+final packagesListProvider =
+    FutureProvider.family<List<InsurancePackage>, InsuranceCategoryType?>((
+      ref,
+      category,
+    ) {
+      return ref
+          .watch(packagesRepositoryProvider)
+          .getPackages(category: category);
+    });
 
-final packageDetailProvider = FutureProvider.family<InsurancePackage, String>((ref, id) {
+final packageDetailProvider = FutureProvider.family<InsurancePackage, String>((
+  ref,
+  id,
+) {
   return ref.watch(packagesRepositoryProvider).getPackageById(id);
 });
 
@@ -38,7 +47,10 @@ final myPaymentsProvider = FutureProvider<List<Payment>>((ref) {
   return ref.watch(paymentsRepositoryProvider).getMyPayments();
 });
 
-final paymentsForPolicyProvider = FutureProvider.family<List<Payment>, String>((ref, policyId) {
+final paymentsForPolicyProvider = FutureProvider.family<List<Payment>, String>((
+  ref,
+  policyId,
+) {
   return ref.watch(paymentsRepositoryProvider).getPaymentsForPolicy(policyId);
 });
 
@@ -54,7 +66,10 @@ final myQuotationsProvider = FutureProvider<List<Quotation>>((ref) {
   return ref.watch(quotationsRepositoryProvider).getMyQuotations();
 });
 
-final quotationDetailProvider = FutureProvider.family<Quotation, String>((ref, id) {
+final quotationDetailProvider = FutureProvider.family<Quotation, String>((
+  ref,
+  id,
+) {
   return ref.watch(quotationsRepositoryProvider).getQuotationById(id);
 });
 
@@ -66,13 +81,17 @@ final claimDetailProvider = FutureProvider.family<Claim, String>((ref, id) {
   return ref.watch(claimsRepositoryProvider).getClaimById(id);
 });
 
-final claimsForPolicyProvider = FutureProvider.family<List<Claim>, String>((ref, policyId) {
+final claimsForPolicyProvider = FutureProvider.family<List<Claim>, String>((
+  ref,
+  policyId,
+) {
   return ref.watch(claimsRepositoryProvider).getClaimsForPolicy(policyId);
 });
 
-final claimEligibilityProvider = FutureProvider.family<ClaimEligibility, String>((ref, policyId) {
-  return ref.watch(claimsRepositoryProvider).getEligibility(policyId);
-});
+final claimEligibilityProvider =
+    FutureProvider.family<ClaimEligibility, String>((ref, policyId) {
+      return ref.watch(claimsRepositoryProvider).getEligibility(policyId);
+    });
 
 /// Invalidates every provider whose data changes after a purchase or payment.
 void invalidateAfterMutation(WidgetRef ref) {

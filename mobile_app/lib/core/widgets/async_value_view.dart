@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../localization/app_localizations.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
 
@@ -11,7 +12,12 @@ class AsyncValueView<T> extends StatelessWidget {
   final Widget Function(T data) builder;
   final VoidCallback? onRetry;
 
-  const AsyncValueView({super.key, required this.value, required this.builder, this.onRetry});
+  const AsyncValueView({
+    super.key,
+    required this.value,
+    required this.builder,
+    this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +28,18 @@ class AsyncValueView<T> extends StatelessWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (error, _) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxl, horizontal: AppSpacing.lg),
+        padding: const EdgeInsets.symmetric(
+          vertical: AppSpacing.xxl,
+          horizontal: AppSpacing.lg,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off_rounded, size: 40, color: AppColors.error),
+            const Icon(
+              Icons.wifi_off_rounded,
+              size: 40,
+              color: AppColors.error,
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
               error.toString().replaceFirst('AppException: ', ''),
@@ -35,7 +48,11 @@ class AsyncValueView<T> extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.md),
-              TextButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh_rounded), label: const Text('Try again')),
+              TextButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_rounded),
+                label: Text(context.l10n.tr('common.tryAgain')),
+              ),
             ],
           ],
         ),

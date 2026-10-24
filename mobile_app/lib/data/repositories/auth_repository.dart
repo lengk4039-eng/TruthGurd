@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../core/errors/app_exception.dart';
 import '../../core/models/app_user.dart';
 import '../../core/models/policy.dart';
@@ -20,6 +22,15 @@ abstract class AuthRepository {
   /// Fetches the profile for a previously-stored session token, or `null`
   /// if there isn't one — used to restore login state on app start.
   Future<AppUser?> restoreSession();
+
+  Future<AppUser> updateProfile({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String nationalIdNumber,
+  });
+
+  Future<AppUser> uploadAvatar({required Uint8List bytes, required String filename});
 
   Future<void> logout();
 }
@@ -82,6 +93,32 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Future<AppUser?> restoreSession() async => null;
+
+  @override
+  Future<AppUser> updateProfile({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String nationalIdNumber,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return AppUser(
+      id: MockData.currentUser.id,
+      fullName: fullName,
+      email: email,
+      phone: phone,
+      avatarUrl: MockData.currentUser.avatarUrl,
+      nationalIdNumber: nationalIdNumber,
+      kycVerified: MockData.currentUser.kycVerified,
+      memberSince: MockData.currentUser.memberSince,
+    );
+  }
+
+  @override
+  Future<AppUser> uploadAvatar({required Uint8List bytes, required String filename}) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return MockData.currentUser;
+  }
 
   @override
   Future<void> logout() async {

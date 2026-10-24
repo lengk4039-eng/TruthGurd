@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTextField extends StatefulWidget {
   final String label;
   final String? hint;
+  final String? helperText;
   final TextEditingController controller;
   final bool obscureText;
   final TextInputType? keyboardType;
@@ -18,6 +19,7 @@ class AppTextField extends StatefulWidget {
     required this.label,
     required this.controller,
     this.hint,
+    this.helperText,
     this.obscureText = false,
     this.keyboardType,
     this.prefixIcon,
@@ -49,10 +51,19 @@ class _AppTextFieldState extends State<AppTextField> {
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,
-        prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, size: 20) : null,
+        helperText: widget.helperText,
+        helperMaxLines: 2,
+        prefixIcon: widget.prefixIcon != null
+            ? Icon(widget.prefixIcon, size: 20)
+            : null,
         suffixIcon: widget.obscureText
             ? IconButton(
-                icon: Icon(_obscured ? Icons.visibility_outlined : Icons.visibility_off_outlined, size: 20),
+                icon: Icon(
+                  _obscured
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                  size: 20,
+                ),
                 onPressed: () => setState(() => _obscured = !_obscured),
               )
             : null,

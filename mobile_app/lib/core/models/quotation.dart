@@ -7,7 +7,8 @@ enum QuotationStatus {
   rejected,
   expired;
 
-  static QuotationStatus fromJson(String value) => values.byName(value.toLowerCase());
+  static QuotationStatus fromJson(String value) =>
+      values.byName(value.toLowerCase());
   String toJson() => name.toUpperCase();
 }
 
@@ -74,12 +75,18 @@ class Quotation {
     return Quotation(
       id: json['id'] as String,
       packageId: json['packageId'] as String,
-      package: InsurancePackage.fromJson(json['insurancePackage'] as Map<String, dynamic>),
+      package: InsurancePackage.fromJson(
+        json['insurancePackage'] as Map<String, dynamic>,
+      ),
       preferredPlanMonths: json['preferredPlanMonths'] as int,
       notes: json['notes'] as String? ?? '',
       status: QuotationStatus.fromJson(json['status'] as String),
-      quotedPremium: json['quotedPremium'] != null ? (json['quotedPremium'] as num).toDouble() : null,
-      validUntil: json['validUntil'] != null ? DateTime.parse(json['validUntil'] as String) : null,
+      quotedPremium: json['quotedPremium'] != null
+          ? (json['quotedPremium'] as num).toDouble()
+          : null,
+      validUntil: json['validUntil'] != null
+          ? DateTime.parse(json['validUntil'] as String)
+          : null,
       salesNotes: json['salesNotes'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
       policyId: json['policyId'] as String?,
@@ -110,9 +117,12 @@ class Quotation {
 
   bool get canAccept {
     if (status != QuotationStatus.quoted) return false;
-    if (validUntil != null && validUntil!.isBefore(DateTime.now())) return false;
+    if (validUntil != null && validUntil!.isBefore(DateTime.now())) {
+      return false;
+    }
     return quotedPremium != null;
   }
 
-  bool get isOpen => status == QuotationStatus.pending || status == QuotationStatus.quoted;
+  bool get isOpen =>
+      status == QuotationStatus.pending || status == QuotationStatus.quoted;
 }

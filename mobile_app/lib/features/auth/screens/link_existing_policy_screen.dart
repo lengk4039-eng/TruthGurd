@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_category.dart';
 import '../../../core/models/policy.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,10 +17,12 @@ class LinkExistingPolicyScreen extends ConsumerStatefulWidget {
   const LinkExistingPolicyScreen({super.key});
 
   @override
-  ConsumerState<LinkExistingPolicyScreen> createState() => _LinkExistingPolicyScreenState();
+  ConsumerState<LinkExistingPolicyScreen> createState() =>
+      _LinkExistingPolicyScreenState();
 }
 
-class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScreen> {
+class _LinkExistingPolicyScreenState
+    extends ConsumerState<LinkExistingPolicyScreen> {
   final _formKey = GlobalKey<FormState>();
   final _policyNumber = TextEditingController();
   final _dob = TextEditingController();
@@ -42,7 +45,8 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      _dob.text = '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      _dob.text =
+          '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
     }
   }
 
@@ -53,7 +57,9 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
       _error = null;
     });
     try {
-      final policy = await ref.read(authStateProvider.notifier).linkExistingPolicy(
+      final policy = await ref
+          .read(authStateProvider.notifier)
+          .linkExistingPolicy(
             policyNumber: _policyNumber.text,
             dateOfBirth: _dob.text,
           );
@@ -70,18 +76,21 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Link a policy'),
+        title: Text(context.l10n.tr('linkPolicy.title')),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: _linked != null ? _buildSuccess(context, _linked!) : _buildForm(context),
+          child: _linked != null
+              ? _buildSuccess(context, _linked!)
+              : _buildForm(context),
         ),
       ),
     );
   }
 
   Widget _buildForm(BuildContext context) {
+    final l10n = context.l10n;
     return Form(
       key: _formKey,
       child: Column(
@@ -90,70 +99,110 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
           Container(
             width: 64,
             height: 64,
-            decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.md)),
-            child: const Icon(Icons.badge_outlined, color: AppColors.primary, size: 30),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: const Icon(
+              Icons.badge_outlined,
+              color: AppColors.primary,
+              size: 30,
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text('Bought a policy through an agent?', style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            l10n.tr('linkPolicy.heading'),
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Enter your policy number and date of birth to link it to your account and start tracking payments.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+            l10n.tr('linkPolicy.body'),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
           ),
           const SizedBox(height: AppSpacing.lg),
           AppTextField(
-            label: 'Policy number',
+            label: l10n.tr('linkPolicy.policyNumber'),
             controller: _policyNumber,
             prefixIcon: Icons.confirmation_number_outlined,
             textInputAction: TextInputAction.next,
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Enter your policy number' : null,
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? l10n.tr('linkPolicy.policyNumberError')
+                : null,
           ),
           const SizedBox(height: AppSpacing.md),
           AppTextField(
-            label: 'Date of birth',
+            label: l10n.tr('linkPolicy.dob'),
             controller: _dob,
-            hint: 'YYYY-MM-DD',
+            hint: l10n.tr('linkPolicy.dobHint'),
             enabled: true,
             prefixIcon: Icons.cake_outlined,
-            validator: (v) => (v == null || v.trim().isEmpty) ? 'Select your date of birth' : null,
+            validator: (v) => (v == null || v.trim().isEmpty)
+                ? l10n.tr('linkPolicy.dobError')
+                : null,
           ),
-          TextButton.icon(onPressed: _pickDob, icon: const Icon(Icons.calendar_month_outlined, size: 16), label: const Text('Choose date')),
+          TextButton.icon(
+            onPressed: _pickDob,
+            icon: const Icon(Icons.calendar_month_outlined, size: 16),
+            label: Text(l10n.tr('linkPolicy.chooseDate')),
+          ),
           if (_error != null) ...[
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(AppSpacing.sm),
               margin: const EdgeInsets.only(bottom: AppSpacing.sm),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+                color: Theme.of(context).colorScheme.error
+                    .withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
+              child: Text(
+                _error!,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontSize: 13,
+                ),
+              ),
             ),
           ],
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(AppSpacing.sm),
             margin: const EdgeInsets.only(bottom: AppSpacing.md),
-            decoration: BoxDecoration(color: AppColors.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.sm)),
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
             child: Row(
               children: [
-                const Icon(Icons.lightbulb_outline_rounded, size: 16, color: AppColors.accent),
+                const Icon(
+                  Icons.lightbulb_outline_rounded,
+                  size: 16,
+                  color: AppColors.accent,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Demo tip: try TG-OFFLINE-7734 with date of birth 1990-05-12.',
-                    style: TextStyle(fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color),
+                    l10n.tr('linkPolicy.demoTip'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color,
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          PrimaryButton(label: 'Verify & link', isLoading: _isSubmitting, onPressed: _submit),
+          PrimaryButton(
+            label: l10n.tr('linkPolicy.verify'),
+            isLoading: _isSubmitting,
+            onPressed: _submit,
+          ),
           const SizedBox(height: AppSpacing.sm),
           Center(
             child: TextButton(
               onPressed: () => context.go('/home'),
-              child: const Text('Skip for now'),
+              child: Text(l10n.tr('linkPolicy.skip')),
             ),
           ),
         ],
@@ -162,6 +211,7 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
   }
 
   Widget _buildSuccess(BuildContext context, Policy policy) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -169,15 +219,26 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
         Container(
           width: 72,
           height: 72,
-          decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), shape: BoxShape.circle),
-          child: const Icon(Icons.check_rounded, color: AppColors.success, size: 36),
+          decoration: BoxDecoration(
+            color: AppColors.success.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.check_rounded,
+            color: AppColors.success,
+            size: 36,
+          ),
         ),
         const SizedBox(height: AppSpacing.md),
-        Text('Policy linked!', style: Theme.of(context).textTheme.headlineSmall),
+        Text(
+          l10n.tr('linkPolicy.successTitle'),
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          '${policy.package.name} is now in My Policies. You can track every payment from there.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+          l10n.tr('linkPolicy.successBody', {'name': policy.package.name}),
+          style: Theme.of(context).textTheme.bodyMedium
+              ?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
         ),
         const SizedBox(height: AppSpacing.lg),
         Card(
@@ -188,26 +249,44 @@ class _LinkExistingPolicyScreenState extends ConsumerState<LinkExistingPolicyScr
                 Container(
                   width: 44,
                   height: 44,
-                  decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                  child: Icon(policy.package.category.icon, color: AppColors.primary),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                  ),
+                  child: Icon(
+                    policy.package.category.icon,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(policy.package.name, style: Theme.of(context).textTheme.titleSmall),
-                      Text(policy.policyNumber, style: Theme.of(context).textTheme.bodySmall),
+                      Text(
+                        policy.package.name,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      Text(
+                        policy.policyNumber,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
                     ],
                   ),
                 ),
-                Text(AppFormatters.currencyWhole(policy.nextPaymentAmount ?? 0), style: Theme.of(context).textTheme.titleSmall),
+                Text(
+                  AppFormatters.currencyWhole(policy.nextPaymentAmount ?? 0),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
               ],
             ),
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
-        PrimaryButton(label: 'Go to My Policies', onPressed: () => context.go('/my-policies')),
+        PrimaryButton(
+          label: l10n.tr('linkPolicy.goToPolicies'),
+          onPressed: () => context.go('/my-policies'),
+        ),
       ],
     );
   }

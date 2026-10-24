@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/app_back_button.dart';
@@ -46,7 +47,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       _error = null;
     });
     try {
-      await ref.read(authStateProvider.notifier).register(
+      await ref
+          .read(authStateProvider.notifier)
+          .register(
             fullName: _fullName.text.trim(),
             email: _email.text.trim(),
             phone: _phone.text.trim(),
@@ -67,30 +70,47 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-      ),
+      appBar: AppBar(leading: const AppBackButton()),
       body: SafeArea(
         top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            0,
+            AppSpacing.lg,
+            AppSpacing.lg,
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Create your account', style: Theme.of(context).textTheme.displayMedium),
+                Text(
+                  l10n.tr('register.title'),
+                  style: Theme.of(context).textTheme.displayMedium,
+                ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  'Buy new cover, or link a policy you already have.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).textTheme.bodySmall?.color),
+                  l10n.tr('register.subtitle'),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 SegmentedButton<_RegisterPath>(
-                  segments: const [
-                    ButtonSegment(value: _RegisterPath.newCustomer, label: Text('New customer'), icon: Icon(Icons.person_add_alt_rounded, size: 16)),
-                    ButtonSegment(value: _RegisterPath.hasExistingPolicy, label: Text('I have a policy'), icon: Icon(Icons.badge_outlined, size: 16)),
+                  segments: [
+                    ButtonSegment(
+                      value: _RegisterPath.newCustomer,
+                      label: Text(l10n.tr('register.newCustomer')),
+                      icon: const Icon(Icons.person_add_alt_rounded, size: 16),
+                    ),
+                    ButtonSegment(
+                      value: _RegisterPath.hasExistingPolicy,
+                      label: Text(l10n.tr('register.hasPolicy')),
+                      icon: const Icon(Icons.badge_outlined, size: 16),
+                    ),
                   ],
                   selected: {_path},
                   onSelectionChanged: (s) => setState(() => _path = s.first),
@@ -101,48 +121,58 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppTextField(
-                  label: 'Full name',
+                  label: l10n.tr('editProfile.fullName'),
                   controller: _fullName,
                   prefixIcon: Icons.person_outline_rounded,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.trim().length < 2) ? 'Enter your full name' : null,
+                  validator: (v) => (v == null || v.trim().length < 2)
+                      ? l10n.tr('editProfile.nameError')
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
-                  label: 'Email',
+                  label: l10n.tr('editProfile.email'),
                   controller: _email,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.mail_outline_rounded,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || !v.contains('@')) ? 'Enter a valid email' : null,
+                  validator: (v) => (v == null || !v.contains('@'))
+                      ? l10n.tr('editProfile.emailError')
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
-                  label: 'Phone number',
+                  label: l10n.tr('editProfile.phone'),
                   controller: _phone,
                   keyboardType: TextInputType.phone,
                   prefixIcon: Icons.phone_outlined,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.trim().length < 7) ? 'Enter a valid phone number' : null,
+                  validator: (v) => (v == null || v.trim().length < 7)
+                      ? l10n.tr('editProfile.phoneError')
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
-                  label: 'Password',
+                  label: l10n.tr('register.password'),
                   controller: _password,
                   obscureText: true,
                   prefixIcon: Icons.lock_outline_rounded,
                   textInputAction: TextInputAction.next,
-                  validator: (v) => (v == null || v.length < 6) ? 'At least 6 characters' : null,
+                  validator: (v) => (v == null || v.length < 6)
+                      ? l10n.tr('login.passwordMin')
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 AppTextField(
-                  label: 'Confirm password',
+                  label: l10n.tr('register.confirmPassword'),
                   controller: _confirmPassword,
                   obscureText: true,
                   prefixIcon: Icons.lock_outline_rounded,
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _submit(),
-                  validator: (v) => v != _password.text ? 'Passwords do not match' : null,
+                  validator: (v) => v != _password.text
+                      ? l10n.tr('register.passwordMismatch')
+                      : null,
                 ),
                 if (_error != null) ...[
                   const SizedBox(height: AppSpacing.md),
@@ -150,15 +180,26 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(AppSpacing.sm),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+                      color: Theme.of(context).colorScheme.error
+                          .withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
-                    child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
+                    child: Text(
+                      _error!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                        fontSize: 13,
+                      ),
+                    ),
                   ),
                 ],
                 const SizedBox(height: AppSpacing.lg),
                 PrimaryButton(
-                  label: _path == _RegisterPath.hasExistingPolicy ? 'Continue to link policy' : 'Create account',
+                  label: l10n.tr(
+                    _path == _RegisterPath.hasExistingPolicy
+                        ? 'register.continueLink'
+                        : 'register.createAccount',
+                  ),
                   isLoading: _isSubmitting,
                   onPressed: _submit,
                 ),

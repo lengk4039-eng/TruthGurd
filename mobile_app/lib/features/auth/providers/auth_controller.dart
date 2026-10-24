@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/app_user.dart';
@@ -13,7 +15,9 @@ class AuthController extends Notifier<AppUser?> {
   AppUser? build() => null;
 
   Future<void> login({required String email, required String password}) async {
-    final user = await ref.read(authRepositoryProvider).login(email: email, password: password);
+    final user = await ref
+        .read(authRepositoryProvider)
+        .login(email: email, password: password);
     state = user;
   }
 
@@ -23,7 +27,9 @@ class AuthController extends Notifier<AppUser?> {
     required String phone,
     required String password,
   }) async {
-    final user = await ref.read(authRepositoryProvider).register(
+    final user = await ref
+        .read(authRepositoryProvider)
+        .register(
           fullName: fullName,
           email: email,
           phone: phone,
@@ -32,8 +38,16 @@ class AuthController extends Notifier<AppUser?> {
     state = user;
   }
 
-  Future<Policy> linkExistingPolicy({required String policyNumber, required String dateOfBirth}) {
-    return ref.read(authRepositoryProvider).linkExistingPolicy(policyNumber: policyNumber, dateOfBirth: dateOfBirth);
+  Future<Policy> linkExistingPolicy({
+    required String policyNumber,
+    required String dateOfBirth,
+  }) {
+    return ref
+        .read(authRepositoryProvider)
+        .linkExistingPolicy(
+          policyNumber: policyNumber,
+          dateOfBirth: dateOfBirth,
+        );
   }
 
   /// Called once from the splash screen: restores a previously-signed-in
@@ -43,17 +57,31 @@ class AuthController extends Notifier<AppUser?> {
     if (user != null) state = user;
   }
 
-  void updateProfile({required String fullName, required String email, required String phone}) {
-    final current = state;
-    if (current == null) return;
-    state = AppUser(
-      id: current.id,
-      fullName: fullName,
-      email: email,
-      phone: phone,
-      kycVerified: current.kycVerified,
-      memberSince: current.memberSince,
-    );
+  Future<void> updateProfile({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String nationalIdNumber,
+  }) async {
+    final user = await ref
+        .read(authRepositoryProvider)
+        .updateProfile(
+          fullName: fullName,
+          email: email,
+          phone: phone,
+          nationalIdNumber: nationalIdNumber,
+        );
+    state = user;
+  }
+
+  Future<void> uploadAvatar({
+    required Uint8List bytes,
+    required String filename,
+  }) async {
+    final user = await ref
+        .read(authRepositoryProvider)
+        .uploadAvatar(bytes: bytes, filename: filename);
+    state = user;
   }
 
   Future<void> logout() async {
@@ -62,4 +90,6 @@ class AuthController extends Notifier<AppUser?> {
   }
 }
 
-final authStateProvider = NotifierProvider<AuthController, AppUser?>(AuthController.new);
+final authStateProvider = NotifierProvider<AuthController, AppUser?>(
+  AuthController.new,
+);

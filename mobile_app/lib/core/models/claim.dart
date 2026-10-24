@@ -34,7 +34,9 @@ enum ClaimStatus {
 
   static ClaimStatus fromJson(String value) {
     final normalized = value.toLowerCase().replaceAll('_', '');
-    return values.firstWhere((status) => status.name.toLowerCase() == normalized);
+    return values.firstWhere(
+      (status) => status.name.toLowerCase() == normalized,
+    );
   }
 
   String toJson() {
@@ -101,7 +103,8 @@ class Claim {
     this.photoUrl,
   });
 
-  bool get hasDecision => status == ClaimStatus.approved || status == ClaimStatus.rejected;
+  bool get hasDecision =>
+      status == ClaimStatus.approved || status == ClaimStatus.rejected;
 
   /// Customer-facing guidance shown after every review step.
   String get nextStep {

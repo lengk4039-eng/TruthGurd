@@ -5,30 +5,161 @@ import 'app_colors.dart';
 import 'app_dimens.dart';
 
 /// Light and dark [ThemeData] built from the shared design tokens in
-/// [AppColors]. Poppins carries headings/titles, Inter carries body/UI text.
+/// [AppColors]. Poppins/Inter carry English text, Noto Sans Khmer carries
+/// Khmer so the taller glyphs never clip.
 class AppTheme {
   AppTheme._();
 
-  static TextTheme _textTheme(Color primaryText, Color mutedText) {
-    final base = GoogleFonts.interTextTheme().apply(
-      bodyColor: primaryText,
-      displayColor: primaryText,
+  static TextStyle _heading({
+    required double size,
+    required FontWeight weight,
+    required Color color,
+    required bool khmer,
+    double? height,
+  }) {
+    if (khmer) {
+      return GoogleFonts.notoSansKhmer(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height ?? 1.45,
+      );
+    }
+    return GoogleFonts.poppins(
+      fontSize: size,
+      fontWeight: weight,
+      color: color,
+      height: height,
     );
+  }
+
+  static TextStyle _body({
+    required double size,
+    required FontWeight weight,
+    required Color color,
+    required bool khmer,
+    double? height,
+    double? letterSpacing,
+  }) {
+    if (khmer) {
+      return GoogleFonts.notoSansKhmer(
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+        height: height == null ? null : height + 0.12,
+        letterSpacing: 0,
+      );
+    }
+    return GoogleFonts.inter(
+      fontSize: size,
+      fontWeight: weight,
+      color: color,
+      height: height,
+      letterSpacing: letterSpacing,
+    );
+  }
+
+  static TextTheme _textTheme(Color primaryText, Color mutedText, bool khmer) {
+    final base =
+        (khmer
+                ? GoogleFonts.notoSansKhmerTextTheme()
+                : GoogleFonts.interTextTheme())
+            .apply(bodyColor: primaryText, displayColor: primaryText);
     return base.copyWith(
-      displayLarge: GoogleFonts.poppins(fontSize: 40, fontWeight: FontWeight.w700, color: primaryText, height: 1.15),
-      displayMedium: GoogleFonts.poppins(fontSize: 32, fontWeight: FontWeight.w700, color: primaryText, height: 1.2),
-      headlineLarge: GoogleFonts.poppins(fontSize: 28, fontWeight: FontWeight.w600, color: primaryText, height: 1.25),
-      headlineMedium: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.w600, color: primaryText, height: 1.25),
-      headlineSmall: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: primaryText),
-      titleLarge: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: primaryText),
-      titleMedium: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: primaryText),
-      titleSmall: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w600, color: primaryText),
-      bodyLarge: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w400, color: primaryText, height: 1.5),
-      bodyMedium: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w400, color: primaryText, height: 1.5),
-      bodySmall: GoogleFonts.inter(fontSize: 12.5, fontWeight: FontWeight.w400, color: mutedText, height: 1.4),
-      labelLarge: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: primaryText),
-      labelMedium: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: mutedText, letterSpacing: 0.2),
-      labelSmall: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: mutedText, letterSpacing: 0.3),
+      displayLarge: _heading(
+        size: 40,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.2,
+      ),
+      displayMedium: _heading(
+        size: 32,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.25,
+      ),
+      headlineLarge: _heading(
+        size: 28,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.3,
+      ),
+      headlineMedium: _heading(
+        size: 24,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.3,
+      ),
+      headlineSmall: _heading(
+        size: 20,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.35,
+      ),
+      titleLarge: _heading(
+        size: 18,
+        weight: FontWeight.w700,
+        color: primaryText,
+        khmer: khmer,
+      ),
+      titleMedium: _heading(
+        size: 16,
+        weight: FontWeight.w600,
+        color: primaryText,
+        khmer: khmer,
+      ),
+      titleSmall: _heading(
+        size: 14,
+        weight: FontWeight.w600,
+        color: primaryText,
+        khmer: khmer,
+      ),
+      bodyLarge: _body(
+        size: 16,
+        weight: FontWeight.w400,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.5,
+      ),
+      bodyMedium: _body(
+        size: 14,
+        weight: FontWeight.w400,
+        color: primaryText,
+        khmer: khmer,
+        height: 1.5,
+      ),
+      bodySmall: _body(
+        size: 12.5,
+        weight: FontWeight.w400,
+        color: mutedText,
+        khmer: khmer,
+        height: 1.4,
+      ),
+      labelLarge: _body(
+        size: 14,
+        weight: FontWeight.w600,
+        color: primaryText,
+        khmer: khmer,
+      ),
+      labelMedium: _body(
+        size: 12,
+        weight: FontWeight.w600,
+        color: mutedText,
+        khmer: khmer,
+        letterSpacing: 0.2,
+      ),
+      labelSmall: _body(
+        size: 11,
+        weight: FontWeight.w600,
+        color: mutedText,
+        khmer: khmer,
+        letterSpacing: 0.3,
+      ),
     );
   }
 
@@ -39,6 +170,17 @@ class AppTheme {
     border: AppColors.borderLight,
     textPrimary: AppColors.textPrimaryLight,
     textMuted: AppColors.textMutedLight,
+    khmer: false,
+  );
+
+  static final ThemeData lightKhmer = _build(
+    brightness: Brightness.light,
+    background: AppColors.backgroundLight,
+    surface: AppColors.surfaceLight,
+    border: AppColors.borderLight,
+    textPrimary: AppColors.textPrimaryLight,
+    textMuted: AppColors.textMutedLight,
+    khmer: true,
   );
 
   static final ThemeData dark = _build(
@@ -48,6 +190,17 @@ class AppTheme {
     border: AppColors.borderDark,
     textPrimary: AppColors.textPrimaryDark,
     textMuted: AppColors.textMutedDark,
+    khmer: false,
+  );
+
+  static final ThemeData darkKhmer = _build(
+    brightness: Brightness.dark,
+    background: AppColors.backgroundDark,
+    surface: AppColors.surfaceDark,
+    border: AppColors.borderDark,
+    textPrimary: AppColors.textPrimaryDark,
+    textMuted: AppColors.textMutedDark,
+    khmer: true,
   );
 
   static ThemeData _build({
@@ -57,6 +210,7 @@ class AppTheme {
     required Color border,
     required Color textPrimary,
     required Color textMuted,
+    required bool khmer,
   }) {
     final isDark = brightness == Brightness.dark;
     final colorScheme = ColorScheme(
@@ -69,9 +223,13 @@ class AppTheme {
       onError: Colors.white,
       surface: surface,
       onSurface: textPrimary,
+      surfaceContainerHighest: isDark
+          ? AppColors.surfaceDark
+          : const Color(0xFFF3EFFC),
+      outline: border,
     );
 
-    final textTheme = _textTheme(textPrimary, textMuted);
+    final textTheme = _textTheme(textPrimary, textMuted, khmer);
 
     return ThemeData(
       useMaterial3: true,
@@ -79,8 +237,10 @@ class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: background,
       textTheme: textTheme,
-      fontFamily: GoogleFonts.inter().fontFamily,
-      splashFactory: InkRipple.splashFactory,
+      fontFamily: khmer
+          ? GoogleFonts.notoSansKhmer().fontFamily
+          : GoogleFonts.inter().fontFamily,
+      splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
         backgroundColor: background,
         foregroundColor: textPrimary,
@@ -88,27 +248,62 @@ class AppTheme {
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: textPrimary),
+        titleSpacing: 4,
+        titleTextStyle: _heading(
+          size: 19,
+          weight: FontWeight.w700,
+          color: textPrimary,
+          khmer: khmer,
+        ),
         iconTheme: IconThemeData(color: textPrimary),
       ),
       cardTheme: CardThemeData(
         color: surface,
-        elevation: 0,
+        elevation: isDark ? 0 : 1,
+        shadowColor: isDark
+            ? Colors.black.withValues(alpha: 0.35)
+            : AppColors.primary.withValues(alpha: 0.07),
+        surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: BorderSide(color: border),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          side: BorderSide(color: border.withValues(alpha: isDark ? 1 : 0.75)),
         ),
       ),
       dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: colorScheme.primary,
+          foregroundColor: Colors.white,
+          disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.4),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 22),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          textStyle: _body(
+            size: 14.5,
+            weight: FontWeight.w600,
+            color: Colors.white,
+            khmer: khmer,
+          ),
+          elevation: 0,
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: Colors.white,
           disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.4),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          textStyle: _body(
+            size: 15,
+            weight: FontWeight.w600,
+            color: Colors.white,
+            khmer: khmer,
+          ),
           elevation: 0,
         ),
       ),
@@ -117,22 +312,47 @@ class AppTheme {
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: border),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
-          textStyle: GoogleFonts.inter(fontSize: 15, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+          textStyle: _body(
+            size: 15,
+            weight: FontWeight.w600,
+            color: colorScheme.primary,
+            khmer: khmer,
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: colorScheme.primary,
-          textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600),
+          textStyle: _body(
+            size: 14,
+            weight: FontWeight.w600,
+            color: colorScheme.primary,
+            khmer: khmer,
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        hintStyle: GoogleFonts.inter(fontSize: 14.5, color: textMuted),
-        labelStyle: GoogleFonts.inter(fontSize: 14.5, color: textMuted),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16,
+          horizontal: 16,
+        ),
+        hintStyle: _body(
+          size: 14.5,
+          weight: FontWeight.w400,
+          color: textMuted,
+          khmer: khmer,
+        ),
+        labelStyle: _body(
+          size: 14.5,
+          weight: FontWeight.w400,
+          color: textMuted,
+          khmer: khmer,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: border),
@@ -149,45 +369,113 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: const BorderSide(color: AppColors.error),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: const BorderSide(color: AppColors.error, width: 1.5),
+        ),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: isDark ? AppColors.surfaceDark : const Color(0xFFF1EEFB),
+        backgroundColor: isDark
+            ? AppColors.surfaceDark
+            : const Color(0xFFF1EDFC),
         selectedColor: colorScheme.primary,
-        labelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary),
-        secondaryLabelStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+        labelStyle: _body(
+          size: 13,
+          weight: FontWeight.w600,
+          color: textPrimary,
+          khmer: khmer,
+        ),
+        secondaryLabelStyle: _body(
+          size: 13,
+          weight: FontWeight.w600,
+          color: Colors.white,
+          khmer: khmer,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill), side: BorderSide.none),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          side: BorderSide.none,
+        ),
         side: BorderSide.none,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.14),
+        backgroundColor: Colors.transparent,
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.13),
         elevation: 0,
         height: 68,
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
-          return GoogleFonts.inter(
-            fontSize: 11.5,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          return _body(
+            size: 11.5,
+            weight: selected ? FontWeight.w600 : FontWeight.w500,
             color: selected ? colorScheme.primary : textMuted,
+            khmer: khmer,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
-          return IconThemeData(color: selected ? colorScheme.primary : textMuted);
+          return IconThemeData(
+            color: selected ? colorScheme.primary : textMuted,
+            size: 23,
+          );
         }),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadius.xl),
+          ),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+        ),
+        titleTextStyle: _heading(
+          size: 19,
+          weight: FontWeight.w700,
+          color: textPrimary,
+          khmer: khmer,
+        ),
+        contentTextStyle: _body(
+          size: 14,
+          weight: FontWeight.w400,
+          color: textMuted,
+          khmer: khmer,
+          height: 1.5,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: textPrimary,
-        contentTextStyle: GoogleFonts.inter(color: background, fontSize: 14),
+        contentTextStyle: _body(
+          size: 14,
+          weight: FontWeight.w400,
+          color: background,
+          khmer: khmer,
+        ),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: colorScheme.primary,
+        titleTextStyle: _body(
+          size: 14.5,
+          weight: FontWeight.w500,
+          color: textPrimary,
+          khmer: khmer,
+        ),
+        subtitleTextStyle: _body(
+          size: 12.5,
+          weight: FontWeight.w400,
+          color: textMuted,
+          khmer: khmer,
+        ),
       ),
     );
   }

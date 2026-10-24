@@ -7,7 +7,10 @@ class TokenStorage {
   static const _accessKey = 'trustguard_access_token';
   static const _refreshKey = 'trustguard_refresh_token';
 
-  static Future<void> save({required String accessToken, required String refreshToken}) async {
+  static Future<void> save({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
     await _storage.write(key: _accessKey, value: accessToken);
     await _storage.write(key: _refreshKey, value: refreshToken);
   }

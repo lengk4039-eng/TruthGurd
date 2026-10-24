@@ -20,16 +20,26 @@ import '../../data/repositories/quotations_repository.dart';
 /// Spring Boot API at [ApiConfig.baseUrl].
 const bool useMockData = false;
 
-final authRepositoryProvider = Provider<AuthRepository>((ref) => useMockData ? MockAuthRepository() : DioAuthRepository());
-final packagesRepositoryProvider =
-    Provider<PackagesRepository>((ref) => useMockData ? MockPackagesRepository() : DioPackagesRepository());
-final policiesRepositoryProvider =
-    Provider<PoliciesRepository>((ref) => useMockData ? MockPoliciesRepository() : DioPoliciesRepository());
-final paymentsRepositoryProvider =
-    Provider<PaymentsRepository>((ref) => useMockData ? MockPaymentsRepository() : DioPaymentsRepository());
-final notificationsRepositoryProvider =
-    Provider<NotificationsRepository>((ref) => useMockData ? MockNotificationsRepository() : DioNotificationsRepository());
-final quotationsRepositoryProvider =
-    Provider<QuotationsRepository>((ref) => useMockData ? MockQuotationsRepository() : DioQuotationsRepository());
-final claimsRepositoryProvider =
-    Provider<ClaimsRepository>((ref) => useMockData ? MockClaimsRepository() : DioClaimsRepository());
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => useMockData ? MockAuthRepository() : DioAuthRepository(),
+);
+final packagesRepositoryProvider = Provider<PackagesRepository>(
+  (ref) => useMockData ? MockPackagesRepository() : DioPackagesRepository(),
+);
+final policiesRepositoryProvider = Provider<PoliciesRepository>(
+  (ref) => useMockData ? MockPoliciesRepository() : DioPoliciesRepository(),
+);
+final paymentsRepositoryProvider = Provider<PaymentsRepository>(
+  (ref) => useMockData ? MockPaymentsRepository() : DioPaymentsRepository(),
+);
+final notificationsRepositoryProvider = Provider<NotificationsRepository>(
+  (ref) => useMockData
+      ? MockNotificationsRepository()
+      : DioNotificationsRepository(),
+);
+final quotationsRepositoryProvider = Provider<QuotationsRepository>(
+  (ref) => useMockData ? MockQuotationsRepository() : DioQuotationsRepository(),
+);
+final claimsRepositoryProvider = Provider<ClaimsRepository>(
+  (ref) => useMockData ? MockClaimsRepository() : DioClaimsRepository(),
+);

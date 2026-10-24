@@ -8,11 +8,18 @@ class ApiConfig {
 
   static const String _port = '8081';
 
-  static String get baseUrl {
-    if (kIsWeb) return 'http://localhost:$_port/api/v1';
+  static String get origin {
+    if (kIsWeb) return 'http://localhost:$_port';
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android => 'http://10.0.2.2:$_port/api/v1',
-      _ => 'http://localhost:$_port/api/v1',
+      TargetPlatform.android => 'http://10.0.2.2:$_port',
+      _ => 'http://localhost:$_port',
     };
+  }
+
+  static String get baseUrl => '$origin/api/v1';
+
+  static String resolveAssetUrl(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    return '$origin$path';
   }
 }

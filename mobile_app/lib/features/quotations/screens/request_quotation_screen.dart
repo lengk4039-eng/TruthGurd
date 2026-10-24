@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/localization/app_localizations.dart';
 import '../../../core/models/insurance_category.dart';
 import '../../../core/models/insurance_package.dart';
 import '../../../core/providers/data_providers.dart';
@@ -20,10 +21,12 @@ class RequestQuotationScreen extends ConsumerStatefulWidget {
   const RequestQuotationScreen({super.key, required this.packageId});
 
   @override
-  ConsumerState<RequestQuotationScreen> createState() => _RequestQuotationScreenState();
+  ConsumerState<RequestQuotationScreen> createState() =>
+      _RequestQuotationScreenState();
 }
 
-class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen> {
+class _RequestQuotationScreenState
+    extends ConsumerState<RequestQuotationScreen> {
   int _planIndex = 2;
   final _notesController = TextEditingController();
   bool _submitting = false;
@@ -43,7 +46,9 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
     try {
       final plans = MockData.planOptionsFor(package);
       final months = plans[_planIndex.clamp(0, plans.length - 1)].months;
-      final quote = await ref.read(quotationsRepositoryProvider).requestQuotation(
+      final quote = await ref
+          .read(quotationsRepositoryProvider)
+          .requestQuotation(
             packageId: package.id,
             preferredPlanMonths: months,
             notes: _notesController.text,
@@ -66,7 +71,7 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
     return Scaffold(
       appBar: AppBar(
         leading: const AppBackButton(),
-        title: const Text('Request a quotation'),
+        title: Text(context.l10n.tr('quotations.requestTitle')),
       ),
       body: AsyncValueView(
         value: packageAsync,
@@ -77,6 +82,7 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
   }
 
   Widget _buildBody(BuildContext context, InsurancePackage package) {
+    final l10n = context.l10n;
     final plans = MockData.planOptionsFor(package);
     final safeIndex = _planIndex.clamp(0, plans.length - 1);
 
@@ -98,16 +104,29 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
                           color: AppColors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                         ),
-                        child: Icon(package.category.icon, color: AppColors.primary),
+                        child: Icon(
+                          package.category.icon,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(package.name, style: Theme.of(context).textTheme.titleSmall),
                             Text(
-                              '${AppFormatters.currencyWhole(package.coverageAmount)} coverage · from ${AppFormatters.currency(package.monthlyPrice)}/mo',
+                              package.name,
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            Text(
+                              l10n.tr('quotations.fromPrice', {
+                                'coverage': AppFormatters.currencyWhole(
+                                  package.coverageAmount,
+                                ),
+                                'price': AppFormatters.currency(
+                                  package.monthlyPrice,
+                                ),
+                              }),
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -118,10 +137,13 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              Text('Preferred plan length', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.tr('quotations.preferredPlan'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Sales may adjust pricing based on your profile. This is your preferred term.',
+                l10n.tr('quotations.salesAdjust'),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -129,25 +151,39 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
                 Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   child: _PlanOptionTile(
-                    label: plans[i].label,
-                    subtitle: '${plans[i].months} months · list ${AppFormatters.currency(plans[i].totalPrice)}',
-                    badge: plans[i].badge,
+                    label: l10n.planLabel(plans[i].months),
+                    subtitle: l10n.tr('quotations.listPrice', {
+                      'count': '${plans[i].months}',
+                      'amount': AppFormatters.currency(plans[i].totalPrice),
+                    }),
+                    badge: plans[i].badge == null
+                        ? null
+                        : l10n.tr('checkout.save15'),
                     selected: safeIndex == i,
                     onTap: () => setState(() => _planIndex = i),
                   ),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Notes for sales (optional)', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                l10n.tr('quotations.notesForSales'),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: AppSpacing.sm),
               AppTextField(
-                label: 'Anything we should know?',
-                hint: 'e.g. family members, travel dates, existing cover…',
+                label: l10n.tr('quotations.anythingKnow'),
+                hint: l10n.tr('quotations.anythingHint'),
                 controller: _notesController,
                 maxLines: 4,
               ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error, fontSize: 13)),
+                Text(
+                  _error!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ],
           ),
@@ -157,7 +193,7 @@ class _RequestQuotationScreenState extends ConsumerState<RequestQuotationScreen>
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.lg),
             child: PrimaryButton(
-              label: 'Submit quotation request',
+              label: l10n.tr('quotations.submitRequest'),
               isLoading: _submitting,
               icon: Icons.send_rounded,
               onPressed: _submitting ? null : () => _submit(package),
@@ -191,7 +227,9 @@ class _PlanOptionTile extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppRadius.lg),
         side: BorderSide(
-          color: selected ? AppColors.primary : Theme.of(context).dividerColor.withValues(alpha: 0.4),
+          color: selected
+              ? AppColors.primary
+              : Theme.of(context).dividerColor.withValues(alpha: 0.4),
           width: selected ? 1.5 : 1,
         ),
       ),
@@ -204,7 +242,9 @@ class _PlanOptionTile extends StatelessWidget {
             children: [
               Icon(
                 selected ? Icons.radio_button_checked : Icons.radio_button_off,
-                color: selected ? AppColors.primary : Theme.of(context).textTheme.bodySmall?.color,
+                color: selected
+                    ? AppColors.primary
+                    : Theme.of(context).textTheme.bodySmall?.color,
               ),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
@@ -212,18 +252,31 @@ class _PlanOptionTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(label, style: Theme.of(context).textTheme.titleSmall),
-                    Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
                   ],
                 ),
               ),
               if (badge != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.accent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
-                  child: Text(badge!, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.accent)),
+                  child: Text(
+                    badge!,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.accent,
+                    ),
+                  ),
                 ),
             ],
           ),

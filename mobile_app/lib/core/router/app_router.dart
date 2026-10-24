@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/providers/auth_controller.dart';
+import '../localization/app_localizations.dart';
 import '../../features/auth/screens/link_existing_policy_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
@@ -17,6 +18,9 @@ import '../../features/packages/screens/package_detail_screen.dart';
 import '../../features/packages/screens/packages_list_screen.dart';
 import '../../features/packages/screens/payment_method_screen.dart';
 import '../../features/packages/screens/payment_result_screen.dart';
+import '../../features/payments/models/installment_payment_result.dart';
+import '../../features/payments/screens/installment_result_screen.dart';
+import '../../features/payments/screens/pay_installment_screen.dart';
 import '../../features/payments/screens/payment_detail_screen.dart';
 import '../../features/payments/screens/payment_history_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
@@ -57,18 +61,32 @@ final routerProvider = Provider<GoRouter>((ref) {
       final loggedIn = ref.read(authStateProvider) != null;
       final path = state.matchedLocation;
       if (!loggedIn) {
-        if (_authRoutes.contains(path) || _preAuthRoutes.contains(path)) return null;
+        if (_authRoutes.contains(path) || _preAuthRoutes.contains(path)) {
+          return null;
+        }
         return '/login';
       }
       if (_authRoutes.contains(path)) return '/home';
       return null;
     },
     routes: [
-      GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
-      GoRoute(path: '/onboarding', builder: (context, state) => const OnboardingScreen()),
+      GoRoute(
+        path: '/splash',
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterScreen()),
-      GoRoute(path: '/link-policy', builder: (context, state) => const LinkExistingPolicyScreen()),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/link-policy',
+        builder: (context, state) => const LinkExistingPolicyScreen(),
+      ),
       GoRoute(
         path: '/notifications',
         parentNavigatorKey: rootNavigatorKey,
@@ -77,17 +95,20 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/packages/:id',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => PackageDetailScreen(packageId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            PackageDetailScreen(packageId: state.pathParameters['id']!),
         routes: [
           GoRoute(
             path: 'checkout',
             parentNavigatorKey: rootNavigatorKey,
-            builder: (context, state) => CheckoutScreen(packageId: state.pathParameters['id']!),
+            builder: (context, state) =>
+                CheckoutScreen(packageId: state.pathParameters['id']!),
           ),
           GoRoute(
             path: 'quote',
             parentNavigatorKey: rootNavigatorKey,
-            builder: (context, state) => RequestQuotationScreen(packageId: state.pathParameters['id']!),
+            builder: (context, state) =>
+                RequestQuotationScreen(packageId: state.pathParameters['id']!),
           ),
         ],
       ),
@@ -99,7 +120,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/quotations/:id',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => QuotationDetailScreen(quotationId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            QuotationDetailScreen(quotationId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/claims',
@@ -109,19 +131,23 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/claims/:id',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => ClaimDetailScreen(claimId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            ClaimDetailScreen(claimId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/my-policies/:id/claim',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => FileClaimScreen(policyId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            FileClaimScreen(policyId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/checkout/payment-method',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final selection = state.extra;
-          if (selection is! CheckoutSelection) return const _MissingFlowStateScreen();
+          if (selection is! CheckoutSelection) {
+            return const _MissingFlowStateScreen();
+          }
           return PaymentMethodScreen(selection: selection);
         },
       ),
@@ -137,12 +163,31 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/my-policies/:id',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => PolicyDetailScreen(policyId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            PolicyDetailScreen(policyId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/payments/:id/pay',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) =>
+            PayInstallmentScreen(paymentId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/payments/:id/paid',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final result = state.extra;
+          if (result is! InstallmentPaymentResult) {
+            return const _MissingFlowStateScreen();
+          }
+          return InstallmentResultScreen(result: result);
+        },
       ),
       GoRoute(
         path: '/payments/:id',
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => PaymentDetailScreen(paymentId: state.pathParameters['id']!),
+        builder: (context, state) =>
+            PaymentDetailScreen(paymentId: state.pathParameters['id']!),
       ),
       GoRoute(
         path: '/profile/edit',
@@ -155,13 +200,49 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const SettingsScreen(),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) => MainShell(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(routes: [GoRoute(path: '/home', builder: (context, state) => const HomeScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: '/packages', builder: (context, state) => const PackagesListScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: '/my-policies', builder: (context, state) => const MyPoliciesScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: '/payments', builder: (context, state) => const PaymentHistoryScreen())]),
-          StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const ProfileScreen())]),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                builder: (context, state) => const HomeScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/packages',
+                builder: (context, state) => const PackagesListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/my-policies',
+                builder: (context, state) => const MyPoliciesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/payments',
+                builder: (context, state) => const PaymentHistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
@@ -183,9 +264,15 @@ class _MissingFlowStateScreen extends StatelessWidget {
             children: [
               const Icon(Icons.error_outline_rounded, size: 40),
               const SizedBox(height: 12),
-              const Text('This step needs to start from the previous screen.', textAlign: TextAlign.center),
+              Text(
+                context.l10n.tr('common.missingFlow'),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
-              FilledButton(onPressed: () => context.go('/home'), child: const Text('Back to Home')),
+              FilledButton(
+                onPressed: () => context.go('/home'),
+                child: Text(context.l10n.tr('common.backHome')),
+              ),
             ],
           ),
         ),
