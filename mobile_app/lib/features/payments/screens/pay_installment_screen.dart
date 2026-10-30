@@ -106,7 +106,7 @@ class _InstallmentSummary extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.xl),
         gradient: const LinearGradient(
-          colors: [Color(0xFFEFEAFE), Color(0xFFF9F7FF)],
+          colors: [Color(0xFFEFF7FE), Color(0xFFF8FCFF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -127,7 +127,7 @@ class _InstallmentSummary extends StatelessWidget {
                 child: const Icon(
                   Icons.calendar_month_rounded,
                   size: 19,
-                  color: AppColors.primary,
+                  color: AppColors.brandInk,
                 ),
               ),
               const SizedBox(width: 10),

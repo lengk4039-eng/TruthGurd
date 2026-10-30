@@ -154,7 +154,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(7),
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary,
+                                  color: AppColors.brandInk,
                                   shape: BoxShape.circle,
                                   border: Border.all(
                                     color: Theme.of(context)
@@ -264,7 +264,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       const Icon(
                         Icons.verified_user_outlined,
                         size: 18,
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(

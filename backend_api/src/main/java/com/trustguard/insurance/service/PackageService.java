@@ -52,6 +52,8 @@ public class PackageService {
                 .benefits(request.benefits() == null ? List.of() : request.benefits())
                 .featured(request.featured())
                 .active(request.active())
+                .waitingPeriodDays(request.waitingPeriodDays() == null ? 30 : request.waitingPeriodDays())
+                .claimWindowDays(request.claimWindowDays() == null ? 90 : request.claimWindowDays())
                 .build();
         return PackageResponse.from(packageRepository.save(pkg));
     }
@@ -69,6 +71,8 @@ public class PackageService {
         pkg.setBenefits(request.benefits() == null ? List.of() : request.benefits());
         pkg.setFeatured(request.featured());
         pkg.setActive(request.active());
+        if (request.waitingPeriodDays() != null) pkg.setWaitingPeriodDays(request.waitingPeriodDays());
+        if (request.claimWindowDays() != null) pkg.setClaimWindowDays(request.claimWindowDays());
         return PackageResponse.from(packageRepository.save(pkg));
     }
 

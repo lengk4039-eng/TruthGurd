@@ -14,4 +14,5 @@ public interface PolicyRepository extends JpaRepository<Policy, UUID> {
     Optional<Policy> findByPolicyNumberIgnoreCase(String policyNumber);
     boolean existsByPolicyNumberIgnoreCase(String policyNumber);
     long countByStatus(PolicyStatus status);
+    long countByUser(User user);
 }

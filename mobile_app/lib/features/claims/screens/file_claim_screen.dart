@@ -636,7 +636,7 @@ class _BeforeYouFileCard extends StatelessWidget {
                       child: Icon(
                         Icons.description_outlined,
                         size: 15,
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -660,7 +660,7 @@ class _BeforeYouFileCard extends StatelessWidget {
                   childrenPadding: const EdgeInsets.only(bottom: AppSpacing.sm),
                   leading: const Icon(
                     Icons.policy_outlined,
-                    color: AppColors.primary,
+                    color: AppColors.brandInk,
                     size: 20,
                   ),
                   title: Text(
@@ -710,7 +710,7 @@ class _TermTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, size: 18, color: AppColors.primary),
+          Icon(icon, size: 18, color: AppColors.brandInk),
           const SizedBox(width: 8),
           Expanded(
             child: Column(

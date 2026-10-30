@@ -23,7 +23,8 @@ class MockClaimsRepository implements ClaimsRepository {
   @override
   Future<List<Claim>> getMyClaims() async {
     await Future.delayed(const Duration(milliseconds: 400));
-    final sorted = [...MockData.claims]..sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
+    final sorted = [...MockData.claims]
+      ..sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
     return sorted;
   }
 
@@ -44,7 +45,9 @@ class MockClaimsRepository implements ClaimsRepository {
   Future<ClaimEligibility> getEligibility(String policyId) async {
     await Future.delayed(const Duration(milliseconds: 250));
     final policy = MockData.policyById(policyId);
-    final waitingEndsAt = policy.startDate.add(Duration(days: policy.package.waitingPeriodDays));
+    final waitingEndsAt = policy.startDate.add(
+      Duration(days: policy.package.waitingPeriodDays),
+    );
     final withinWaiting = DateTime.now().isBefore(waitingEndsAt);
     if (policy.status != PolicyStatus.active) {
       return ClaimEligibility(
@@ -65,7 +68,8 @@ class MockClaimsRepository implements ClaimsRepository {
         eligible: false,
         code: 'PREMIUM_UNPAID',
         title: 'First premium required',
-        message: 'Claim protection begins after your first installment is paid.',
+        message:
+            'Claim protection begins after your first installment is paid.',
         withinWaitingPeriod: withinWaiting,
         waitingPeriodEndsAt: waitingEndsAt,
         waitingPeriodDays: policy.package.waitingPeriodDays,
@@ -76,7 +80,9 @@ class MockClaimsRepository implements ClaimsRepository {
       policyId: policyId,
       eligible: true,
       code: withinWaiting ? 'WAITING_PERIOD' : 'OK',
-      title: withinWaiting ? 'Waiting period active' : 'Claim protection active',
+      title: withinWaiting
+          ? 'Waiting period active'
+          : 'Claim protection active',
       message: withinWaiting
           ? 'Accident claims can be filed now. Other claim types unlock when the waiting period ends.'
           : 'Your policy is active and premiums are up to date.',
@@ -103,7 +109,8 @@ class MockClaimsRepository implements ClaimsRepository {
     final now = DateTime.now();
     final claim = Claim(
       id: 'clm_${MockData.claims.length + 1}_${now.millisecondsSinceEpoch}',
-      claimNumber: 'CLM-${now.year}-${(1000 + MockData.claims.length).toString().padLeft(4, '0')}',
+      claimNumber:
+          'CLM-${now.year}-${(1000 + MockData.claims.length).toString().padLeft(4, '0')}',
       policyId: policyId,
       policyName: policy.package.name,
       type: type,
@@ -120,7 +127,8 @@ class MockClaimsRepository implements ClaimsRepository {
         id: 'n_claim_${claim.id}',
         type: NotificationType.policy,
         title: 'Claim submitted',
-        body: 'We received claim ${claim.claimNumber} for ${policy.package.name}. Status: Submitted.',
+        body:
+            'We received claim ${claim.claimNumber} for ${policy.package.name}. Status: Submitted.',
         createdAt: now,
       ),
     );

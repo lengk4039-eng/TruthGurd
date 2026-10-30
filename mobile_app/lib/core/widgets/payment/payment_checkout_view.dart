@@ -163,14 +163,14 @@ class _PaymentCheckoutViewState extends State<PaymentCheckoutView> {
                       const Icon(
                         Icons.verified_outlined,
                         size: 17,
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
                           widget.notice!,
                           style: theme.textTheme.bodySmall?.copyWith(
-                            color: AppColors.primary,
+                            color: AppColors.brandInk,
                             fontWeight: FontWeight.w600,
                           ),
                         ),

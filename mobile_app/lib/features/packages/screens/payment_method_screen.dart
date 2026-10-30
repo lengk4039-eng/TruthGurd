@@ -165,7 +165,7 @@ class _OrderSummary extends StatelessWidget {
                           child: Text(
                             l10n.category(package.category).toUpperCase(),
                             style: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                               fontSize: 8.5,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
@@ -245,7 +245,7 @@ class _OrderSummary extends StatelessWidget {
                       AppFormatters.currencyWhole(package.coverageAmount),
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontSize: 12.5,
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                       ),
                     ),
                   ],

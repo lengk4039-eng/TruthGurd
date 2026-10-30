@@ -6,6 +6,8 @@ import com.trustguard.insurance.dto.auth.LinkPolicyRequest;
 import com.trustguard.insurance.dto.auth.LoginRequest;
 import com.trustguard.insurance.dto.auth.RefreshRequest;
 import com.trustguard.insurance.dto.auth.RegisterRequest;
+import com.trustguard.insurance.dto.auth.VerifyPolicyRequest;
+import com.trustguard.insurance.dto.auth.VerifyPolicyResponse;
 import com.trustguard.insurance.security.AppUserDetails;
 import com.trustguard.insurance.service.AuthService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +43,11 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refresh(@Valid @RequestBody RefreshRequest request) {
         return authService.refresh(request);
+    }
+
+    @PostMapping("/verify-policy")
+    public VerifyPolicyResponse verifyPolicy(@Valid @RequestBody VerifyPolicyRequest request) {
+        return authService.verifyPolicy(request);
     }
 
     @PostMapping("/link-existing-policy")

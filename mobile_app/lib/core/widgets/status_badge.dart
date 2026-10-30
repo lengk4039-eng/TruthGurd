@@ -20,7 +20,11 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final onDark = Theme.of(context).brightness == Brightness.dark;
     final statusColor = color ?? AppColors.forStatus(label);
+    final ink = subtle
+        ? AppColors.legibleHue(statusColor, onDark: onDark)
+        : AppColors.inkOn(statusColor);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -34,7 +38,7 @@ class StatusBadge extends StatelessWidget {
             width: 6,
             height: 6,
             decoration: BoxDecoration(
-              color: subtle ? statusColor : Colors.white,
+              color: subtle ? statusColor : ink,
               shape: BoxShape.circle,
             ),
           ),
@@ -42,7 +46,7 @@ class StatusBadge extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              color: subtle ? statusColor : Colors.white,
+              color: ink,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),

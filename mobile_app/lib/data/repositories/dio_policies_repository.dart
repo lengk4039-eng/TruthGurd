@@ -9,7 +9,9 @@ class DioPoliciesRepository implements PoliciesRepository {
   Future<List<Policy>> getMyPolicies() {
     return unwrapDioErrors(() async {
       final response = await ApiClient.instance.get('/policies/me');
-      return (response.data as List).map((e) => Policy.fromJson(e as Map<String, dynamic>)).toList();
+      return (response.data as List)
+          .map((e) => Policy.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -30,15 +32,21 @@ class DioPoliciesRepository implements PoliciesRepository {
     String? quotationId,
   }) {
     return unwrapDioErrors(() async {
-      final addOnTotal = addOns.fold<double>(0, (sum, a) => sum + a.price * plan.months);
-      final response = await ApiClient.instance.post('/policies/purchase', data: {
-        'packageId': package.id,
-        'durationMonths': plan.months,
-        'paymentMethod': method.toJson(),
-        if (addOnTotal > 0 && quotationId == null) 'addOnTotal': addOnTotal,
-        if (quotationId != null) 'quotationId': quotationId,
-        if (quotationId != null) 'quotedPremium': plan.totalPrice,
-      });
+      final addOnTotal = addOns.fold<double>(
+        0,
+        (sum, a) => sum + a.price * plan.months,
+      );
+      final response = await ApiClient.instance.post(
+        '/policies/purchase',
+        data: {
+          'packageId': package.id,
+          'durationMonths': plan.months,
+          'paymentMethod': method.toJson(),
+          if (addOnTotal > 0 && quotationId == null) 'addOnTotal': addOnTotal,
+          if (quotationId != null) 'quotationId': quotationId,
+          if (quotationId != null) 'quotedPremium': plan.totalPrice,
+        },
+      );
       return Policy.fromJson(response.data as Map<String, dynamic>);
     });
   }

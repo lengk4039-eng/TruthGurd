@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/app_user.dart';
 import '../../../core/models/policy.dart';
+import '../../../core/models/policy_verification.dart';
 import '../../../core/providers/repository_providers.dart';
 
 /// Holds the signed-in user (or null when signed out). Screens call the
@@ -21,11 +22,25 @@ class AuthController extends Notifier<AppUser?> {
     state = user;
   }
 
+  /// Pre-account check of a policy number + date of birth. Deliberately does
+  /// not touch [state]: nobody is signed in yet.
+  Future<PolicyVerification> verifyPolicy({
+    required String policyNumber,
+    required String dateOfBirth,
+  }) {
+    return ref
+        .read(authRepositoryProvider)
+        .verifyPolicy(policyNumber: policyNumber, dateOfBirth: dateOfBirth);
+  }
+
   Future<void> register({
     required String fullName,
     required String email,
     required String phone,
+    required DateTime dateOfBirth,
     required String password,
+    bool hasExistingPolicy = false,
+    String? policyVerificationToken,
   }) async {
     final user = await ref
         .read(authRepositoryProvider)
@@ -33,7 +48,10 @@ class AuthController extends Notifier<AppUser?> {
           fullName: fullName,
           email: email,
           phone: phone,
+          dateOfBirth: dateOfBirth,
           password: password,
+          hasExistingPolicy: hasExistingPolicy,
+          policyVerificationToken: policyVerificationToken,
         );
     state = user;
   }
@@ -92,4 +110,24 @@ class AuthController extends Notifier<AppUser?> {
 
 final authStateProvider = NotifierProvider<AuthController, AppUser?>(
   AuthController.new,
+);
+
+/// The account-only screen a guest was aiming at when a sign-in prompt
+/// interrupted them, so login/signup can drop them back there instead of
+/// dumping them on Home.
+class PendingAuthRoute extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void save(String route) => state = route;
+
+  String? take() {
+    final route = state;
+    state = null;
+    return route;
+  }
+}
+
+final pendingAuthRouteProvider = NotifierProvider<PendingAuthRoute, String?>(
+  PendingAuthRoute.new,
 );

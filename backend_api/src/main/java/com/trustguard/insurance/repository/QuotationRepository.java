@@ -12,4 +12,5 @@ public interface QuotationRepository extends JpaRepository<Quotation, UUID> {
     List<Quotation> findByUserOrderByCreatedAtDesc(User user);
     List<Quotation> findAllByOrderByCreatedAtDesc();
     long countByStatus(QuotationStatus status);
+    long countByUser(User user);
 }

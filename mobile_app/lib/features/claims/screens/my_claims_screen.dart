@@ -8,9 +8,10 @@ import '../../../core/providers/data_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/utils/formatters.dart';
-import '../../../core/widgets/app_back_button.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/glass/glass_card.dart';
+import '../../../core/widgets/glass/glass_page_scaffold.dart';
 import '../../../core/widgets/status_badge.dart';
 
 class MyClaimsScreen extends ConsumerWidget {
@@ -21,12 +22,9 @@ class MyClaimsScreen extends ConsumerWidget {
     final claimsAsync = ref.watch(myClaimsProvider);
     final l10n = context.l10n;
 
-    return Scaffold(
-      appBar: AppBar(
-        leading: const AppBackButton(),
-        title: Text(l10n.tr('claims.title')),
-      ),
-      body: AsyncValueView(
+    return GlassPageScaffold(
+      title: l10n.tr('claims.title'),
+      child: AsyncValueView(
         value: claimsAsync,
         onRetry: () => ref.invalidate(myClaimsProvider),
         builder: (claims) {
@@ -42,12 +40,7 @@ class MyClaimsScreen extends ConsumerWidget {
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(myClaimsProvider),
             child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                AppSpacing.xxl,
-              ),
+              padding: EdgeInsets.zero,
               itemCount: claims.length + 1,
               separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
               itemBuilder: (context, index) {
@@ -96,114 +89,107 @@ class _ClaimCard extends StatelessWidget {
       ClaimStatus.approved => Icons.task_alt_rounded,
       ClaimStatus.rejected => Icons.info_outline_rounded,
     };
+    // The hue is also painted as small glyphs on pale glass, where raw
+    // `primary` sits under 3:1.
+    final accentInk = AppColors.legibleHue(
+      accent,
+      onDark: GlassInk.surfaceIsDark(context, GlassTone.light),
+    );
 
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return GlassCard(
+      tone: GlassTone.light,
+      blur: AppBlur.medium,
+      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xl)),
+      onTap: onTap,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    child: Icon(statusIcon, color: accent, size: 20),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          claim.policyName,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${claim.claimNumber} · ${l10n.claimType(claim.type)}',
-                          style: TextStyle(color: muted, fontSize: 11.5),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  StatusBadge(
-                    label: l10n.claimStatus(claim.status),
-                    color: accent,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Text(
-                    AppFormatters.currency(claim.amount),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Spacer(),
-                  Text(
-                    claim.reviewedAt != null
-                        ? l10n.tr('claims.updatedOn', {
-                            'date': l10n.formatDate(claim.reviewedAt!),
-                          })
-                        : l10n.tr('claims.submittedOn', {
-                            'date': l10n.formatDate(claim.submittedAt),
-                          }),
-                    style: TextStyle(color: muted, fontSize: 11.5),
-                  ),
-                  const SizedBox(width: 2),
-                  Icon(Icons.chevron_right_rounded, size: 18, color: muted),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
               Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 8,
-                ),
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.06),
+                  color: accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
-                child: Row(
+                child: Icon(statusIcon, color: accentInk, size: 20),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      Icons.subdirectory_arrow_right_rounded,
-                      size: 15,
-                      color: accent,
+                    Text(
+                      claim.policyName,
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: Text(
-                        l10n.claimNextStepBody(claim.status),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          height: 1.4,
-                          color: muted,
-                        ),
-                      ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '${claim.claimNumber} · ${l10n.claimType(claim.type)}',
+                      style: TextStyle(color: muted, fontSize: 11.5),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
+              StatusBadge(label: l10n.claimStatus(claim.status), color: accent),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Text(
+                AppFormatters.currency(claim.amount),
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                claim.reviewedAt != null
+                    ? l10n.tr('claims.updatedOn', {
+                        'date': l10n.formatDate(claim.reviewedAt!),
+                      })
+                    : l10n.tr('claims.submittedOn', {
+                        'date': l10n.formatDate(claim.submittedAt),
+                      }),
+                style: TextStyle(color: muted, fontSize: 11.5),
+              ),
+              const SizedBox(width: 2),
+              Icon(Icons.chevron_right_rounded, size: 18, color: muted),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.subdirectory_arrow_right_rounded,
+                  size: 15,
+                  color: accentInk,
+                ),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    l10n.claimNextStepBody(claim.status),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11.5, height: 1.4, color: muted),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

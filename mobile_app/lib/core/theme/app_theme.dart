@@ -215,21 +215,25 @@ class AppTheme {
     final isDark = brightness == Brightness.dark;
     final colorScheme = ColorScheme(
       brightness: brightness,
-      primary: isDark ? AppColors.primaryLight : AppColors.primary,
-      onPrimary: Colors.white,
+      primary: AppColors.primary,
+      onPrimary: AppColors.onPrimary,
       secondary: AppColors.accent,
-      onSecondary: Colors.white,
+      onSecondary: AppColors.onPrimary,
       error: AppColors.error,
       onError: Colors.white,
       surface: surface,
       onSurface: textPrimary,
       surfaceContainerHighest: isDark
           ? AppColors.surfaceDark
-          : const Color(0xFFF3EFFC),
+          : AppColors.backdropOuterLight,
       outline: border,
     );
 
     final textTheme = _textTheme(textPrimary, textMuted, khmer);
+
+    /// `primary` is far too light to serve as text or icon colour on a light
+    /// page (2:1), so anything painted *as* the brand uses the dark end.
+    final brandText = AppColors.brandOn(onDark: isDark);
 
     return ThemeData(
       useMaterial3: true,
@@ -261,8 +265,8 @@ class AppTheme {
         color: surface,
         elevation: isDark ? 0 : 1,
         shadowColor: isDark
-            ? Colors.black.withValues(alpha: 0.35)
-            : AppColors.primary.withValues(alpha: 0.07),
+            ? Colors.black.withValues(alpha: 0.45)
+            : AppColors.primaryDark.withValues(alpha: 0.10),
         surfaceTintColor: Colors.transparent,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
@@ -274,7 +278,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: colorScheme.onPrimary,
           disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.4),
           padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 22),
           shape: RoundedRectangleBorder(
@@ -283,7 +287,7 @@ class AppTheme {
           textStyle: _body(
             size: 14.5,
             weight: FontWeight.w600,
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             khmer: khmer,
           ),
           elevation: 0,
@@ -292,7 +296,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
-          foregroundColor: Colors.white,
+          foregroundColor: colorScheme.onPrimary,
           disabledBackgroundColor: colorScheme.primary.withValues(alpha: 0.4),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(
@@ -301,7 +305,7 @@ class AppTheme {
           textStyle: _body(
             size: 15,
             weight: FontWeight.w600,
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             khmer: khmer,
           ),
           elevation: 0,
@@ -309,7 +313,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: colorScheme.primary,
+          foregroundColor: brandText,
           side: BorderSide(color: border),
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(
@@ -318,18 +322,18 @@ class AppTheme {
           textStyle: _body(
             size: 15,
             weight: FontWeight.w600,
-            color: colorScheme.primary,
+            color: brandText,
             khmer: khmer,
           ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
+          foregroundColor: brandText,
           textStyle: _body(
             size: 14,
             weight: FontWeight.w600,
-            color: colorScheme.primary,
+            color: brandText,
             khmer: khmer,
           ),
         ),
@@ -363,7 +367,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+          borderSide: BorderSide(color: brandText, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -377,7 +381,7 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: isDark
             ? AppColors.surfaceDark
-            : const Color(0xFFF1EDFC),
+            : AppColors.backdropOuterLight.withValues(alpha: 0.6),
         selectedColor: colorScheme.primary,
         labelStyle: _body(
           size: 13,
@@ -388,7 +392,7 @@ class AppTheme {
         secondaryLabelStyle: _body(
           size: 13,
           weight: FontWeight.w600,
-          color: Colors.white,
+          color: AppColors.onPrimary,
           khmer: khmer,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -408,17 +412,29 @@ class AppTheme {
           return _body(
             size: 11.5,
             weight: selected ? FontWeight.w600 : FontWeight.w500,
-            color: selected ? colorScheme.primary : textMuted,
+            color: selected ? brandText : textMuted,
             khmer: khmer,
           );
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? colorScheme.primary : textMuted,
+            color: selected ? brandText : textMuted,
             size: 23,
           );
         }),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        elevation: 0,
+        highlightElevation: 0,
+        shape: const CircleBorder(),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: brandText,
+        linearTrackColor: border,
+        circularTrackColor: border,
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: surface,
@@ -463,7 +479,7 @@ class AppTheme {
         ),
       ),
       listTileTheme: ListTileThemeData(
-        iconColor: colorScheme.primary,
+        iconColor: brandText,
         titleTextStyle: _body(
           size: 14.5,
           weight: FontWeight.w500,

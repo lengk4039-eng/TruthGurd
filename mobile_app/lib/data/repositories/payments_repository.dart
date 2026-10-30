@@ -12,7 +12,8 @@ class MockPaymentsRepository implements PaymentsRepository {
   @override
   Future<List<Payment>> getMyPayments() async {
     await Future.delayed(const Duration(milliseconds: 500));
-    final sorted = [...MockData.payments]..sort((a, b) => b.dueDate.compareTo(a.dueDate));
+    final sorted = [...MockData.payments]
+      ..sort((a, b) => b.dueDate.compareTo(a.dueDate));
     return sorted;
   }
 
@@ -40,10 +41,15 @@ class MockPaymentsRepository implements PaymentsRepository {
     );
     MockData.payments[index] = updated;
 
-    final policyIndex = MockData.policies.indexWhere((p) => p.id == updated.policyId);
+    final policyIndex = MockData.policies.indexWhere(
+      (p) => p.id == updated.policyId,
+    );
     if (policyIndex != -1) {
       final policy = MockData.policies[policyIndex];
-      MockData.policies[policyIndex] = policy.copyWith(amountPaid: policy.amountPaid + updated.amount, clearNextPayment: true);
+      MockData.policies[policyIndex] = policy.copyWith(
+        amountPaid: policy.amountPaid + updated.amount,
+        clearNextPayment: true,
+      );
     }
     return updated;
   }

@@ -19,6 +19,8 @@ public record PackageRequest(
         @Min(1) int durationMonths,
         List<String> benefits,
         boolean featured,
-        boolean active
+        boolean active,
+        @PositiveOrZero Integer waitingPeriodDays,
+        @Min(1) Integer claimWindowDays
 ) {
 }

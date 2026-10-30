@@ -116,7 +116,7 @@ class CardEntryForm extends StatelessWidget {
                       child: Text(
                         CardUtils.detectBrand(value.text).label.toUpperCase(),
                         style: const TextStyle(
-                          color: AppColors.primary,
+                          color: AppColors.primaryDark,
                           fontSize: 10,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5,
@@ -248,7 +248,7 @@ class _CardPreview extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppRadius.xl),
             gradient: const LinearGradient(
-              colors: [Color(0xFF312A63), Color(0xFF5B3FE4), Color(0xFF8A63F6)],
+              colors: [Color(0xFF071F2B), Color(0xFF1D4ED8), Color(0xFF38BDF8)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),

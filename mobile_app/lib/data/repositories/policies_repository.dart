@@ -40,12 +40,18 @@ class MockPoliciesRepository implements PoliciesRepository {
     String? quotationId,
   }) async {
     await Future.delayed(const Duration(milliseconds: 1200));
-    final addOnTotal = addOns.fold<double>(0, (sum, a) => sum + a.price * plan.months);
-    final total = quotationId != null ? plan.totalPrice : plan.totalPrice + addOnTotal;
+    final addOnTotal = addOns.fold<double>(
+      0,
+      (sum, a) => sum + a.price * plan.months,
+    );
+    final total = quotationId != null
+        ? plan.totalPrice
+        : plan.totalPrice + addOnTotal;
     final now = DateTime.now();
     final policy = Policy(
       id: 'pol_${MockData.policies.length + 1}_${now.millisecondsSinceEpoch}',
-      policyNumber: 'POL-${now.year}-${(1000 + MockData.policies.length).toString().padLeft(4, '0')}',
+      policyNumber:
+          'POL-${now.year}-${(1000 + MockData.policies.length).toString().padLeft(4, '0')}',
       package: package,
       status: PolicyStatus.active,
       source: PolicySource.appPurchase,
@@ -76,7 +82,9 @@ class MockPoliciesRepository implements PoliciesRepository {
       AppNotification(
         id: 'n_purchase_${policy.id}',
         type: NotificationType.policy,
-        title: quotationId != null ? 'Quote converted to policy' : 'New policy active',
+        title: quotationId != null
+            ? 'Quote converted to policy'
+            : 'New policy active',
         body: '${package.name} is now active. Policy ${policy.policyNumber}.',
         createdAt: now,
       ),

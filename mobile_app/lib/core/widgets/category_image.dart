@@ -38,7 +38,7 @@ class CategoryImage extends StatelessWidget {
           color: AppColors.primary.withValues(alpha: 0.1),
           child: Icon(
             category.icon,
-            color: AppColors.primary,
+            color: AppColors.brandInk,
             size: size * 0.4,
           ),
         ),

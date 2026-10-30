@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../localization/app_localizations.dart';
+import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
 
 /// Rounded back control used on every pushed screen so navigation is always
@@ -23,6 +24,11 @@ class AppBackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    // `primary` is a bright cyan and reads at 1.7:1 on a light page, so the
+    // glyph takes the dark end of the brand ramp instead.
+    final brand = AppColors.brandOn(
+      onDark: Theme.of(context).brightness == Brightness.dark,
+    );
     return Padding(
       padding: padding,
       child: IconButton(
@@ -41,7 +47,7 @@ class AppBackButton extends StatelessWidget {
         style: IconButton.styleFrom(
           backgroundColor:
               backgroundColor ?? scheme.primary.withValues(alpha: 0.10),
-          foregroundColor: foregroundColor ?? scheme.primary,
+          foregroundColor: foregroundColor ?? brand,
           minimumSize: const Size(38, 38),
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(

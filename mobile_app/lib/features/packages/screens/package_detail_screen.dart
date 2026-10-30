@@ -12,6 +12,8 @@ import '../../../core/widgets/app_back_button.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/category_image.dart';
 import '../../../core/widgets/primary_button.dart';
+import '../../auth/providers/auth_controller.dart';
+import '../../auth/widgets/guest_auth_prompt.dart';
 
 class PackageDetailScreen extends ConsumerWidget {
   final String packageId;
@@ -30,13 +32,29 @@ class PackageDetailScreen extends ConsumerWidget {
   }
 }
 
-class _PackageDetailBody extends StatelessWidget {
+class _PackageDetailBody extends ConsumerWidget {
   final InsurancePackage package;
   const _PackageDetailBody({required this.package});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final isGuest = ref.watch(authStateProvider) == null;
+
+    void openAccountOnlyStep(String route) {
+      if (!isGuest) {
+        context.push(route);
+        return;
+      }
+      promptGuestToSignIn(
+        context,
+        ref,
+        titleKey: 'guest.buyTitle',
+        bodyKey: 'guest.buyBody',
+        resumeRoute: route,
+      );
+    }
+
     return Column(
       children: [
         Expanded(
@@ -236,8 +254,9 @@ class _PackageDetailBody extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         label: l10n.tr('packages.buyNow'),
-                        onPressed: () =>
-                            context.push('/packages/${package.id}/checkout'),
+                        onPressed: () => openAccountOnlyStep(
+                          '/packages/${package.id}/checkout',
+                        ),
                       ),
                     ),
                   ],
@@ -247,7 +266,7 @@ class _PackageDetailBody extends StatelessWidget {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () =>
-                        context.push('/packages/${package.id}/quote'),
+                        openAccountOnlyStep('/packages/${package.id}/quote'),
                     icon: const Icon(Icons.request_quote_outlined),
                     label: Text(l10n.tr('packages.getQuote')),
                     style: OutlinedButton.styleFrom(
@@ -342,7 +361,7 @@ class _ClaimsLegalSection extends StatelessWidget {
                 _LegalList(
                   items: documents,
                   icon: Icons.description_outlined,
-                  color: AppColors.primary,
+                  color: AppColors.brandInk,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
@@ -368,7 +387,7 @@ class _ClaimsLegalSection extends StatelessWidget {
                       ),
                       leading: const Icon(
                         Icons.gavel_rounded,
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                         size: 20,
                       ),
                       title: Text(
@@ -465,7 +484,7 @@ class _StatChip extends StatelessWidget {
             Text(
               value,
               style: const TextStyle(
-                color: AppColors.primary,
+                color: AppColors.primaryDark,
                 fontWeight: FontWeight.w700,
                 fontSize: 13.5,
               ),

@@ -13,12 +13,14 @@ import com.trustguard.insurance.entity.Payment;
 import com.trustguard.insurance.entity.PaymentStatus;
 import com.trustguard.insurance.entity.Policy;
 import com.trustguard.insurance.entity.PolicyStatus;
+import com.trustguard.insurance.entity.Role;
 import com.trustguard.insurance.entity.User;
 import com.trustguard.insurance.exception.BadRequestException;
 import com.trustguard.insurance.exception.ResourceNotFoundException;
 import com.trustguard.insurance.repository.ClaimRepository;
 import com.trustguard.insurance.repository.PaymentRepository;
 import com.trustguard.insurance.repository.PolicyRepository;
+import com.trustguard.insurance.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,7 @@ public class ClaimService {
     private final ClaimRepository claimRepository;
     private final PolicyRepository policyRepository;
     private final PaymentRepository paymentRepository;
+    private final UserRepository userRepository;
     private final NotificationService notificationService;
 
     public List<ClaimResponse> getMyClaims(User user) {
@@ -119,10 +122,14 @@ public class ClaimService {
                 .build();
         claim = claimRepository.save(claim);
 
-        String body = "We received claim " + claimNumber + " for " + pkg.getName()
+        // Notify customer about their submission
+        String customerBody = "We received claim " + claimNumber + " for " + pkg.getName()
                 + ". Next: our claims team reviews it within 2-3 business days and notifies you here. "
                 + "If we need documents, the request will appear in this claim's timeline.";
-        notificationService.notify(user, NotificationType.POLICY, "Claim submitted", body);
+        notificationService.notify(user, NotificationType.POLICY, "Claim submitted", customerBody);
+
+        // Notify admins about new claim
+        notifyAdminAboutNewClaim(claim);
 
         return ClaimResponse.from(claim);
     }
@@ -178,8 +185,19 @@ public class ClaimService {
         return ClaimResponse.from(claim);
     }
 
-    private Policy requireOwnedPolicy(User user, UUID policyId) {
-        Policy policy = policyRepository.findById(policyId)
+    private void notifyAdminAboutNewClaim(Claim claim) {
+        String body = "Claim " + claim.getClaimNumber() + " was submitted by "
+                + claim.getUser().getFullName() + " for "
+                + claim.getPolicy().getInsurancePackage().getName()
+                + " (" + claim.getType().name().toLowerCase(Locale.ROOT) + ", $"
+                + claim.getAmount().stripTrailingZeros().toPlainString()
+                + "). Review it in the admin claims queue.";
+        userRepository.findAllByRole(Role.ADMIN).forEach(admin ->
+                notificationService.notify(admin, NotificationType.SYSTEM,
+                        "New claim: " + claim.getClaimNumber(), body));
+    }
+
+    private Policy requireOwnedPolicy(User user, UUID policyId) {        Policy policy = policyRepository.findById(policyId)
                 .orElseThrow(() -> new ResourceNotFoundException("Policy not found."));
         if (policy.getUser() == null || !policy.getUser().getId().equals(user.getId())) {
             throw new ResourceNotFoundException("Policy not found.");

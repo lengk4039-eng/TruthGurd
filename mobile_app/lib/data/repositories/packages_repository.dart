@@ -3,14 +3,20 @@ import '../../core/models/insurance_package.dart';
 import '../mock_data.dart';
 
 abstract class PackagesRepository {
-  Future<List<InsurancePackage>> getPackages({InsuranceCategoryType? category, String? query});
+  Future<List<InsurancePackage>> getPackages({
+    InsuranceCategoryType? category,
+    String? query,
+  });
   Future<InsurancePackage> getPackageById(String id);
   Future<List<InsurancePackage>> getFeatured();
 }
 
 class MockPackagesRepository implements PackagesRepository {
   @override
-  Future<List<InsurancePackage>> getPackages({InsuranceCategoryType? category, String? query}) async {
+  Future<List<InsurancePackage>> getPackages({
+    InsuranceCategoryType? category,
+    String? query,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 500));
     var results = MockData.packages;
     if (category != null) {
@@ -18,7 +24,13 @@ class MockPackagesRepository implements PackagesRepository {
     }
     if (query != null && query.trim().isNotEmpty) {
       final q = query.trim().toLowerCase();
-      results = results.where((p) => p.name.toLowerCase().contains(q) || p.tagline.toLowerCase().contains(q)).toList();
+      results = results
+          .where(
+            (p) =>
+                p.name.toLowerCase().contains(q) ||
+                p.tagline.toLowerCase().contains(q),
+          )
+          .toList();
     }
     return results;
   }

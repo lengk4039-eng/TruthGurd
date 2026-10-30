@@ -40,6 +40,18 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 const _authRoutes = {'/login', '/register'};
 const _preAuthRoutes = {'/splash', '/onboarding'};
 
+/// Guests can browse the catalogue but reach nothing tied to a person. A
+/// package page is readable so the terms can be checked before signup;
+/// anything deeper under it (checkout, quote) requires an account.
+final RegExp _guestPackageDetailPath = RegExp(r'^/packages/[^/]+$');
+
+bool _isGuestAccessible(String path) =>
+    _authRoutes.contains(path) ||
+    _preAuthRoutes.contains(path) ||
+    path == '/home' ||
+    path == '/packages' ||
+    _guestPackageDetailPath.hasMatch(path);
+
 /// Bridges Riverpod's [authStateProvider] to go_router's [refreshListenable]
 /// so a login/logout re-runs `redirect` in place, instead of recreating the
 /// whole router (which would reset the nav stack back to `/splash`).
@@ -61,10 +73,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final loggedIn = ref.read(authStateProvider) != null;
       final path = state.matchedLocation;
       if (!loggedIn) {
-        if (_authRoutes.contains(path) || _preAuthRoutes.contains(path)) {
-          return null;
-        }
-        return '/login';
+        return _isGuestAccessible(path) ? null : '/home';
       }
       if (_authRoutes.contains(path)) return '/home';
       return null;

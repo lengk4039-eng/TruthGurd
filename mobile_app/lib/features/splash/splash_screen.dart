@@ -39,7 +39,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     if (ref.read(authStateProvider) != null) {
       context.go('/home');
     } else {
-      context.go(seenOnboarding ? '/login' : '/onboarding');
+      context.go(seenOnboarding ? '/home' : '/onboarding');
     }
   }
 

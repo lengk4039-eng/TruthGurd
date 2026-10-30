@@ -48,7 +48,7 @@ class PaymentSuccessHeader extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF25C995), Color(0xFF0E9B6C)],
+                    colors: [Color(0xFF34D07A), Color(0xFF0FA055)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -221,7 +221,7 @@ class PaymentReceiptCard extends StatelessWidget {
                     reference!,
                     style: theme.textTheme.titleSmall?.copyWith(
                       letterSpacing: 0.8,
-                      color: AppColors.primary,
+                      color: AppColors.brandInk,
                     ),
                   ),
                 ],
@@ -272,7 +272,7 @@ class PaymentReceiptCard extends StatelessWidget {
             textAlign: TextAlign.end,
             style: row.emphasize
                 ? theme.textTheme.titleMedium?.copyWith(
-                    color: AppColors.primary,
+                    color: AppColors.brandInk,
                     fontSize: 15,
                   )
                 : theme.textTheme.titleSmall?.copyWith(fontSize: 12.5),

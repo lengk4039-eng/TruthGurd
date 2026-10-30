@@ -14,14 +14,18 @@ abstract class QuotationsRepository {
   Future<Quotation> declineQuotation(String id);
 
   /// Marks a quoted quotation as accepted and links the new policy.
-  Future<Quotation> markAccepted({required String quotationId, required String policyId});
+  Future<Quotation> markAccepted({
+    required String quotationId,
+    required String policyId,
+  });
 }
 
 class MockQuotationsRepository implements QuotationsRepository {
   @override
   Future<List<Quotation>> getMyQuotations() async {
     await Future.delayed(const Duration(milliseconds: 450));
-    final sorted = [...MockData.quotations]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final sorted = [...MockData.quotations]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return sorted;
   }
 
@@ -55,7 +59,8 @@ class MockQuotationsRepository implements QuotationsRepository {
         id: 'n_quote_${quote.id}',
         type: NotificationType.system,
         title: 'Quotation submitted',
-        body: 'We received your request for ${package.name}. Our team will respond shortly.',
+        body:
+            'We received your request for ${package.name}. Our team will respond shortly.',
         createdAt: DateTime.now(),
       ),
     );
@@ -68,7 +73,8 @@ class MockQuotationsRepository implements QuotationsRepository {
     final index = MockData.quotations.indexWhere((q) => q.id == id);
     if (index == -1) throw const AppException('Quotation not found.');
     final current = MockData.quotations[index];
-    if (current.status != QuotationStatus.quoted && current.status != QuotationStatus.pending) {
+    if (current.status != QuotationStatus.quoted &&
+        current.status != QuotationStatus.pending) {
       throw const AppException('This quotation can no longer be declined.');
     }
     final updated = current.copyWith(status: QuotationStatus.rejected);
@@ -77,15 +83,23 @@ class MockQuotationsRepository implements QuotationsRepository {
   }
 
   @override
-  Future<Quotation> markAccepted({required String quotationId, required String policyId}) async {
+  Future<Quotation> markAccepted({
+    required String quotationId,
+    required String policyId,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 200));
     final index = MockData.quotations.indexWhere((q) => q.id == quotationId);
     if (index == -1) throw const AppException('Quotation not found.');
     final current = MockData.quotations[index];
     if (!current.canAccept) {
-      throw const AppException('This quotation cannot be accepted. It may have expired.');
+      throw const AppException(
+        'This quotation cannot be accepted. It may have expired.',
+      );
     }
-    final updated = current.copyWith(status: QuotationStatus.accepted, policyId: policyId);
+    final updated = current.copyWith(
+      status: QuotationStatus.accepted,
+      policyId: policyId,
+    );
     MockData.quotations[index] = updated;
     MockData.notifications.insert(
       0,

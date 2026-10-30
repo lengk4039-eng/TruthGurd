@@ -13,4 +13,5 @@ public interface ClaimRepository extends JpaRepository<Claim, UUID> {
     List<Claim> findByPolicyOrderBySubmittedAtDesc(Policy policy);
     List<Claim> findAllByOrderBySubmittedAtDesc();
     long countByClaimNumberStartingWith(String prefix);
+    long countByUser(User user);
 }

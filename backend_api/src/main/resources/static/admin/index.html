@@ -98,6 +98,9 @@
     }
     .field { margin-bottom: 16px; }
     .field-hint { margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.45; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .form-grid .field-full { grid-column: 1 / -1; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } .form-grid .field-full { grid-column: auto; } }
     .error, .success {
       padding: 10px 12px; border-radius: 9px; font-size: 13px;
       margin-bottom: 14px; line-height: 1.45; border: 1px solid transparent;
@@ -167,7 +170,10 @@
       border-radius: 18px; box-shadow: var(--shadow-sm);
       display: flex; flex-direction: column;
       position: sticky; top: 14px; height: calc(100vh - 28px);
+      overflow-y: auto; scrollbar-width: thin; scrollbar-color: #d9d4e6 transparent;
     }
+    .sidebar::-webkit-scrollbar { width: 6px; }
+    .sidebar::-webkit-scrollbar-thumb { background: #d9d4e6; border-radius: 999px; }
     .side-brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 18px; }
     .nav-group-label {
       padding: 0 10px; margin: 14px 0 6px;
@@ -386,6 +392,7 @@
     }
     .preview-panel .label { font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); font-weight: 700; }
     .preview-panel .text { margin-top: 5px; font-size: 12.5px; line-height: 1.55; color: #4a1d8a; }
+    .confirm-text { font-size: 13px; line-height: 1.6; color: #344054; }
     .note-required { color: var(--error); font-size: 11.5px; font-weight: 600; margin-left: 4px; }
     @media (max-width: 1240px) {
       th, td { padding: 10px 11px; font-size: 12.5px; }
@@ -788,14 +795,17 @@
                 <p>Customers and administrators registered with TrustGuard.</p>
               </div>
               <div class="spacer"></div>
-              <button class="btn secondary sm" type="button" data-refresh="users">Refresh</button>
+              <div class="toolbar-right">
+                <button class="btn secondary sm" type="button" data-refresh="users">Refresh</button>
+                <button class="btn sm" type="button" id="newUserBtn">New user</button>
+              </div>
             </div>
             <div class="card table-card">
               <div id="emptyUsers" class="empty hidden">No users found.</div>
               <div class="table-wrap">
                 <table id="userTable" class="hidden">
                   <thead>
-                    <tr><th>Customer</th><th>Contact</th><th>Role</th><th>KYC</th><th>Member since</th></tr>
+                    <tr><th>Customer</th><th>Contact</th><th>Role</th><th>KYC</th><th>Member since</th><th>Actions</th></tr>
                   </thead>
                   <tbody id="userBody"></tbody>
                 </table>
@@ -811,14 +821,17 @@
                 <p>Products, pricing, and the claim terms customers agree to.</p>
               </div>
               <div class="spacer"></div>
-              <button class="btn secondary sm" type="button" data-refresh="packages">Refresh</button>
+              <div class="toolbar-right">
+                <button class="btn secondary sm" type="button" data-refresh="packages">Refresh</button>
+                <button class="btn sm" type="button" id="newPackageBtn">New package</button>
+              </div>
             </div>
             <div class="card table-card">
               <div id="emptyPackages" class="empty hidden">No packages found.</div>
               <div class="table-wrap">
                 <table id="packageTable" class="hidden">
                   <thead>
-                    <tr><th>Package</th><th>Category</th><th>Monthly</th><th>Coverage</th><th>Claim terms</th><th>Featured</th></tr>
+                    <tr><th>Package</th><th>Category</th><th>Monthly</th><th>Coverage</th><th>Claim terms</th><th>Status</th><th>Actions</th></tr>
                   </thead>
                   <tbody id="packageBody"></tbody>
                 </table>
@@ -951,6 +964,157 @@
     </div>
   </dialog>
 
+  <dialog id="userDialog">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">Account</div>
+        <h3 id="userDialogTitle">New user</h3>
+        <div class="sub" id="userDialogSub">Create a customer or administrator account.</div>
+      </div>
+      <button type="button" class="icon-btn" id="closeUserX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="form-grid">
+        <div class="field field-full">
+          <label for="userFullName">Full name</label>
+          <input id="userFullName" type="text" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="userEmail">Email</label>
+          <input id="userEmail" type="email" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="userPhone">Phone</label>
+          <input id="userPhone" type="tel" autocomplete="off" />
+        </div>
+        <div class="field field-full" id="userPasswordField">
+          <label for="userPassword">Temporary password</label>
+          <input id="userPassword" type="password" autocomplete="new-password" />
+          <div class="field-hint">At least 6 characters. Share it with the user so they can sign in.</div>
+        </div>
+        <div class="field">
+          <label for="userRole">Role</label>
+          <select id="userRole">
+            <option value="CUSTOMER">Customer</option>
+            <option value="ADMIN">Administrator</option>
+          </select>
+          <div class="field-hint" id="userRoleHint"></div>
+        </div>
+        <div class="field">
+          <label for="userKyc">KYC status</label>
+          <select id="userKyc">
+            <option value="false">Pending</option>
+            <option value="true">Verified</option>
+          </select>
+        </div>
+      </div>
+      <div id="userError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelUser">Cancel</button>
+      <button class="btn" type="button" id="submitUser">Create user</button>
+    </div>
+  </dialog>
+
+  <dialog id="packageDialog" class="wide">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow">Catalog</div>
+        <h3 id="packageDialogTitle">New package</h3>
+        <div class="sub" id="packageDialogSub">Add a product to the catalog.</div>
+      </div>
+      <button type="button" class="icon-btn" id="closePackageX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <div class="form-grid">
+        <div class="field field-full">
+          <label for="pkgName">Package name</label>
+          <input id="pkgName" type="text" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="pkgCategory">Category</label>
+          <select id="pkgCategory">
+            <option value="HEALTH">Health</option>
+            <option value="LIFE">Life</option>
+            <option value="VEHICLE">Vehicle</option>
+            <option value="HOME">Home</option>
+            <option value="TRAVEL">Travel</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pkgDuration">Duration (months)</label>
+          <input id="pkgDuration" type="number" min="1" step="1" value="12" />
+        </div>
+        <div class="field">
+          <label for="pkgMonthly">Monthly price (USD)</label>
+          <input id="pkgMonthly" type="number" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="pkgCoverage">Coverage amount (USD)</label>
+          <input id="pkgCoverage" type="number" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label for="pkgWaiting">Waiting period (days)</label>
+          <input id="pkgWaiting" type="number" min="0" step="1" value="30" />
+        </div>
+        <div class="field">
+          <label for="pkgClaimWindow">Claim window (days)</label>
+          <input id="pkgClaimWindow" type="number" min="1" step="1" value="90" />
+          <div class="field-hint">Both are shown at checkout as the claim terms the customer accepts.</div>
+        </div>
+        <div class="field field-full">
+          <label for="pkgTagline">Tagline</label>
+          <input id="pkgTagline" type="text" autocomplete="off" />
+        </div>
+        <div class="field field-full">
+          <label for="pkgDescription">Description</label>
+          <textarea id="pkgDescription" rows="3"></textarea>
+        </div>
+        <div class="field field-full">
+          <label for="pkgBenefits">Benefits (one per line)</label>
+          <textarea id="pkgBenefits" rows="4" placeholder="One benefit per line"></textarea>
+        </div>
+        <div class="field">
+          <label for="pkgFeatured">Featured</label>
+          <select id="pkgFeatured">
+            <option value="false">No</option>
+            <option value="true">Yes — highlight in the app</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="pkgActive">Visibility</label>
+          <select id="pkgActive">
+            <option value="true">Live in the app</option>
+            <option value="false">Archived — hidden</option>
+          </select>
+        </div>
+      </div>
+      <div id="packageError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelPackage">Cancel</button>
+      <button class="btn" type="button" id="submitPackage">Create package</button>
+    </div>
+  </dialog>
+
+  <dialog id="confirmDialog">
+    <div class="dialog-header">
+      <div>
+        <div class="eyebrow" id="confirmEyebrow">Confirm</div>
+        <h3 id="confirmTitle">Are you sure?</h3>
+      </div>
+      <button type="button" class="icon-btn" id="closeConfirmX" aria-label="Close">✕</button>
+    </div>
+    <div class="dialog-body">
+      <p class="confirm-text" id="confirmMessage"></p>
+      <div id="confirmError" class="error hidden"></div>
+    </div>
+    <div class="dialog-footer">
+      <button class="btn secondary" type="button" id="cancelConfirm">Cancel</button>
+      <button class="btn danger" type="button" id="submitConfirm">Confirm</button>
+    </div>
+  </dialog>
+
   <script>
     // ---- i18n EN / KM ----
     const I18N = {
@@ -1061,18 +1225,31 @@
       : 'http://localhost:8081/api/v1';
 
     const TOKEN_KEY = 'tg_admin_token_v2';
+    const REFRESH_KEY = 'tg_admin_refresh_v2';
     const USER_KEY = 'tg_admin_user_v2';
 
     let quotes = [];
     let payments = [];
     let claims = [];
+    let users = [];
+    let packages = [];
     let quoteFilter = 'ALL';
     let payFilter = 'ALL';
     let claimFilter = 'ALL';
     let activeQuoteId = null;
     let activeClaimId = null;
+    let activeUserId = null;
+    let activePackageId = null;
+    let confirmAction = null;
 
     const $ = (id) => document.getElementById(id);
+
+    function currentUser() {
+      try { return JSON.parse(localStorage.getItem(USER_KEY) || 'null'); } catch { return null; }
+    }
+    function currentUserId() {
+      return (currentUser() || {}).id || null;
+    }
 
     const PAGE_META = {
       dashboard: { title: 'Dashboard', sub: 'Business overview and what needs attention' },
@@ -1093,13 +1270,49 @@
       };
     }
 
-    async function api(path, options = {}) {
+    let refreshingSession = null;
+
+    async function refreshSession() {
+      const refreshToken = localStorage.getItem(REFRESH_KEY);
+      if (!refreshToken) return false;
+      if (!refreshingSession) {
+        refreshingSession = (async () => {
+          try {
+            const res = await fetch(API_BASE + '/auth/refresh', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refreshToken }),
+            });
+            if (!res.ok) return false;
+            const data = await res.json();
+            if (!data || !data.accessToken) return false;
+            localStorage.setItem(TOKEN_KEY, data.accessToken);
+            if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken);
+            if (data.user) localStorage.setItem(USER_KEY, JSON.stringify(data.user));
+            return true;
+          } catch {
+            return false;
+          }
+        })();
+      }
+      const ok = await refreshingSession;
+      refreshingSession = null;
+      return ok;
+    }
+
+    async function api(path, options = {}, allowRetry = true) {
+      const token = localStorage.getItem(TOKEN_KEY);
       const res = await fetch(API_BASE + path, {
         ...options,
-        headers: { ...authHeaders(), ...(options.headers || {}) },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: 'Bearer ' + token } : {}),
+          ...(options.headers || {}),
+        },
       });
-      if (res.status === 401) {
-        logout(false);
+      if ((res.status === 401 || res.status === 403) && !path.startsWith('/auth/')) {
+        if (allowRetry && await refreshSession()) return api(path, options, false);
+        logout(true);
         throw new Error('Session expired. Please sign in again.');
       }
       const text = await res.text();
@@ -1208,6 +1421,7 @@
     function logout(clear = true) {
       if (clear) {
         localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(REFRESH_KEY);
         localStorage.removeItem(USER_KEY);
       }
       showLogin();
@@ -1227,6 +1441,7 @@
         const role = data.user && String(data.user.role || '').toUpperCase();
         if (role !== 'ADMIN') throw new Error('This account is not an admin.');
         localStorage.setItem(TOKEN_KEY, data.accessToken);
+        if (data.refreshToken) localStorage.setItem(REFRESH_KEY, data.refreshToken);
         localStorage.setItem(USER_KEY, JSON.stringify(data.user));
         showDesk(data.user);
         await loadTab('dashboard');
@@ -1249,22 +1464,32 @@
       document.querySelectorAll('.nav-btn').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
       document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + name));
       updatePageHeader(name);
-      loadTab(name);
+      
+      // Auto-start claim reload only on dashboard, stop when leaving
+      if (window.__claimReloadInterval) clearInterval(window.__claimReloadInterval);
+      window.__claimReloadInterval = null;
+      if (window.__claimsPanelInterval) clearInterval(window.__claimsPanelInterval);
+      window.__claimsPanelInterval = null;
+      
+      if (name === 'dashboard') loadDashboard();
+      else loadTab(name);
     }
 
     async function loadTab(name) {
+      // Clear any existing global errors silently
       $('globalError').classList.add('hidden');
+      
       try {
         if (name === 'dashboard') await loadDashboard();
-        if (name === 'quotations') await loadQuotes();
-        if (name === 'policies') await loadPolicies();
-        if (name === 'payments') await loadPayments();
-        if (name === 'claims') await loadClaims();
-        if (name === 'users') await loadUsers();
-        if (name === 'packages') await loadPackages();
+        else if (name === 'quotations') await loadQuotes();
+        else if (name === 'policies') await loadPolicies();
+        else if (name === 'payments') await loadPayments();
+        else if (name === 'claims') await loadClaims();
+        else if (name === 'users') await loadUsers();
+        else if (name === 'packages') await loadPackages();
       } catch (e) {
-        $('globalError').textContent = e.message || String(e);
-        $('globalError').classList.remove('hidden');
+        // Don't show errors from tab loads - they should be silent failures
+        console.error(`Failed to load ${name}:`, e);
       }
     }
 
@@ -1296,8 +1521,18 @@
       try {
         const recent = await api('/admin/claims') || [];
         renderRecentClaims(recent.slice(0, 4));
-      } catch {
-        $('recentClaims').innerHTML = '<div class="empty">Claims could not be loaded.</div>';
+        // Set up auto-reload every 30 seconds for live claim submissions
+        if (window.__claimReloadInterval) clearInterval(window.__claimReloadInterval);
+        window.__claimReloadInterval = setInterval(() => {
+          if (document.getElementById('panel-dashboard').classList.contains('active')) {
+            api('/admin/claims')
+              .then(list => renderRecentClaims((list || []).slice(0, 4)))
+              .catch(console.error);
+          }
+        }, 30000);
+      } catch (e) {
+        console.error('Failed to load dashboard:', e);
+        // Dashboard should never fail completely - just hide recent claims section
       }
     }
 
@@ -1319,8 +1554,12 @@
     }
 
     async function loadQuotes() {
-      quotes = await api('/admin/quotations') || [];
-      renderQuotes();
+      try {
+        quotes = await api('/admin/quotations') || [];
+        renderQuotes();
+      } catch (e) {
+        console.error('Failed to load quotations:', e);
+      }
     }
     function renderQuotes() {
       const list = quoteFilter === 'ALL' ? quotes : quotes.filter(q => q.status === quoteFilter);
@@ -1333,7 +1572,7 @@
       $('quoteTable').classList.remove('hidden');
       $('quoteBody').innerHTML = list.map(q => {
         const pkg = q.insurancePackage || {};
-        const canRespond = q.status === 'PENDING' || q.status === 'QUOTED';
+        const canRespond = q.status === 'PENDING';
         return `<tr>
           <td>${personCell(q.customerName || 'Customer', q.customerEmail || '')}</td>
           <td>
@@ -1349,7 +1588,8 @@
           <td><div class="row-actions">
             ${canRespond ? `<button class="btn sm" type="button" data-respond="${q.id}">Respond</button>` : ''}
             ${canRespond ? `<button class="btn sm danger" type="button" data-reject="${q.id}">Reject</button>` : ''}
-            ${!canRespond ? '<span class="muted small">—</span>' : ''}
+            ${!canRespond && q.status === 'QUOTED' ? '<span class="badge ACTIVE">Completed</span>' : ''}
+            ${!canRespond && q.status !== 'QUOTED' ? '<span class="muted small">—</span>' : ''}
           </div></td>
         </tr>`;
       }).join('');
@@ -1405,8 +1645,25 @@
     }
 
     async function loadClaims() {
-      claims = await api('/admin/claims') || [];
-      renderClaims();
+      try {
+        claims = await api('/admin/claims') || [];
+        renderClaims();
+        if (window.__claimsPanelInterval) clearInterval(window.__claimsPanelInterval);
+        window.__claimsPanelInterval = setInterval(async () => {
+          if (!document.getElementById('panel-claims').classList.contains('active')) return;
+          try {
+            const fresh = await api('/admin/claims') || [];
+            const hadNew = fresh.length > claims.length;
+            claims = fresh;
+            renderClaims();
+            if (hadNew) toastOk('New claim received.');
+          } catch (e) {
+            console.error('Claims auto-refresh failed:', e.message);
+          }
+        }, 20000);
+      } catch (e) {
+        console.error('Failed to load claims:', e.message);
+      }
     }
     function renderClaims() {
       const list = claimFilter === 'ALL' ? claims : claims.filter(c => c.status === claimFilter);
@@ -1434,33 +1691,135 @@
     }
 
     async function loadUsers() {
-      const list = await api('/admin/users') || [];
-      if (!list.length) {
+      users = await api('/admin/users') || [];
+      renderUsers();
+    }
+
+    function renderUsers() {
+      if (!users.length) {
         $('userTable').classList.add('hidden');
         $('emptyUsers').classList.remove('hidden');
         return;
       }
       $('emptyUsers').classList.add('hidden');
       $('userTable').classList.remove('hidden');
-      $('userBody').innerHTML = list.map(u => `<tr>
-        <td>${personCell(u.fullName, u.email)}</td>
+      const me = currentUserId();
+      $('userBody').innerHTML = users.map(u => {
+        const self = !!me && u.id === me;
+        return `<tr>
+        <td>${personCell(u.fullName, u.email)}${self ? '<div class="sub">Signed in as you</div>' : ''}</td>
         <td class="muted">${escapeHtml(u.phone || '—')}</td>
         <td>${badge(u.role)}</td>
         <td>${u.kycVerified ? '<span class="badge APPROVED">Verified</span>' : '<span class="badge PENDING">Pending</span>'}</td>
         <td class="muted">${fmtDate(u.memberSince || u.createdAt)}</td>
-      </tr>`).join('');
+        <td><div class="row-actions">
+          <button class="btn secondary sm" type="button" data-edit-user="${u.id}">Edit</button>
+          ${self ? '' : `<button class="btn danger sm" type="button" data-delete-user="${u.id}">Delete</button>`}
+        </div></td>
+      </tr>`;
+      }).join('');
+    }
+
+    function openUserDialog(id) {
+      activeUserId = id || null;
+      const u = id ? users.find(x => x.id === id) : null;
+      if (id && !u) return;
+      const self = !!u && u.id === currentUserId();
+      $('userDialogTitle').textContent = u ? 'Edit user' : 'New user';
+      $('userDialogSub').textContent = u ? (u.email || '') : 'Create a customer or administrator account.';
+      $('submitUser').textContent = u ? 'Save changes' : 'Create user';
+      $('userFullName').value = u ? (u.fullName || '') : '';
+      $('userEmail').value = u ? (u.email || '') : '';
+      $('userPhone').value = u ? (u.phone || '') : '';
+      $('userPassword').value = '';
+      $('userPasswordField').classList.toggle('hidden', !!u);
+      $('userRole').value = u ? (u.role || 'CUSTOMER') : 'CUSTOMER';
+      $('userRole').disabled = self;
+      $('userRoleHint').textContent = self ? 'You cannot change your own role while signed in.' : '';
+      $('userKyc').value = u && u.kycVerified ? 'true' : 'false';
+      $('userError').classList.add('hidden');
+      $('userDialog').showModal();
+      $('userFullName').focus();
+    }
+
+    async function submitUser() {
+      $('userError').classList.add('hidden');
+      const body = {
+        fullName: $('userFullName').value.trim(),
+        email: $('userEmail').value.trim(),
+        phone: $('userPhone').value.trim(),
+        role: $('userRole').value,
+        kycVerified: $('userKyc').value === 'true',
+      };
+      try {
+        if (!body.fullName) throw new Error('Enter the full name.');
+        if (!body.email.includes('@')) throw new Error('Enter a valid email address.');
+        if (!body.phone) throw new Error('Enter a phone number.');
+        const editingSelf = !!activeUserId && activeUserId === currentUserId();
+        $('submitUser').disabled = true;
+        if (activeUserId) {
+          await api(`/admin/users/${activeUserId}`, { method: 'PUT', body: JSON.stringify(body) });
+        } else {
+          body.password = $('userPassword').value;
+          if (!body.password || body.password.length < 6) throw new Error('Set a password of at least 6 characters.');
+          await api('/admin/users', { method: 'POST', body: JSON.stringify(body) });
+        }
+        const created = !activeUserId;
+        $('userDialog').close();
+        toastOk(created ? 'User created.' : 'User updated.');
+        await loadUsers();
+        if (editingSelf) refreshSessionUser(body);
+      } catch (e) {
+        $('userError').textContent = e.message || String(e);
+        $('userError').classList.remove('hidden');
+      } finally {
+        $('submitUser').disabled = false;
+      }
+    }
+
+    function refreshSessionUser(changes) {
+      const user = currentUser();
+      if (!user) return;
+      const next = { ...user, ...changes };
+      localStorage.setItem(USER_KEY, JSON.stringify(next));
+      const name = next.fullName || next.email || 'Admin';
+      $('adminName').textContent = name;
+      $('sideUserName').textContent = name;
+      $('sideUserRole').textContent = next.role === 'ADMIN' ? 'Administrator' : next.role;
+      $('sideAvatar').textContent = initials(name);
+      $('topAvatar').textContent = initials(name);
+    }
+
+    function askDeleteUser(id) {
+      const u = users.find(x => x.id === id);
+      if (!u) return;
+      openConfirm({
+        eyebrow: 'Delete account',
+        title: `Delete ${u.fullName || u.email}?`,
+        message: 'This permanently removes the account. Accounts with policies, quotations or claims on file are kept for audit and cannot be deleted.',
+        confirmLabel: 'Delete account',
+        action: async () => {
+          await api(`/admin/users/${id}`, { method: 'DELETE' });
+          toastOk('Account deleted.');
+          await loadUsers();
+        },
+      });
     }
 
     async function loadPackages() {
-      const list = await api('/admin/packages') || [];
-      if (!list.length) {
+      packages = await api('/admin/packages') || [];
+      renderPackages();
+    }
+
+    function renderPackages() {
+      if (!packages.length) {
         $('packageTable').classList.add('hidden');
         $('emptyPackages').classList.remove('hidden');
         return;
       }
       $('emptyPackages').classList.add('hidden');
       $('packageTable').classList.remove('hidden');
-      $('packageBody').innerHTML = list.map(p => `<tr>
+      $('packageBody').innerHTML = packages.map(p => `<tr>
         <td><div class="primary">${escapeHtml(p.name)}</div>
           <div class="sub">${escapeHtml(p.tagline || '')}</div></td>
         <td>${escapeHtml(statusLabel(p.category || '—'))}</td>
@@ -1468,8 +1827,122 @@
         <td class="num">${money(p.coverageAmount)}</td>
         <td><div>${p.waitingPeriodDays != null ? p.waitingPeriodDays + '-day wait' : '—'}</div>
           <div class="sub">${p.claimWindowDays != null ? 'File within ' + p.claimWindowDays + ' days' : ''}</div></td>
-        <td>${p.featured ? '<span class="badge APPROVED">Featured</span>' : '<span class="muted small">—</span>'}</td>
+        <td><div class="row-actions">
+          ${p.active ? '<span class="badge ACTIVE">Live</span>' : '<span class="badge INFO">Archived</span>'}
+          ${p.featured ? '<span class="badge APPROVED">Featured</span>' : ''}
+        </div></td>
+        <td><div class="row-actions">
+          <button class="btn secondary sm" type="button" data-edit-package="${p.id}">Edit</button>
+          ${p.active ? `<button class="btn danger sm" type="button" data-archive-package="${p.id}">Archive</button>` : ''}
+        </div></td>
       </tr>`).join('');
+    }
+
+    function openPackageDialog(id) {
+      activePackageId = id || null;
+      const p = id ? packages.find(x => x.id === id) : null;
+      if (id && !p) return;
+      $('packageDialogTitle').textContent = p ? 'Edit package' : 'New package';
+      $('packageDialogSub').textContent = p ? (p.name || '') : 'Add a product to the catalog.';
+      $('submitPackage').textContent = p ? 'Save changes' : 'Create package';
+      $('pkgName').value = p ? (p.name || '') : '';
+      $('pkgCategory').value = p ? (p.category || 'HEALTH') : 'HEALTH';
+      $('pkgDuration').value = p ? (p.durationMonths || 12) : 12;
+      $('pkgMonthly').value = p && p.monthlyPrice != null ? p.monthlyPrice : '';
+      $('pkgCoverage').value = p && p.coverageAmount != null ? p.coverageAmount : '';
+      $('pkgWaiting').value = p && p.waitingPeriodDays != null ? p.waitingPeriodDays : 30;
+      $('pkgClaimWindow').value = p && p.claimWindowDays != null ? p.claimWindowDays : 90;
+      $('pkgTagline').value = p ? (p.tagline || '') : '';
+      $('pkgDescription').value = p ? (p.description || '') : '';
+      $('pkgBenefits').value = p && Array.isArray(p.benefits) ? p.benefits.join('\n') : '';
+      $('pkgFeatured').value = p && p.featured ? 'true' : 'false';
+      $('pkgActive').value = p && p.active === false ? 'false' : 'true';
+      $('packageError').classList.add('hidden');
+      $('packageDialog').showModal();
+      $('pkgName').focus();
+    }
+
+    async function submitPackage() {
+      $('packageError').classList.add('hidden');
+      const body = {
+        name: $('pkgName').value.trim(),
+        category: $('pkgCategory').value,
+        tagline: $('pkgTagline').value.trim(),
+        description: $('pkgDescription').value.trim(),
+        monthlyPrice: Number($('pkgMonthly').value),
+        coverageAmount: Number($('pkgCoverage').value),
+        durationMonths: Number($('pkgDuration').value),
+        benefits: $('pkgBenefits').value.split('\n').map(s => s.trim()).filter(Boolean),
+        featured: $('pkgFeatured').value === 'true',
+        active: $('pkgActive').value === 'true',
+        waitingPeriodDays: Number($('pkgWaiting').value) || 30,
+        claimWindowDays: Number($('pkgClaimWindow').value) || 90,
+      };
+      try {
+        if (!body.name) throw new Error('Enter the package name.');
+        if (!body.tagline) throw new Error('Enter a short tagline.');
+        if (!body.description) throw new Error('Enter a description.');
+        if (!Number.isFinite(body.monthlyPrice) || body.monthlyPrice < 0) throw new Error('Enter a valid monthly price.');
+        if (!Number.isFinite(body.coverageAmount) || body.coverageAmount < 0) throw new Error('Enter a valid coverage amount.');
+        if (!Number.isFinite(body.durationMonths) || body.durationMonths < 1) throw new Error('Duration must be at least 1 month.');
+        $('submitPackage').disabled = true;
+        if (activePackageId) {
+          await api(`/admin/packages/${activePackageId}`, { method: 'PUT', body: JSON.stringify(body) });
+        } else {
+          await api('/admin/packages', { method: 'POST', body: JSON.stringify(body) });
+        }
+        const created = !activePackageId;
+        $('packageDialog').close();
+        toastOk(created ? 'Package created.' : 'Package updated.');
+        await loadPackages();
+      } catch (e) {
+        $('packageError').textContent = e.message || String(e);
+        $('packageError').classList.remove('hidden');
+      } finally {
+        $('submitPackage').disabled = false;
+      }
+    }
+
+    function askArchivePackage(id) {
+      const p = packages.find(x => x.id === id);
+      if (!p) return;
+      openConfirm({
+        eyebrow: 'Archive package',
+        title: `Archive ${p.name}?`,
+        message: 'The package is hidden from the app and cannot be bought or quoted. Existing policies stay untouched. You can bring it back later by editing it and setting Visibility to Live.',
+        confirmLabel: 'Archive package',
+        action: async () => {
+          await api(`/admin/packages/${id}`, { method: 'DELETE' });
+          toastOk('Package archived.');
+          await loadPackages();
+        },
+      });
+    }
+
+    function openConfirm({ eyebrow, title, message, confirmLabel, action }) {
+      $('confirmEyebrow').textContent = eyebrow || 'Confirm';
+      $('confirmTitle').textContent = title || 'Are you sure?';
+      $('confirmMessage').textContent = message || '';
+      $('submitConfirm').textContent = confirmLabel || 'Confirm';
+      $('confirmError').textContent = '';
+      $('confirmError').classList.add('hidden');
+      confirmAction = action;
+      $('confirmDialog').showModal();
+    }
+
+    async function runConfirm() {
+      if (!confirmAction) return;
+      $('confirmError').classList.add('hidden');
+      $('submitConfirm').disabled = true;
+      try {
+        await confirmAction();
+        $('confirmDialog').close();
+      } catch (e) {
+        $('confirmError').textContent = e.message || String(e);
+        $('confirmError').classList.remove('hidden');
+      } finally {
+        $('submitConfirm').disabled = false;
+      }
     }
 
     function openRespond(id) {
@@ -1723,6 +2196,29 @@
       const btn = e.target.closest('[data-edit-claim]');
       if (btn) openClaim(btn.dataset.editClaim);
     });
+    $('userBody').addEventListener('click', (e) => {
+      const edit = e.target.closest('[data-edit-user]');
+      const del = e.target.closest('[data-delete-user]');
+      if (edit) openUserDialog(edit.dataset.editUser);
+      if (del) askDeleteUser(del.dataset.deleteUser);
+    });
+    $('packageBody').addEventListener('click', (e) => {
+      const edit = e.target.closest('[data-edit-package]');
+      const archive = e.target.closest('[data-archive-package]');
+      if (edit) openPackageDialog(edit.dataset.editPackage);
+      if (archive) askArchivePackage(archive.dataset.archivePackage);
+    });
+    $('newUserBtn').addEventListener('click', () => openUserDialog(null));
+    $('newPackageBtn').addEventListener('click', () => openPackageDialog(null));
+    $('cancelUser').addEventListener('click', () => $('userDialog').close());
+    $('closeUserX').addEventListener('click', () => $('userDialog').close());
+    $('submitUser').addEventListener('click', submitUser);
+    $('cancelPackage').addEventListener('click', () => $('packageDialog').close());
+    $('closePackageX').addEventListener('click', () => $('packageDialog').close());
+    $('submitPackage').addEventListener('click', submitPackage);
+    $('cancelConfirm').addEventListener('click', () => $('confirmDialog').close());
+    $('closeConfirmX').addEventListener('click', () => $('confirmDialog').close());
+    $('submitConfirm').addEventListener('click', runConfirm);
 
     $('cancelRespond').addEventListener('click', () => $('respondDialog').close());
     $('closeRespondX').addEventListener('click', () => $('respondDialog').close());

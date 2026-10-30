@@ -51,10 +51,11 @@ class AuthServiceTest {
     private AuthService authService;
 
     private static final String SECRET = "test-secret-key-at-least-32-bytes-long-for-hs256";
+    private static final LocalDate ADULT_DOB = LocalDate.now().minusYears(30);
 
     @BeforeEach
     void setUp() {
-        JwtService jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L);
+        JwtService jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L, 900_000L);
         authService = new AuthService(userRepository, policyRepository, passwordEncoder, authenticationManager, jwtService, notificationService);
     }
 
@@ -73,7 +74,7 @@ class AuthServiceTest {
 
     @Test
     void registerSavesUserWithEncodedPasswordAndReturnsTokens() {
-        var request = new RegisterRequest("Jordan Lee", "jordan.lee@email.com", "+1 555-0142", "Password123");
+        var request = new RegisterRequest("Jordan Lee", "jordan.lee@email.com", "+1 555-0142", ADULT_DOB, "Password123", false, null);
         UUID id = UUID.randomUUID();
         when(userRepository.existsByEmailIgnoreCase(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("encoded-hash");
@@ -95,13 +96,43 @@ class AuthServiceTest {
 
     @Test
     void registerThrowsWhenEmailAlreadyExists() {
-        var request = new RegisterRequest("Jordan Lee", "jordan.lee@email.com", "+1 555-0142", "Password123");
+        var request = new RegisterRequest("Jordan Lee", "jordan.lee@email.com", "+1 555-0142", ADULT_DOB, "Password123", false, null);
         when(userRepository.existsByEmailIgnoreCase(request.email())).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(request))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessageContaining("already exists");
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void registerRejectsApplicantsUnder18() {
+        var request = new RegisterRequest("Nina Lee", "nina.lee@email.com", "+1 555-0143",
+                LocalDate.now().minusYears(17).minusDays(1), "Password123", false, null);
+        when(userRepository.existsByEmailIgnoreCase(request.email())).thenReturn(false);
+
+        assertThatThrownBy(() -> authService.register(request))
+                .isInstanceOf(BadRequestException.class)
+                .hasMessageContaining("at least 18");
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void registerAllowsApplicantExactly18() {
+        var request = new RegisterRequest("Nina Lee", "nina.lee@email.com", "+1 555-0143",
+                LocalDate.now().minusYears(18), "Password123", false, null);
+        when(userRepository.existsByEmailIgnoreCase(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-hash");
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> {
+            User u = inv.getArgument(0);
+            u.setId(UUID.randomUUID());
+            u.setCreatedAt(Instant.now());
+            return u;
+        });
+
+        AuthResponse response = authService.register(request);
+
+        assertThat(response.user().fullName()).isEqualTo("Nina Lee");
     }
 
     @Test
@@ -129,7 +160,7 @@ class AuthServiceTest {
     void refreshRejectsAnAccessTokenUsedAsARefreshToken() {
         User user = buildUser(UUID.randomUUID());
         // An access token has type=access, so isRefreshToken() is false and refresh() should reject it.
-        JwtService jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L);
+        JwtService jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L, 900_000L);
         String accessToken = jwtService.generateAccessToken(user);
 
         assertThatThrownBy(() -> authService.refresh(new RefreshRequest(accessToken)))

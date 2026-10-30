@@ -80,7 +80,7 @@ class PackageServiceTest {
             return pkg;
         });
         var request = new PackageRequest(InsuranceCategory.TRAVEL, "TravelEase", "tagline", "description",
-                BigDecimal.valueOf(15), BigDecimal.valueOf(20000), 1, List.of("Trip cancellation"), false, true);
+                BigDecimal.valueOf(15), BigDecimal.valueOf(20000), 1, List.of("Trip cancellation"), false, true, 30, 90);
 
         PackageResponse response = packageService.create(request);
 

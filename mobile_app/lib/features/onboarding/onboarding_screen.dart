@@ -52,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(onboardingSeenKey, true);
     if (!mounted) return;
-    context.go('/login');
+    context.go('/home');
   }
 
   @override
@@ -105,7 +105,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           child: Icon(
                             slide.icon,
                             size: 64,
-                            color: AppColors.primary,
+                            color: AppColors.brandInk,
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xl),

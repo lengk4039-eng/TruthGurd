@@ -19,7 +19,7 @@ class JwtServiceTest {
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L);
+        jwtService = new JwtService(SECRET, 900_000L, 2_592_000_000L, 900_000L);
         user = User.builder()
                 .id(UUID.randomUUID())
                 .fullName("Test User")
@@ -55,7 +55,7 @@ class JwtServiceTest {
 
     @Test
     void tokenSignedWithADifferentSecretIsRejected() {
-        JwtService otherService = new JwtService("a-completely-different-secret-key-32-bytes-plus", 900_000L, 2_592_000_000L);
+        JwtService otherService = new JwtService("a-completely-different-secret-key-32-bytes-plus", 900_000L, 2_592_000_000L, 900_000L);
         String token = otherService.generateAccessToken(user);
 
         assertThat(jwtService.isTokenValid(token)).isFalse();

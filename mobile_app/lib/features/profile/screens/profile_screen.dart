@@ -3,9 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/models/app_user.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/avatar_initials.dart';
+import '../../../core/widgets/glass/glass_card.dart';
+import '../../../core/widgets/glass/glass_page_header.dart';
 import '../../auth/providers/auth_controller.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -40,67 +43,20 @@ class ProfileScreen extends ConsumerWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('profile.title'))),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.lg),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            108,
+          ),
           children: [
-            Row(
-              children: [
-                AvatarInitials(
-                  initials: user?.initials ?? '?',
-                  size: 64,
-                  imageUrl: user?.avatarUrl,
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user?.fullName ?? '',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                      Text(
-                        user?.email ?? '',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 6),
-                      if (user?.kycVerified == true)
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.verified_rounded,
-                              size: 15,
-                              color: AppColors.success,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              l10n.tr('profile.identityVerified'),
-                              style: const TextStyle(
-                                color: AppColors.success,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            if (user != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.tr('profile.memberSince', {
-                  'date': l10n.formatMonthYear(user.memberSince),
-                }),
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-            const SizedBox(height: AppSpacing.xl),
+            GlassPageHeader(title: l10n.tr('profile.title')),
+            _IdentityCard(user: user),
+            const SizedBox(height: AppSpacing.lg),
             _MenuSection(
               children: [
                 _MenuTile(
@@ -143,12 +99,12 @@ class ProfileScreen extends ConsumerWidget {
                   label: l10n.tr('profile.help'),
                   onTap: () => showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
+                    builder: (dialogContext) => AlertDialog(
                       title: Text(l10n.tr('profile.help')),
                       content: Text(l10n.tr('profile.helpBody')),
                       actions: [
                         TextButton(
-                          onPressed: () => Navigator.pop(context),
+                          onPressed: () => Navigator.pop(dialogContext),
                           child: Text(l10n.tr('common.gotIt')),
                         ),
                       ],
@@ -177,18 +133,108 @@ class ProfileScreen extends ConsumerWidget {
   }
 }
 
+class _IdentityCard extends StatelessWidget {
+  final AppUser? user;
+  const _IdentityCard({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final muted = GlassInk.muted(context, GlassTone.light);
+    final verified = user?.kycVerified == true;
+    final memberSince = user?.memberSince;
+    return GlassCard(
+      tone: GlassTone.light,
+      blur: AppBlur.medium,
+      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.hero)),
+      lift: 2,
+      child: Row(
+        children: [
+          AvatarInitials(
+            initials: user?.initials ?? '?',
+            size: 64,
+            imageUrl: user?.avatarUrl,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user?.fullName ?? '',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(
+                  user?.email ?? '',
+                  style: TextStyle(color: muted, fontSize: 12.5),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (memberSince != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.tr('profile.memberSince', {
+                      'date': l10n.formatMonthYear(memberSince),
+                    }),
+                    style: TextStyle(color: muted, fontSize: 11.5),
+                  ),
+                ],
+                if (verified) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.verified_rounded,
+                        size: 15,
+                        color: AppColors.success,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        l10n.tr('profile.identityVerified'),
+                        style: const TextStyle(
+                          color: AppColors.success,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _MenuSection extends StatelessWidget {
   final List<Widget> children;
   const _MenuSection({required this.children});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return GlassCard(
+      tone: GlassTone.light,
+      blur: AppBlur.medium,
+      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xl)),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
       child: Column(
         children: [
           for (var i = 0; i < children.length; i++) ...[
             children[i],
-            if (i != children.length - 1) const Divider(height: 1, indent: 56),
+            if (i != children.length - 1)
+              Divider(
+                height: 1,
+                indent: 40,
+                color: GlassInk.muted(
+                  context,
+                  GlassTone.light,
+                ).withValues(alpha: 0.14),
+              ),
           ],
         ],
       ),
@@ -211,15 +257,44 @@ class _MenuTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = danger ? AppColors.error : null;
-    return ListTile(
-      leading: Icon(icon, color: color ?? AppColors.primary, size: 22),
-      title: Text(
-        label,
-        style: TextStyle(color: color, fontWeight: FontWeight.w500),
-      ),
-      trailing: const Icon(Icons.chevron_right_rounded, size: 20),
+    final onDark = GlassInk.surfaceIsDark(context, GlassTone.light);
+    final color = danger
+        ? AppColors.legibleHue(AppColors.error, onDark: onDark)
+        : AppColors.brandOn(onDark: onDark);
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: AppSpacing.sm + 4),
+            Expanded(
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: danger ? color : null,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: GlassInk.muted(context, GlassTone.light),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

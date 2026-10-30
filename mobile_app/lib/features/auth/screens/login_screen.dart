@@ -40,7 +40,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await ref
           .read(authStateProvider.notifier)
           .login(email: _email.text, password: _password.text);
-      if (mounted) context.go('/home');
+      if (mounted) {
+        context.go(
+          ref.read(pendingAuthRouteProvider.notifier).take() ?? '/home',
+        );
+      }
     } catch (e) {
       setState(() => _error = e.toString().replaceFirst('AppException: ', ''));
     } finally {

@@ -10,7 +10,8 @@ class MockNotificationsRepository implements NotificationsRepository {
   @override
   Future<List<AppNotification>> getNotifications() async {
     await Future.delayed(const Duration(milliseconds: 400));
-    final sorted = [...MockData.notifications]..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    final sorted = [...MockData.notifications]
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return sorted;
   }
 

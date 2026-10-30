@@ -7,7 +7,9 @@ class DioPaymentsRepository implements PaymentsRepository {
   Future<List<Payment>> getMyPayments() {
     return unwrapDioErrors(() async {
       final response = await ApiClient.instance.get('/payments/me');
-      return (response.data as List).map((e) => Payment.fromJson(e as Map<String, dynamic>)).toList();
+      return (response.data as List)
+          .map((e) => Payment.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -28,7 +30,10 @@ class DioPaymentsRepository implements PaymentsRepository {
   @override
   Future<Payment> payNow(String paymentId, PaymentMethod method) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/payments/$paymentId/pay', data: {'method': method.toJson()});
+      final response = await ApiClient.instance.post(
+        '/payments/$paymentId/pay',
+        data: {'method': method.toJson()},
+      );
       return Payment.fromJson(response.data as Map<String, dynamic>);
     });
   }

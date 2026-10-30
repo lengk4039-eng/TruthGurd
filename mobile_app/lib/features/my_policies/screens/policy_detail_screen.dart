@@ -698,7 +698,7 @@ class _OverviewRow extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, size: 17, color: AppColors.primary),
+            child: Icon(icon, size: 17, color: AppColors.brandInk),
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(label, style: theme.textTheme.bodySmall)),
@@ -781,7 +781,7 @@ class _CoverageCard extends StatelessWidget {
                   ),
                   child: const Icon(
                     Icons.shield_rounded,
-                    color: AppColors.primary,
+                    color: AppColors.brandInk,
                     size: 24,
                   ),
                 ),
@@ -821,7 +821,7 @@ class _CoverageCard extends StatelessWidget {
                 '$percent%',
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: AppColors.primary,
+                  color: AppColors.brandInk,
                 ),
               ),
             ),
@@ -1219,7 +1219,7 @@ class _PaymentTrackingSection extends StatelessWidget {
                       child: _TrackingStat(
                         label: l10n.tr('policy.total'),
                         value: AppFormatters.currencyWhole(policy.totalPremium),
-                        color: AppColors.primary,
+                        color: AppColors.brandInk,
                       ),
                     ),
                   ],
@@ -1584,7 +1584,7 @@ class _ContactTile extends StatelessWidget {
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(11),
                 ),
-                child: Icon(icon, size: 19, color: AppColors.primary),
+                child: Icon(icon, size: 19, color: AppColors.brandInk),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1607,7 +1607,7 @@ class _ContactTile extends StatelessWidget {
               const Icon(
                 Icons.copy_rounded,
                 size: 17,
-                color: AppColors.primary,
+                color: AppColors.brandInk,
               ),
             ],
           ),

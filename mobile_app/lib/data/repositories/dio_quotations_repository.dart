@@ -8,7 +8,9 @@ class DioQuotationsRepository implements QuotationsRepository {
   Future<List<Quotation>> getMyQuotations() {
     return unwrapDioErrors(() async {
       final response = await ApiClient.instance.get('/quotations/me');
-      return (response.data as List).map((e) => Quotation.fromJson(e as Map<String, dynamic>)).toList();
+      return (response.data as List)
+          .map((e) => Quotation.fromJson(e as Map<String, dynamic>))
+          .toList();
     });
   }
 
@@ -27,11 +29,14 @@ class DioQuotationsRepository implements QuotationsRepository {
     String notes = '',
   }) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/quotations', data: {
-        'packageId': packageId,
-        'preferredPlanMonths': preferredPlanMonths,
-        'notes': notes,
-      });
+      final response = await ApiClient.instance.post(
+        '/quotations',
+        data: {
+          'packageId': packageId,
+          'preferredPlanMonths': preferredPlanMonths,
+          'notes': notes,
+        },
+      );
       return Quotation.fromJson(response.data as Map<String, dynamic>);
     });
   }
@@ -45,11 +50,15 @@ class DioQuotationsRepository implements QuotationsRepository {
   }
 
   @override
-  Future<Quotation> markAccepted({required String quotationId, required String policyId}) {
+  Future<Quotation> markAccepted({
+    required String quotationId,
+    required String policyId,
+  }) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/quotations/$quotationId/accept', data: {
-        'policyId': policyId,
-      });
+      final response = await ApiClient.instance.post(
+        '/quotations/$quotationId/accept',
+        data: {'policyId': policyId},
+      );
       return Quotation.fromJson(response.data as Map<String, dynamic>);
     });
   }

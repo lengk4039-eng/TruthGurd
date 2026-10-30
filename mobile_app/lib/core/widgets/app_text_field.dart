@@ -10,6 +10,8 @@ class AppTextField extends StatefulWidget {
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
   final bool enabled;
+  final bool readOnly;
+  final VoidCallback? onTap;
   final int maxLines;
   final TextInputAction? textInputAction;
   final void Function(String)? onSubmitted;
@@ -25,6 +27,8 @@ class AppTextField extends StatefulWidget {
     this.prefixIcon,
     this.validator,
     this.enabled = true,
+    this.readOnly = false,
+    this.onTap,
     this.maxLines = 1,
     this.textInputAction,
     this.onSubmitted,
@@ -48,6 +52,8 @@ class _AppTextFieldState extends State<AppTextField> {
       validator: widget.validator,
       textInputAction: widget.textInputAction,
       onFieldSubmitted: widget.onSubmitted,
+      readOnly: widget.readOnly,
+      onTap: widget.onTap,
       decoration: InputDecoration(
         labelText: widget.label,
         hintText: widget.hint,

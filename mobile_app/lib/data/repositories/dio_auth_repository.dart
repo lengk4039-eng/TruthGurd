@@ -4,21 +4,42 @@ import 'package:dio/dio.dart';
 
 import '../../core/models/app_user.dart';
 import '../../core/models/policy.dart';
+import '../../core/models/policy_verification.dart';
 import '../../core/network/api_client.dart';
 import '../../core/network/token_storage.dart';
 import 'auth_repository.dart';
 
 class DioAuthRepository implements AuthRepository {
   Future<AppUser> _handleAuthResponse(Map<String, dynamic> data) async {
-    await TokenStorage.save(accessToken: data['accessToken'] as String, refreshToken: data['refreshToken'] as String);
+    await TokenStorage.save(
+      accessToken: data['accessToken'] as String,
+      refreshToken: data['refreshToken'] as String,
+    );
     return AppUser.fromJson(data['user'] as Map<String, dynamic>);
   }
 
   @override
   Future<AppUser> login({required String email, required String password}) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/auth/login', data: {'email': email, 'password': password});
+      final response = await ApiClient.instance.post(
+        '/auth/login',
+        data: {'email': email, 'password': password},
+      );
       return _handleAuthResponse(response.data as Map<String, dynamic>);
+    });
+  }
+
+  @override
+  Future<PolicyVerification> verifyPolicy({
+    required String policyNumber,
+    required String dateOfBirth,
+  }) {
+    return unwrapDioErrors(() async {
+      final response = await ApiClient.instance.post(
+        '/auth/verify-policy',
+        data: {'policyNumber': policyNumber, 'dateOfBirth': dateOfBirth},
+      );
+      return PolicyVerification.fromJson(response.data as Map<String, dynamic>);
     });
   }
 
@@ -27,26 +48,38 @@ class DioAuthRepository implements AuthRepository {
     required String fullName,
     required String email,
     required String phone,
+    required DateTime dateOfBirth,
     required String password,
+    bool hasExistingPolicy = false,
+    String? policyVerificationToken,
   }) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/auth/register', data: {
-        'fullName': fullName,
-        'email': email,
-        'phone': phone,
-        'password': password,
-      });
+      final response = await ApiClient.instance.post(
+        '/auth/register',
+        data: {
+          'fullName': fullName,
+          'email': email,
+          'phone': phone,
+          'dateOfBirth': dateOfBirth.toIso8601String().split('T').first,
+          'password': password,
+          'hasExistingPolicy': hasExistingPolicy,
+          'policyVerificationToken': policyVerificationToken,
+        },
+      );
       return _handleAuthResponse(response.data as Map<String, dynamic>);
     });
   }
 
   @override
-  Future<Policy> linkExistingPolicy({required String policyNumber, required String dateOfBirth}) {
+  Future<Policy> linkExistingPolicy({
+    required String policyNumber,
+    required String dateOfBirth,
+  }) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.post('/auth/link-existing-policy', data: {
-        'policyNumber': policyNumber,
-        'dateOfBirth': dateOfBirth,
-      });
+      final response = await ApiClient.instance.post(
+        '/auth/link-existing-policy',
+        data: {'policyNumber': policyNumber, 'dateOfBirth': dateOfBirth},
+      );
       return Policy.fromJson(response.data as Map<String, dynamic>);
     });
   }
@@ -72,18 +105,24 @@ class DioAuthRepository implements AuthRepository {
     required String nationalIdNumber,
   }) {
     return unwrapDioErrors(() async {
-      final response = await ApiClient.instance.put('/users/me', data: {
-        'fullName': fullName,
-        'email': email,
-        'phone': phone,
-        'nationalIdNumber': nationalIdNumber,
-      });
+      final response = await ApiClient.instance.put(
+        '/users/me',
+        data: {
+          'fullName': fullName,
+          'email': email,
+          'phone': phone,
+          'nationalIdNumber': nationalIdNumber,
+        },
+      );
       return AppUser.fromJson(response.data as Map<String, dynamic>);
     });
   }
 
   @override
-  Future<AppUser> uploadAvatar({required Uint8List bytes, required String filename}) {
+  Future<AppUser> uploadAvatar({
+    required Uint8List bytes,
+    required String filename,
+  }) {
     return unwrapDioErrors(() async {
       final isPng = filename.toLowerCase().endsWith('.png');
       final form = FormData.fromMap({
@@ -93,7 +132,10 @@ class DioAuthRepository implements AuthRepository {
           contentType: DioMediaType('image', isPng ? 'png' : 'jpeg'),
         ),
       });
-      final response = await ApiClient.instance.post('/users/me/avatar', data: form);
+      final response = await ApiClient.instance.post(
+        '/users/me/avatar',
+        data: form,
+      );
       return AppUser.fromJson(response.data as Map<String, dynamic>);
     });
   }

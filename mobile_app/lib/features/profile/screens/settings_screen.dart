@@ -62,7 +62,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                   const Divider(height: 1, indent: 16),
                   _LanguageOption(
-                    code: 'ខ្មែរ',
+                    code: 'KH',
                     label: l10n.tr('settings.khmer'),
                     selected: language == AppLanguage.khmer,
                     onTap: () => _setLanguage(AppLanguage.khmer),
@@ -164,7 +164,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ListTile(
                     leading: const Icon(
                       Icons.lock_reset_rounded,
-                      color: AppColors.primary,
+                      color: AppColors.brandInk,
                     ),
                     title: Text(l10n.tr('settings.changePassword')),
                     trailing: const Icon(Icons.chevron_right_rounded, size: 20),

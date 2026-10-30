@@ -106,7 +106,7 @@ class _PaymentDetailBody extends StatelessWidget {
                         const Icon(
                           Icons.info_outline_rounded,
                           size: 17,
-                          color: AppColors.primary,
+                          color: AppColors.brandInk,
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(
@@ -390,7 +390,7 @@ class _DetailsCard extends StatelessWidget {
               const Icon(
                 Icons.receipt_long_outlined,
                 size: 19,
-                color: AppColors.primary,
+                color: AppColors.brandInk,
               ),
               const SizedBox(width: 8),
               Text(
@@ -515,7 +515,7 @@ class _SupportCard extends StatelessWidget {
             ),
             child: const Icon(
               Icons.support_agent_rounded,
-              color: AppColors.primary,
+              color: AppColors.brandInk,
               size: 21,
             ),
           ),

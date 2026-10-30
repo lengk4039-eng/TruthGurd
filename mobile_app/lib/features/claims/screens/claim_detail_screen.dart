@@ -492,7 +492,7 @@ class _TimelineCard extends StatelessWidget {
               const Icon(
                 Icons.timeline_rounded,
                 size: 19,
-                color: AppColors.primary,
+                color: AppColors.brandInk,
               ),
               const SizedBox(width: 8),
               Text(
@@ -643,7 +643,7 @@ class _TimelineRow extends StatelessWidget {
                           child: Text(
                             context.l10n.tr('claim.current'),
                             style: const TextStyle(
-                              color: AppColors.primary,
+                              color: AppColors.primaryDark,
                               fontSize: 9,
                               fontWeight: FontWeight.w700,
                             ),
@@ -691,7 +691,7 @@ class _DecisionCard extends StatelessWidget {
               const Icon(
                 Icons.gavel_rounded,
                 size: 19,
-                color: AppColors.primary,
+                color: AppColors.brandInk,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -780,7 +780,7 @@ class _DetailsCard extends StatelessWidget {
               const Icon(
                 Icons.description_outlined,
                 size: 19,
-                color: AppColors.primary,
+                color: AppColors.brandInk,
               ),
               const SizedBox(width: 8),
               Text(
@@ -961,7 +961,7 @@ class _SupportBanner extends StatelessWidget {
             ),
             child: const Icon(
               Icons.support_agent_rounded,
-              color: AppColors.primary,
+              color: AppColors.brandInk,
               size: 21,
             ),
           ),
@@ -1021,7 +1021,7 @@ void _showDocumentSheet(BuildContext context, Claim? claim) {
                 ),
                 child: const Icon(
                   Icons.upload_file_rounded,
-                  color: AppColors.primary,
+                  color: AppColors.brandInk,
                   size: 26,
                 ),
               ),

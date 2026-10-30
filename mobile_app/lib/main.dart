@@ -5,14 +5,19 @@ import 'core/localization/app_localizations.dart';
 import 'core/providers/locale_controller.dart';
 import 'core/providers/theme_controller.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final language = await loadSavedLanguage();
+  final themeMode = await loadSavedThemeMode();
   runApp(
     ProviderScope(
-      overrides: [initialLanguageProvider.overrideWithValue(language)],
+      overrides: [
+        initialLanguageProvider.overrideWithValue(language),
+        initialThemeModeProvider.overrideWithValue(themeMode),
+      ],
       child: const TrustGuardApp(),
     ),
   );
@@ -41,10 +46,17 @@ class TrustGuardApp extends ConsumerWidget {
       builder: (context, child) {
         if (child == null) return const SizedBox.shrink();
         final theme = Theme.of(context);
-        return ColoredBox(
-          color: theme.brightness == Brightness.dark
-              ? const Color(0xFF0B0910)
-              : const Color(0xFFEDE9F7),
+        final isDark = theme.brightness == Brightness.dark;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: isDark
+                  ? const [AppColors.backdropOuterDark, Color(0xFF00080F)]
+                  : const [AppColors.backdropOuterLight, Color(0xFFCFE9F7)],
+            ),
+          ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               if (constraints.maxWidth < 700) return child;
@@ -57,9 +69,9 @@ class TrustGuardApp extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(32),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: 40,
-                        offset: const Offset(0, 18),
+                        color: AppColors.primaryDark.withValues(alpha: 0.28),
+                        blurRadius: 48,
+                        offset: const Offset(0, 20),
                       ),
                     ],
                   ),

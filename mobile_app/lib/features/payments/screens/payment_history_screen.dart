@@ -10,6 +10,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_dimens.dart';
 import '../../../core/widgets/async_value_view.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/glass/glass_card.dart';
+import '../../../core/widgets/glass/glass_filter_chip.dart';
+import '../../../core/widgets/glass/glass_page_header.dart';
 import '../../../core/widgets/payment_tile.dart';
 
 class PaymentHistoryScreen extends ConsumerStatefulWidget {
@@ -27,88 +30,79 @@ class _PaymentHistoryScreenState extends ConsumerState<PaymentHistoryScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final paymentsAsync = ref.watch(myPaymentsProvider);
+    final filters = <PaymentStatus?>[
+      null,
+      PaymentStatus.paid,
+      PaymentStatus.pending,
+      PaymentStatus.overdue,
+    ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('payment.title'))),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         top: false,
-        child: AsyncValueView(
-          value: paymentsAsync,
-          onRetry: () => ref.invalidate(myPaymentsProvider),
-          builder: (payments) {
-            final filtered = _filter == null
-                ? payments
-                : payments.where((p) => p.status == _filter).toList();
-            return RefreshIndicator(
-              onRefresh: () async => ref.invalidate(myPaymentsProvider),
-              child: ListView(
+        child: RefreshIndicator(
+          onRefresh: () async => ref.invalidate(myPaymentsProvider),
+          child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(
+              parent: BouncingScrollPhysics(),
+            ),
+            slivers: [
+              SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
-                  AppSpacing.sm,
+                  AppSpacing.md,
                   AppSpacing.lg,
-                  AppSpacing.xxl,
+                  108,
                 ),
-                children: [
-                  _MonthlySpendChart(payments: payments),
-                  const SizedBox(height: AppSpacing.lg),
-                  SizedBox(
-                    height: 40,
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: [
-                        _FilterChip(
-                          label: l10n.tr('payment.filterAll'),
-                          selected: _filter == null,
-                          onTap: () => setState(() => _filter = null),
+                sliver: AsyncValueView(
+                  value: paymentsAsync,
+                  onRetry: () => ref.invalidate(myPaymentsProvider),
+                  sliverBuilder: (payments) {
+                    final filtered = _filter == null
+                        ? payments
+                        : payments.where((p) => p.status == _filter).toList();
+                    return SliverList(
+                      delegate: SliverChildListDelegate([
+                        GlassPageHeader(title: l10n.tr('payment.title')),
+                        _MonthlySpendChart(payments: payments),
+                        const SizedBox(height: AppSpacing.lg),
+                        GlassFilterBar(
+                          labels: [
+                            l10n.tr('payment.filterAll'),
+                            l10n.tr('payment.filterPaid'),
+                            l10n.tr('payment.filterPending'),
+                            l10n.tr('payment.filterOverdue'),
+                          ],
+                          selectedIndex: filters.indexOf(_filter),
+                          onSelect: (i) => setState(() => _filter = filters[i]),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        _FilterChip(
-                          label: l10n.tr('payment.filterPaid'),
-                          selected: _filter == PaymentStatus.paid,
-                          onTap: () =>
-                              setState(() => _filter = PaymentStatus.paid),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        _FilterChip(
-                          label: l10n.tr('payment.filterPending'),
-                          selected: _filter == PaymentStatus.pending,
-                          onTap: () =>
-                              setState(() => _filter = PaymentStatus.pending),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        _FilterChip(
-                          label: l10n.tr('payment.filterOverdue'),
-                          selected: _filter == PaymentStatus.overdue,
-                          onTap: () =>
-                              setState(() => _filter = PaymentStatus.overdue),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  if (filtered.isEmpty)
-                    EmptyState(
-                      icon: Icons.receipt_long_outlined,
-                      title: l10n.tr('payment.noPaymentsTitle'),
-                      message: l10n.tr('payment.noPaymentsBody'),
-                    )
-                  else
-                    Column(
-                      children: [
-                        for (final payment in filtered) ...[
-                          PaymentTile(
-                            payment: payment,
-                            onTap: () =>
-                                context.push('/payments/${payment.id}'),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                        ],
-                      ],
-                    ),
-                ],
+                        const SizedBox(height: AppSpacing.md),
+                        if (filtered.isEmpty)
+                          EmptyState(
+                            icon: Icons.receipt_long_outlined,
+                            title: l10n.tr('payment.noPaymentsTitle'),
+                            message: l10n.tr('payment.noPaymentsBody'),
+                          )
+                        else
+                          for (final payment in filtered)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                bottom: AppSpacing.sm,
+                              ),
+                              child: PaymentTile(
+                                payment: payment,
+                                onTap: () =>
+                                    context.push('/payments/${payment.id}'),
+                              ),
+                            ),
+                      ]),
+                    );
+                  },
+                ),
               ),
-            );
-          },
+            ],
+          ),
         ),
       ),
     );
@@ -121,6 +115,7 @@ class _MonthlySpendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final now = DateTime.now();
     final months = List.generate(
       6,
@@ -138,24 +133,19 @@ class _MonthlySpendChart extends StatelessWidget {
           .fold<double>(0, (sum, p) => sum + p.amount);
     }).toList();
     final maxTotal = totals.fold<double>(0, (m, v) => v > m ? v : m);
+    final onDark = GlassInk.surfaceIsDark(context, GlassTone.light);
+    final brand = AppColors.brandOn(onDark: onDark);
+    final muted = GlassInk.muted(context, GlassTone.light);
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.md,
-        AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
+    return GlassCard(
+      tone: GlassTone.light,
+      blur: AppBlur.medium,
+      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xl)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.l10n.tr('payment.spendChart'),
+            l10n.tr('payment.spendChart'),
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -189,14 +179,8 @@ class _MonthlySpendChart extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(top: 6),
                           child: Text(
-                            context.l10n.monthAbbr(months[i]),
-                            style: TextStyle(
-                              fontSize: 10.5,
-                              color: Theme.of(context)
-                                  .textTheme
-                                  .bodySmall
-                                  ?.color,
-                            ),
+                            l10n.monthAbbr(months[i]),
+                            style: TextStyle(fontSize: 10.5, color: muted),
                           ),
                         );
                       },
@@ -213,9 +197,16 @@ class _MonthlySpendChart extends StatelessWidget {
                           toY: totals[i] <= 0 ? 0.001 : totals[i],
                           width: 20,
                           borderRadius: BorderRadius.circular(6),
-                          color: i == totals.length - 1
-                              ? AppColors.primary
-                              : AppColors.primary.withValues(alpha: 0.35),
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: i == totals.length - 1
+                                ? [brand, AppColors.primary]
+                                : [
+                                    brand.withValues(alpha: 0.45),
+                                    brand.withValues(alpha: 0.22),
+                                  ],
+                          ),
                         ),
                       ],
                     ),
@@ -224,33 +215,6 @@ class _MonthlySpendChart extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _FilterChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _FilterChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      showCheckmark: false,
-      selectedColor: AppColors.primary,
-      labelStyle: TextStyle(
-        color: selected ? Colors.white : null,
-        fontWeight: FontWeight.w600,
       ),
     );
   }

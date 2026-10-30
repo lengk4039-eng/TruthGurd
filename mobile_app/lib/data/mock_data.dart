@@ -32,24 +32,33 @@ class MockData {
       category: InsuranceCategoryType.health,
       name: 'Health Shield Basic',
       tagline: 'Everyday medical cover, no surprises',
-      description:
-          'Solid coverage for everyday health needs — outpatient visits, emergencies, and an annual checkup, all with a straightforward claims process.',
+      description: 'Solid coverage for everyday health needs — outpatient visits, emergencies, and an annual checkup, all with a straightforward claims process.',
       monthlyPrice: 45,
       coverageAmount: 50000,
       durationMonths: 12,
-      benefits: ['Outpatient care', 'Emergency room visits', 'Annual health checkup', 'Prescription discount'],
+      benefits: [
+        'Outpatient care',
+        'Emergency room visits',
+        'Annual health checkup',
+        'Prescription discount',
+      ],
     ),
     const InsurancePackage(
       id: 'pkg_health_premium',
       category: InsuranceCategoryType.health,
       name: 'Health Shield Premium',
       tagline: 'Complete care for you and your family',
-      description:
-          'Our most complete health plan — specialist visits, dental and vision, and maternity care, with no waiting period so cover starts the day you buy it.',
+      description: 'Our most complete health plan — specialist visits, dental and vision, and maternity care, with no waiting period so cover starts the day you buy it.',
       monthlyPrice: 89,
       coverageAmount: 150000,
       durationMonths: 12,
-      benefits: ['Everything in Basic', 'Specialist consultations', 'Dental & vision', 'Maternity care', 'No waiting period'],
+      benefits: [
+        'Everything in Basic',
+        'Specialist consultations',
+        'Dental & vision',
+        'Maternity care',
+        'No waiting period',
+      ],
       isFeatured: true,
       reviewCount: 482,
     ),
@@ -58,24 +67,32 @@ class MockData {
       category: InsuranceCategoryType.life,
       name: 'Life Secure Term 20',
       tagline: 'Affordable protection for your family\'s future',
-      description:
-          'A 20-year term life policy that pays out for your loved ones when it matters most, with an accelerated payout if you\'re diagnosed with a terminal illness.',
+      description: 'A 20-year term life policy that pays out for your loved ones when it matters most, with an accelerated payout if you\'re diagnosed with a terminal illness.',
       monthlyPrice: 32,
       coverageAmount: 250000,
       durationMonths: 240,
-      benefits: ['20-year term', 'Accidental death benefit', 'Terminal illness payout', 'No medical exam under 40'],
+      benefits: [
+        '20-year term',
+        'Accidental death benefit',
+        'Terminal illness payout',
+        'No medical exam under 40',
+      ],
     ),
     const InsurancePackage(
       id: 'pkg_life_whole',
       category: InsuranceCategoryType.life,
       name: 'Life Secure Whole Life',
       tagline: 'Lifetime cover that builds cash value',
-      description:
-          'Coverage that never expires, with a savings component that grows over time and can be borrowed against when you need it.',
+      description: 'Coverage that never expires, with a savings component that grows over time and can be borrowed against when you need it.',
       monthlyPrice: 68,
       coverageAmount: 500000,
       durationMonths: 0,
-      benefits: ['Lifetime coverage', 'Cash value growth', 'Flexible premiums', 'Loan against policy'],
+      benefits: [
+        'Lifetime coverage',
+        'Cash value growth',
+        'Flexible premiums',
+        'Loan against policy',
+      ],
       reviewCount: 201,
     ),
     const InsurancePackage(
@@ -87,19 +104,28 @@ class MockData {
       monthlyPrice: 38,
       coverageAmount: 30000,
       durationMonths: 12,
-      benefits: ['Third-party liability', '24/7 roadside assistance', 'Windshield cover'],
+      benefits: [
+        'Third-party liability',
+        '24/7 roadside assistance',
+        'Windshield cover',
+      ],
     ),
     const InsurancePackage(
       id: 'pkg_auto_comprehensive',
       category: InsuranceCategoryType.vehicle,
       name: 'AutoGuard Comprehensive',
       tagline: 'Full protection, zero depreciation',
-      description:
-          'Own-damage and third-party cover in one plan, with zero depreciation on claims and engine protection for total peace of mind.',
+      description: 'Own-damage and third-party cover in one plan, with zero depreciation on claims and engine protection for total peace of mind.',
       monthlyPrice: 72,
       coverageAmount: 80000,
       durationMonths: 12,
-      benefits: ['Everything in Essential', 'Own-damage cover', 'Zero depreciation', 'Engine protection', '24/7 claim support'],
+      benefits: [
+        'Everything in Essential',
+        'Own-damage cover',
+        'Zero depreciation',
+        'Engine protection',
+        '24/7 claim support',
+      ],
       isFeatured: true,
       reviewCount: 356,
     ),
@@ -123,7 +149,12 @@ class MockData {
       monthlyPrice: 55,
       coverageAmount: 200000,
       durationMonths: 12,
-      benefits: ['Structure & belongings', 'Natural disaster cover', 'Liability protection', 'Home office equipment'],
+      benefits: [
+        'Structure & belongings',
+        'Natural disaster cover',
+        'Liability protection',
+        'Home office equipment',
+      ],
       reviewCount: 164,
     ),
     const InsurancePackage(
@@ -135,7 +166,11 @@ class MockData {
       monthlyPrice: 15,
       coverageAmount: 20000,
       durationMonths: 1,
-      benefits: ['Trip cancellation', 'Lost baggage', 'Medical emergency abroad'],
+      benefits: [
+        'Trip cancellation',
+        'Lost baggage',
+        'Medical emergency abroad',
+      ],
     ),
     const InsurancePackage(
       id: 'pkg_travel_annual',
@@ -146,26 +181,51 @@ class MockData {
       monthlyPrice: 25,
       coverageAmount: 40000,
       durationMonths: 12,
-      benefits: ['Unlimited trips under 30 days', 'Medical evacuation', 'Flight delay compensation', 'Adventure sports cover'],
+      benefits: [
+        'Unlimited trips under 30 days',
+        'Medical evacuation',
+        'Flight delay compensation',
+        'Adventure sports cover',
+      ],
       isFeatured: true,
       reviewCount: 98,
     ),
   ];
 
-  static InsurancePackage packageById(String id) => packages.firstWhere((p) => p.id == id);
+  static InsurancePackage packageById(String id) =>
+      packages.firstWhere((p) => p.id == id);
 
   static List<PackagePlanOption> planOptionsFor(InsurancePackage package) {
     final monthly = package.monthlyPrice;
     return [
       PackagePlanOption(label: 'Monthly', months: 1, totalPrice: monthly),
-      PackagePlanOption(label: '6 months', months: 6, totalPrice: monthly * 6 * 0.95),
-      PackagePlanOption(label: '12 months', months: 12, totalPrice: monthly * 12 * 0.85, badge: 'Save 15%'),
+      PackagePlanOption(
+        label: '6 months',
+        months: 6,
+        totalPrice: monthly * 6 * 0.95,
+      ),
+      PackagePlanOption(
+        label: '12 months',
+        months: 12,
+        totalPrice: monthly * 12 * 0.85,
+        badge: 'Save 15%',
+      ),
     ];
   }
 
   static const List<PackageAddOn> addOns = [
-    PackageAddOn(id: 'addon_priority', name: 'Priority claims', description: 'Claims reviewed within 24 hours', price: 4.5),
-    PackageAddOn(id: 'addon_family', name: 'Add family member', description: 'Extend this plan to one dependent', price: 12),
+    PackageAddOn(
+      id: 'addon_priority',
+      name: 'Priority claims',
+      description: 'Claims reviewed within 24 hours',
+      price: 4.5,
+    ),
+    PackageAddOn(
+      id: 'addon_family',
+      name: 'Add family member',
+      description: 'Extend this plan to one dependent',
+      price: 12,
+    ),
   ];
 
   static final DateTime _now = DateTime.now();
@@ -387,7 +447,8 @@ class MockData {
     ),
   ];
 
-  static List<Payment> paymentsForPolicy(String policyId) => payments.where((p) => p.policyId == policyId).toList();
+  static List<Payment> paymentsForPolicy(String policyId) =>
+      payments.where((p) => p.policyId == policyId).toList();
 
   static final List<Quotation> quotations = [
     Quotation(
@@ -425,8 +486,8 @@ class MockData {
     ),
   ];
 
-  static Quotation quotationById(String id) => quotations.firstWhere((q) => q.id == id);
-
+  static Quotation quotationById(String id) =>
+      quotations.firstWhere((q) => q.id == id);
 
   static final List<Claim> claims = [
     Claim(
@@ -448,7 +509,8 @@ class MockData {
       policyName: 'AutoGuard Comprehensive',
       type: ClaimType.accident,
       status: ClaimStatus.submitted,
-      description: 'Minor rear-end collision in a parking lot. No injuries reported.',
+      description:
+          'Minor rear-end collision in a parking lot. No injuries reported.',
       amount: 850,
       incidentDate: _now.subtract(const Duration(days: 2)),
       submittedAt: _now.subtract(const Duration(days: 1)),
@@ -489,7 +551,8 @@ class MockData {
       id: 'n3',
       type: NotificationType.payment,
       title: 'Payment received',
-      body: 'We received your \$89 payment for Health Shield Premium. Thank you!',
+      body:
+          'We received your \$89 payment for Health Shield Premium. Thank you!',
       createdAt: _now.subtract(const Duration(days: 30)),
       isRead: true,
     ),

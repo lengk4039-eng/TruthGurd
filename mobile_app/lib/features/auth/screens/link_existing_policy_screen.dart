@@ -105,7 +105,7 @@ class _LinkExistingPolicyScreenState
             ),
             child: const Icon(
               Icons.badge_outlined,
-              color: AppColors.primary,
+              color: AppColors.brandInk,
               size: 30,
             ),
           ),
@@ -255,7 +255,7 @@ class _LinkExistingPolicyScreenState
                   ),
                   child: Icon(
                     policy.package.category.icon,
-                    color: AppColors.primary,
+                    color: AppColors.brandInk,
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),

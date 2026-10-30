@@ -1,11 +1,23 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="trustguardTileGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#8B5CF6"/>
-      <stop offset="1" stop-color="#6D28D9"/>
+    <linearGradient id="tgTile" gradientUnits="userSpaceOnUse" x1="16" y1="6" x2="184" y2="198">
+      <stop offset="0" stop-color="#7FF1FF"/>
+      <stop offset="0.42" stop-color="#22E2FF"/>
+      <stop offset="1" stop-color="#00A9E6"/>
     </linearGradient>
+    <radialGradient id="tgSheen" gradientUnits="userSpaceOnUse" cx="48" cy="20" r="126">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="tgDeep" gradientUnits="userSpaceOnUse" cx="176" cy="194" r="112">
+      <stop offset="0" stop-color="#00A2DC" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#00A2DC" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="200" height="200" rx="44" fill="url(#trustguardTileGrad)"/>
-  <path d="M100 40 C100 40 63 53 63 53 C56 55.5 51 61 51 68.5 L51 111 C51 141 70 160 100 173 C130 160 149 141 149 111 L149 68.5 C149 61 144 55.5 137 53 C137 53 100 40 100 40 Z" fill="#FFFFFF"/>
-  <path d="M71 108 L92 130 L133 80" fill="none" stroke="#5B21B6" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="200" height="200" rx="44" fill="url(#tgTile)"/>
+  <rect width="200" height="200" rx="44" fill="url(#tgDeep)"/>
+  <rect width="200" height="200" rx="44" fill="url(#tgSheen)"/>
+  <rect x="0.9" y="0.9" width="198.2" height="198.2" rx="43.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.45" stroke-width="1.8"/>
+  <path d="M100 33 L145 49.5 Q152 52.2 152 58.6 L152 108 C152 140 128 161 100 173 C72 161 48 140 48 108 L48 58.6 Q48 52.2 55 49.5 Z" fill="#FFFFFF"/>
+  <path d="M72 102 L93 124 L131 78" fill="none" stroke="url(#tgTile)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

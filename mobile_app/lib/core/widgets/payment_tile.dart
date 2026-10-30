@@ -5,6 +5,7 @@ import '../models/payment.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_dimens.dart';
 import '../utils/formatters.dart';
+import 'glass/glass_card.dart';
 import 'status_badge.dart';
 
 class PaymentTile extends StatelessWidget {
@@ -29,64 +30,67 @@ class PaymentTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final muted = Theme.of(context).textTheme.bodySmall?.color;
-    final color = AppColors.forStatus(payment.status.label);
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          child: Row(
+    final onDark = GlassInk.surfaceIsDark(context, GlassTone.light);
+    final muted = GlassInk.muted(context, GlassTone.light);
+    final statusColor = AppColors.forStatus(payment.status.label);
+    return GlassCard(
+      tone: GlassTone.light,
+      blur: AppBlur.medium,
+      borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xl)),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.12),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              _icon,
+              color: AppColors.legibleHue(statusColor, onDark: onDark),
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  payment.policyName,
+                  style: Theme.of(context).textTheme.titleSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  payment.status == PaymentStatus.paid
+                      ? l10n.tr('policy.paidOn', {
+                          'date': l10n.formatDate(payment.paidDate!),
+                        })
+                      : '${l10n.daysUntil(payment.dueDate)} · ${l10n.formatDate(payment.dueDate)}',
+                  style: TextStyle(color: muted, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(_icon, color: color, size: 20),
+              Text(
+                AppFormatters.currency(payment.amount),
+                style: Theme.of(context).textTheme.titleSmall,
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      payment.policyName,
-                      style: Theme.of(context).textTheme.titleSmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      payment.status == PaymentStatus.paid
-                          ? l10n.tr('policy.paidOn', {
-                              'date': l10n.formatDate(payment.paidDate!),
-                            })
-                          : '${l10n.daysUntil(payment.dueDate)} · ${l10n.formatDate(payment.dueDate)}',
-                      style: TextStyle(color: muted, fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    AppFormatters.currency(payment.amount),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 4),
-                  StatusBadge(
-                    label: l10n.paymentStatus(payment.status),
-                    color: color,
-                  ),
-                ],
+              const SizedBox(height: 4),
+              StatusBadge(
+                label: l10n.paymentStatus(payment.status),
+                color: statusColor,
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

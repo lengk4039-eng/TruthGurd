@@ -76,7 +76,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         ),
                         child: Icon(
                           package.category.icon,
-                          color: AppColors.primary,
+                          color: AppColors.brandInk,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
